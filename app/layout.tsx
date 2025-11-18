@@ -21,7 +21,6 @@ const navigationLinks: Navbar03NavItem[] = [
   {
     href:"/",
     label:"Home",
-    active: true,
   },
   {
     href:"/about",

@@ -18,7 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 import Image from 'next/image'
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
@@ -140,6 +140,9 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
       }
     }, [ref]);
     const router = useRouter();
+    const pathname = usePathname().split("/").slice(0,2).join("/");
+
+
     /**
      * Redirects user to page based on menu item clicked.
      * @param e
@@ -180,19 +183,21 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                 <PopoverContent align="start" className="w-64 p-1">
                   <NavigationMenu className="max-w-none">
                     <NavigationMenuList className="flex-col items-start gap-0">
-                      {navigationLinks.map((link, index) => (
+                      {navigationLinks.map((link, index) => {
+                        const active = link.href === pathname ? true : null;
+                        return(
                         <NavigationMenuItem key={index} className="w-full">
                           <button
                             onClick={(e) => handleMenuItemClicked(e, link.href)}
                             className={cn(
-                              'flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline',
-                              link.active && 'bg-accent text-accent-foreground'
+                              'flex w-full items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent/50 focus-visible:text-accent-foreground cursor-pointer no-underline',
+                              // active && 'bg-/accent/50 text-accent-foreground'
                             )}
                           >
                             {link.label}
                           </button>
                         </NavigationMenuItem>
-                      ))}
+                      )})}
                     </NavigationMenuList>
                   </NavigationMenu>
                 </PopoverContent>
@@ -214,22 +219,28 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
             {!isMobile && (
                 <NavigationMenu className="flex">
                   <NavigationMenuList className="gap-1">
-                    {navigationLinks.map((link, index) => (
+                    {navigationLinks.map((link, index) => {
+                      let active = null;
+                      if (pathname === link.href){
+                        active = true
+                      }
+                      return (
+
                         <NavigationMenuItem key={index}>
                           <NavigationMenuLink
                               href={link.href}
                               onClick={(e) => handleMenuItemClicked(e, link.href)}
                               className={cn(
-                                  'group inline-flex h-10 w-max items-center justify-center bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 cursor-pointer relative',
-                                  'before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:scale-x-0 before:transition-transform before:duration-300 hover:before:scale-x-100',
-                                  link.active && 'before:scale-x-100 text-primary'
+                                  "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:!text-black focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground flex-col gap-1 p-2 outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4 group inline-flex h-10 w-max items-center justify-center bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50  cursor-pointer relative before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:transition-transform before:duration-300 before:scale-x-100 " +
+                                  'before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:scale-x-0 before:transition-transform before:duration-300',
+
                               )}
-                              data-active={link.active}
+                              data-active={active}
                           >
                             {link.label}
                           </NavigationMenuLink>
                         </NavigationMenuItem>
-                    ))}
+                    )})}
                   </NavigationMenuList>
                 </NavigationMenu>
             )}
