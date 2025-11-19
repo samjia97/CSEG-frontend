@@ -1,6 +1,11 @@
 import {SimpleStrapiImage} from "@/types/strapi-global-types";
 import {api} from "@/lib/api";
-
+type HomepageCardData = {
+  text: string;
+  image: SimpleStrapiImage;
+  buttonText: string;
+  buttonHref: string;
+}
 /**
  * Refined homepage data
  */
@@ -10,11 +15,14 @@ type HomepageData = {
   ResearchProjectsCardText: string;
   AboutUsCardText: string;
   JoinUsCardText: string;
+  ContactUsCardText: string;
   HeroImage: SimpleStrapiImage;
   PublicationsCardImage: SimpleStrapiImage;
   ResearchProjectsCardImage: SimpleStrapiImage;
   AboutUsCardImage: SimpleStrapiImage;
   JoinUsCardImage: SimpleStrapiImage;
+  ContactUsCardImage: SimpleStrapiImage;
+  // cardData
 }
 export async function getHomepage(){
   try {
@@ -26,6 +34,7 @@ export async function getHomepage(){
       ResearchProjectsCardText: data.ResearchProjectsCardText,
       AboutUsCardText: data.AboutUsCardText,
       JoinUsCardText: data.JoinUsCardText,
+      ContactUsCardText: data.ContactUsCardText,
       HeroImage: {
         url: data.HeroImage.url,
         alternativeText: data.HeroImage.alternativeText,
@@ -51,6 +60,11 @@ export async function getHomepage(){
         alternativeText: data.JoinUsCardImage.alternativeText,
         id: data.JoinUsCardImage.id,
       },
+      ContactUsCardImage: {
+        url: data.ContactUsCardImage.url,
+        alternativeText: data.ContactUsCardImage.alternativeText,
+        id: data.ContactUsCardImage.id,
+      }
     }
     return result;
   } catch (e) {
