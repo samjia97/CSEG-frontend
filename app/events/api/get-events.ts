@@ -11,7 +11,6 @@ export type EventCardData = {
   location: string;
   speaker: string;
   summary: string;
-  eventCategories: string[];
   eventType: string;
   id: number;
 }
@@ -42,13 +41,12 @@ export async function getEvents() {
       const [year, month, day] = eventItem.eventDate.split('T')[0].split('-').map(Number);
       const [startHour, startMinute] = eventItem.eventStartTime.split(":").map(Number);
       const [endHour, endMinute] = eventItem.eventEndTime.split(":").map(Number);
-      const eventCategories = eventItem.event_categories.map((item: any)=> item.EventCategoryName);
 
       allEvents.push(
           {
             id: eventItem.id,
             title: eventItem.title,
-            slug: getSlug(eventItem.title),
+            slug: getSlug(eventItem.title, eventItem.documentId),
             eventStartDateTime: new Date(year, month - 1, day, startHour, startMinute),
             eventEndDateTime: new Date(year, month - 1, day, endHour, endMinute),
             eventStartString: eventItem.eventStartTime.toString().substring(0,5),
@@ -56,7 +54,6 @@ export async function getEvents() {
             location: eventItem.location,
             speaker: eventItem.speaker,
             summary: eventItem.summary,
-            eventCategories: eventCategories,
             eventType: eventItem.event_type.EventType,
           }
       )

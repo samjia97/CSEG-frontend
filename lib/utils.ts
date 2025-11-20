@@ -11,12 +11,13 @@ export function cn(...inputs: ClassValue[]) {
  * 2. Replace whitespace with -. Note the global flag comes after closing the escape /
  * 3. Replace groups of at least one - --- with just one -
  * @param title
+ * @param documentId
  */
-export function getSlug(title: string) {
+export function getSlug(title: string, documentId: string) {
   return title
   .toLowerCase()
   .trim()
   .replace(/[^\w\s-]/g,'')
   .replace(/\s+/g,"-")
-  .replace(/-+/g,'-')
+  .replace(/-+/g,'-') + '-' + documentId
 }
