@@ -12,6 +12,7 @@ export type EventCardData = {
   speaker: string;
   summary: string;
   eventCategories: string[];
+  eventType: string;
   id: number;
 }
 
@@ -56,6 +57,7 @@ export async function getEvents() {
             speaker: eventItem.speaker,
             summary: eventItem.summary,
             eventCategories: eventCategories,
+            eventType: eventItem.event_type.EventType,
           }
       )
     }

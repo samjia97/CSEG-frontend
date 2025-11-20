@@ -65,7 +65,9 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
         const endTimeString = item.eventEndString
         return (
               <div key={item.id} className={"drop-shadow-md shadow bg-neutral-100 px-4"}>
-                <Link href={`/events/${item.slug}`} className={"text-primary text-xl underline"}>{item.title}</Link>
+                <Link href={`/events/${item.slug}`} className={"text-xl"}>
+                  <span className={"text-accent no-underline"}>[{item.eventType}]</span> <span className={"text-primary underline"}>{item.title}</span>
+                </Link>
                 <div className={"grid grid-cols-[80px_1fr] text-lg"}>
                   <strong>Date</strong><p className={"inline"}>{`${dateString}  ${startTimeString}-${endTimeString}`}</p>
                   <strong>Location</strong><p className={"inline"}>{item.location}</p>
