@@ -73,7 +73,7 @@ export default function RootLayout({
           />
       </nav>
         {children}
-      <footer className={"h-[264px] bg-neutral-800 px-10 py-4"}>
+      <footer className={"h-[264px] bg-neutral-800 px-10 py-4 mt-8"}>
         <p className={"text-white text-xl font-bold"}>Computer Science Education Group</p>
         <div className={"grid grid-cols-3 pt-4 px-4 w-2xl"}>
           <div className={"flex flex-col gap-2"}>

@@ -1,8 +1,43 @@
 import React from 'react'
+import {EventCardData, getEvents} from "@/app/events/api/get-events";
+import {InteractiveEvents} from "@/app/events/interactiveEvents";
+import {
+  Breadcrumb,
+  BreadcrumbItem, BreadcrumbLink,
+  BreadcrumbList, BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 
-function EventsPage() {
+
+async function EventsPage() {
+  const allEvents = await getEvents();
+  // const allEvents: EventCardData[] = [];
+  console.log(allEvents)
   return (
-      <div>EventsPage</div>
+      <main className={"min-h-screen pt-4 bg-neutral-50 px-4"}>
+        <Breadcrumb className={"bg-neutral-200 px-8 absolute"}>
+          <BreadcrumbList className={"text-lg"}>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Events</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <div className={"flex flex-col text-center"}>
+          <h1 className={"text-5xl mb-4"}>Events</h1>
+          <p>Our events are open all organisers, members, associate members of the CSE Group, and
+            also other staff from the University of Edinburgh</p>
+
+        </div>
+        <div className={"flex justify-center"}>
+
+          <InteractiveEvents allEvents={allEvents}/>
+        </div>
+
+      </main>
   )
 }
 
