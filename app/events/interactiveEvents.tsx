@@ -4,6 +4,7 @@ import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {Label} from "@/components/ui/label";
 import React, {useState} from "react";
 import Link from "next/link";
+import {formatDate} from "@/lib/formatters";
 
 type InteractiveEventsProps = {
   allEvents: EventCardData[];
@@ -56,11 +57,7 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
       </div>}
 
       {filterEvents.map((item) => {
-        const dateString = new Intl.DateTimeFormat('en-GB', {
-          year:'numeric',
-          month:'long',
-          day:'numeric'
-        }).format(item.eventStartDateTime);
+        const dateString = formatDate(item.eventStartDateTime);
         const startTimeString = item.eventStartString
         const endTimeString = item.eventEndString
         return (

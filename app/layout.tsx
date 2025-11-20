@@ -33,7 +33,7 @@ const navigationLinks: Navbar03NavItem[] = [
     label:"Events",
   },
   {
-    href:"/research_projects",
+    href:"/research",
     label:"Research Projects",
   },
   {
@@ -68,8 +68,6 @@ export default function RootLayout({
           <Navbar03
               logoHref={"/"}
               navigationLinks={navigationLinks}
-
-
           />
       </nav>
         {children}

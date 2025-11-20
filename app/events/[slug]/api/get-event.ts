@@ -1,4 +1,5 @@
 import {api} from "@/lib/api";
+import {BlocksContent} from "@strapi/blocks-react-renderer";
 
 
 /**
@@ -12,7 +13,7 @@ export type EventPageData = {
   location: string;
   speaker: string;
   eventType: string;
-  eventPage: object[];
+  eventPage: BlocksContent;
 }
 
 /**
