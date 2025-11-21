@@ -1,5 +1,6 @@
 import {SimpleStrapiImage} from "@/types/strapi-global-types";
 import {api} from "@/lib/api";
+import {BlocksContent} from "@strapi/blocks-react-renderer";
 type HomepageCardData = {
   text: string;
   image: SimpleStrapiImage;
@@ -10,7 +11,7 @@ type HomepageCardData = {
  * Refined homepage data
  */
 type HomepageData = {
-  HeroText: object;
+  HeroText: BlocksContent;
   PublicationsCardText: string;
   ResearchProjectsCardText: string;
   AboutUsCardText: string;

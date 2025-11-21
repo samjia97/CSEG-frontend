@@ -10,10 +10,11 @@ import {
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import React from "react";
-import {BlocksContent, BlocksRenderer} from "@strapi/blocks-react-renderer";
+import {BlocksRenderer} from "@strapi/blocks-react-renderer";
 import ShareButtons from "@/app/events/[slug]/share-buttons";
 import {baseURL} from "@/lib/api";
 import {formatDate} from "@/lib/formatters";
+import {getDocumentIdFromSlug} from "@/lib/utils";
 
 export default async function Page({
                                      params,
@@ -21,7 +22,9 @@ export default async function Page({
   params: Promise<{ slug: string }>
 }) {
   const {slug} = await params;
-  const documentId = slug.substring(slug.lastIndexOf('-') + 1);
+
+
+  const documentId = getDocumentIdFromSlug(slug);
 
   const eventData = await getEvent(documentId);
   if (!eventData) {
@@ -65,8 +68,8 @@ export default async function Page({
     </div>
 
     <article className={"flex flex-col items-center gap-2  max-w-[1168px]"}>
-      <h2 className={"text-2xl"}><span className={"text-accent"}>[{eventData.eventType}]</span>
-        <span>{eventData.title}</span></h2>
+      <h1 className={"text-2xl"}><span className={"text-accent"}>[{eventData.eventType}]</span>
+        <span>{eventData.title}</span></h1>
       <hr className={"h-3 w-full bg-primary"}/>
       <div className={"grid grid-cols-[1fr_320px] gap-2"}>
         <div className={"bg-white border-r-2 p-4"}>

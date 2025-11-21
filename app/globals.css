@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -43,7 +42,7 @@
 }
 
 :root {
-  --background: oklch(0.9612 0 0);
+  --background: oklch(98.5 0 0);
   --foreground: oklch(0.1777 0.1097 265.3180);
   --card: oklch(1.0000 0 0);
   --card-foreground: oklch(0.1777 0.1097 265.3180);
@@ -238,6 +237,22 @@
 }
 
 @layer base {
+  h1 {
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+  }
+  h2 {
+    font-size: var(--text-3xl);
+    line-height: var(--leading-tight);
+  }
+  h3 {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+  }
+  h4 {
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+  }
   * {
     @apply border-border outline-ring/50;
   }

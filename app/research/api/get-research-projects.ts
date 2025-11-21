@@ -15,9 +15,7 @@ export type ResearchProject = {
   ongoingProject: boolean;
   projectEndDate: Date | null; // ISO 8601 date or null if ongoing
   primaryInvestigatorEmail: string;
-  secondaryInvestigatorEmail?: string;
-  projectPageCoverImage: unknown | null;
-
+  coInvestigatorEmail: string | null;
 }
 
 /**
@@ -44,8 +42,7 @@ export async function getResearchProjects(): Promise<ResearchProject[] | null> {
         ongoingProject: project.ongoingProject,
         projectEndDate: project.projectEndDate === null ? null : strapiDateToDate(project.projectEndDate),
         primaryInvestigatorEmail: project.primaryInvestigatorEmail,
-        secondaryInvestigatorEmail: project.secondaryInvestigatorEmail,
-        projectPageCoverImage: project.projectPageCoverImage,
+        coInvestigatorEmail: project.secondaryInvestigatorEmail,
       });
     }
     return researchProjects

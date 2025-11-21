@@ -1,4 +1,4 @@
-import {clsx, type ClassValue} from "clsx"
+import {type ClassValue, clsx} from "clsx"
 import {twMerge} from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -40,4 +40,12 @@ export function strapiDateToDate(dateString: string): Date {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, second);
   }
   throw new Error(`Invalid date string format: ${dateString}`);
+}
+
+/**
+ * When viewing a document page, extract the documentId from the slug
+ * @param slug
+ */
+export function getDocumentIdFromSlug(slug: string) {
+  return slug.substring(slug.lastIndexOf('-') + 1);
 }

@@ -49,7 +49,6 @@ export default async function Home() {
       <p>Sorry, we are experiencing technical issues. Please come back later</p>
     </div>)
   }
-  console.debug(homepageData.HeroText);
 
   return (
       <>
