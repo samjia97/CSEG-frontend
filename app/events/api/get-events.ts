@@ -1,5 +1,6 @@
 import {api} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
+import {getEventTags} from "@/app/events/event-utils";
 
 export type EventCardData = {
   title: string;
@@ -13,6 +14,7 @@ export type EventCardData = {
   summary: string;
   eventType: string;
   id: number;
+  eventTags: string[];
 }
 
 const fieldsToGet = 'fields[0]=title' +
@@ -41,6 +43,7 @@ export async function getEvents() {
       const [year, month, day] = eventItem.eventDate.split('T')[0].split('-').map(Number);
       const [startHour, startMinute] = eventItem.eventStartTime.split(":").map(Number);
       const [endHour, endMinute] = eventItem.eventEndTime.split(":").map(Number);
+      const eventTags = getEventTags(eventItem);
 
       allEvents.push(
           {
@@ -55,6 +58,7 @@ export async function getEvents() {
             speaker: eventItem.speaker,
             summary: eventItem.summary,
             eventType: eventItem.event_type.EventType,
+            eventTags: eventTags,
           }
       )
     }

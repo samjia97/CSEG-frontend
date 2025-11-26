@@ -15,6 +15,7 @@ import ShareButtons from "@/app/events/[slug]/share-buttons";
 import {baseURL} from "@/lib/api";
 import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
+import {Badge} from "@/components/ui/badge";
 
 export default async function Page({
                                      params,
@@ -67,11 +68,11 @@ export default async function Page({
       </Breadcrumb>
     </div>
 
-    <article className={"flex flex-col items-center gap-2  max-w-[1168px]"}>
-      <h1 className={"text-2xl"}><span className={"text-accent"}>[{eventData.eventType}]</span>
+    <article className={"flex flex-col items-center gap-2  max-w-[1320px]"}>
+      <h1 className={"text-2xl"}><span className={"text-accent"}>[{eventData.eventType}] </span>
         <span>{eventData.title}</span></h1>
       <hr className={"h-3 w-full bg-primary"}/>
-      <div className={"grid grid-cols-[1fr_320px] gap-2"}>
+      <div className={"grid grid-cols-[1fr_340px] gap-2"}>
         <div className={"bg-white border-r-2 p-4"}>
           <BlocksRenderer content={eventData.eventPage}/>
         </div>
@@ -82,7 +83,9 @@ export default async function Page({
               className={"inline"}>{`${startTimeString} - ${endTimeString}`}</p>
             <strong>Location</strong><p className={"inline"}>{eventData.location}</p>
             <strong>Speaker</strong><p className={"inline"}>{eventData.speaker}</p>
-            <strong>Topics</strong><p className={"inline"}>PLACEHOLDER</p>
+            <strong>Topics</strong><div className={"flex gap-2 flex-wrap"}>
+            {eventData.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+          </div>
           </div>
           <ShareButtons url={`${baseURL}events/${slug}`}/>
         </div>
