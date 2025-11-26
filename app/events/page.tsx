@@ -13,8 +13,8 @@ async function EventsPage() {
   const allEvents = await getEvents();
   // const allEvents: EventCardData[] = [];
   return (
-      <main className={"min-h-screen pt-4 bg-neutral-50 px-4"}>
-        <Breadcrumb className={"bg-neutral-200 px-8 absolute"}>
+      <main className={"min-h-screen pt-2 bg-neutral-50 px-4"}>
+        <Breadcrumb className={"bg-neutral-200 px-8 w-fit"}>
           <BreadcrumbList className={"text-lg"}>
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>

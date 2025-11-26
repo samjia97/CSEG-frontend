@@ -147,16 +147,20 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
                           <strong>Speaker</strong><p className={"inline"}>{item.speaker}</p>
                         </div>
                         <p>{item.summary}</p>
-                        {/*  Event tags */}
-                        <div className={"flex gap-2"}>
+                        <div className={"grid grid-cols-[80px_1fr] mt-2"}>
+                          {/*Topics */}
                           <strong className={"mr-2"}>Topics </strong>
-                          {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                          <div className={"flex gap-2"}>
+                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                          </div>
+                          {/*Event tags*/}
+                          <strong className={"w-[80px]"}>Open to </strong>
+                          {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
+                          {/*  Event tags */}
+                          <div className={"flex gap-2"}>
+                          </div>
+                          {/*  Open to*/}
                         </div>
-                      {/*  Open to*/}
-                      <div className={"flex gap-2"}>
-                        <strong className={"mr-2"}>Open to </strong>
-                        {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
-                      </div>
                       </div>)
                 }
             )}
