@@ -16,6 +16,8 @@ export type EventPageData = {
   eventType: string;
   eventPage: BlocksContent;
   eventTags: string[];
+  publicEvent: boolean;
+  openTo: string[];
 }
 
 /**
@@ -26,6 +28,7 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
     const res = await api.get("/events/" + documentId + "?populate=*");
     const eventData = res.data.data;
     const eventTags = getEventTags(eventData);
+    const openTo = eventData.open_to.map((item: { membershipName: string; }) => item.membershipName);
     return {
       title: eventData.title,
       eventDate: new Date(eventData.eventDate),
@@ -36,6 +39,8 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
       eventType: eventData.event_type.EventType,
       eventPage: eventData.eventPage,
       eventTags: eventTags,
+      publicEvent: eventData.publicEvent,
+      openTo: openTo,
     } as EventPageData;
   } catch (error) {
     console.error("Error fetching event:", error);

@@ -83,9 +83,14 @@ export default async function Page({
               className={"inline"}>{`${startTimeString} - ${endTimeString}`}</p>
             <strong>Location</strong><p className={"inline"}>{eventData.location}</p>
             <strong>Speaker</strong><p className={"inline"}>{eventData.speaker}</p>
-            <strong>Topics</strong><div className={"flex gap-2 flex-wrap"}>
-            {eventData.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-          </div>
+            <strong>Topics</strong>
+            <div className={"flex gap-2 flex-wrap"}>
+              {eventData.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+            </div>
+            <strong>Open to</strong>
+            <div className={"flex gap-2 flex-wrap"}>
+              {eventData.publicEvent ? "Public" : eventData.openTo.join(", ") + " only"}
+            </div>
           </div>
           <ShareButtons url={`${baseURL}events/${slug}`}/>
         </div>

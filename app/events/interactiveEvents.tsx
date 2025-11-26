@@ -88,7 +88,7 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
-        <div className={"flex self-end gap-2"}><p>Sort by</p>
+        <div className={"flex self-end gap-2 items-center"}><p>Sort by</p>
           <DropdownMenu>
             <DropdownMenuTrigger asChild><Button variant="outline"
                                                  className={"flex px-2 w-[200px] items-center justify-start gap-1"}>
@@ -149,9 +149,14 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
                         <p>{item.summary}</p>
                         {/*  Event tags */}
                         <div className={"flex gap-2"}>
-                          <strong className={"text-lg mr-2"}>Topics </strong>
+                          <strong className={"mr-2"}>Topics </strong>
                           {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                         </div>
+                      {/*  Open to*/}
+                      <div className={"flex gap-2"}>
+                        <strong className={"mr-2"}>Open to </strong>
+                        {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
+                      </div>
                       </div>)
                 }
             )}

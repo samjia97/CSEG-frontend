@@ -15,6 +15,8 @@ export type EventCardData = {
   eventType: string;
   id: number;
   eventTags: string[];
+  publicEvent: boolean;
+  openTo: string[];
 }
 
 const fieldsToGet = 'fields[0]=title' +
@@ -25,6 +27,7 @@ const fieldsToGet = 'fields[0]=title' +
     '&fields[5]=summary' +
     '&fields[6]=eventStartTime' +
     '&fields[7]=eventEndTime' +
+    '&fields[8]=publicEvent' +
     '&populate=*' +
     '&sort=eventDate:desc'
 
@@ -44,6 +47,7 @@ export async function getEvents() {
       const [startHour, startMinute] = eventItem.eventStartTime.split(":").map(Number);
       const [endHour, endMinute] = eventItem.eventEndTime.split(":").map(Number);
       const eventTags = getEventTags(eventItem);
+      const openTo = eventItem.open_to.map((item: { membershipName: string; }) => item.membershipName);
 
       allEvents.push(
           {
@@ -59,9 +63,12 @@ export async function getEvents() {
             summary: eventItem.summary,
             eventType: eventItem.event_type.EventType,
             eventTags: eventTags,
+            publicEvent: eventItem.publicEvent,
+            openTo: openTo,
           }
       )
     }
+    // console.log(allEvents)
     return allEvents
   } catch (e) {
     console.error(e);
