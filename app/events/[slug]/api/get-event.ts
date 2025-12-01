@@ -37,7 +37,7 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
     const res = await api.get(`/events/${documentId}?${query}`);
     const eventData = res.data.data;
     const eventTags = getEventTags(eventData);
-    const openTo = eventData?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
+    const openTo = eventData.open_to.map((item: { membershipName: string; }) => item.membershipName);
     return {
       title: eventData?.title ?? "Untitled Event",
       eventDate: eventData?.eventDate ? new Date(eventData.eventDate) : new Date(),

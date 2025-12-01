@@ -141,27 +141,23 @@ export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
                             className={"text-primary underline"}>{item.title}</span>
                         </Link>
                         {/*Event metadata*/}
-                        <div className={"grid grid-cols-[80px_1fr] text-lg"}>
+                        <div className={"grid grid-cols-[80px_1fr]"}>
                           <strong>Date</strong><p
                             className={"inline"}>{`${dateString}  ${startTimeString}-${endTimeString}`}</p>
                           <strong>Location</strong><p className={"inline"}>{item.location}</p>
                           <strong>Speaker</strong><p className={"inline"}>{item.speaker}</p>
-                        </div>
-                        <p>{item.summary}</p>
-                        <div className={"grid grid-cols-[80px_1fr] mt-2"}>
-                          {/*Topics */}
-                          <strong className={"mr-2"}>Topics </strong>
-                          <div className={"flex gap-2"}>
-                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-                          </div>
-                          {/*Event tags*/}
+                          {/*Open to*/}
                           <strong className={"w-[80px]"}>Open to </strong>
                           {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
-                          {/*  Event tags */}
-                          <div className={"flex gap-2"}>
+                          {/*Topics */}
+                          <strong className={"pt-1"}>Topics </strong>
+                          <div className={"flex gap-2 pt-1"}>
+                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                           </div>
-                          {/*  Open to*/}
                         </div>
+                        <div className={"grid grid-cols-[80px_1fr] mt-2"}>
+                        </div>
+                        <p>{item.summary}</p>
                       </div>)
                 }
             )}

@@ -85,7 +85,7 @@ export async function getEvents() {
           }
       )
     }
-    // console.log(allEvents)
+    console.debug("Number of events: ", allEvents.length);
     return allEvents
   } catch (e) {
     console.error(e);
