@@ -1,6 +1,7 @@
 import {SimpleStrapiImage} from "@/types/strapi-global-types";
 import {api} from "@/lib/api";
 import {BlocksContent} from "@strapi/blocks-react-renderer";
+import qs from "qs";
 type HomepageCardData = {
   text: string;
   image: SimpleStrapiImage;
@@ -27,7 +28,15 @@ type HomepageData = {
 }
 export async function getHomepage(){
   try {
-    const res = await api.get("/home-page?populate=*");
+    const query = qs.stringify(
+      {
+        populate: '*',
+      },
+      {
+        encodeValuesOnly: true,
+      }
+    );
+    const res = await api.get(`/home-page?${query}`);
     const data = res.data.data?.attributes || res.data.data || res.data;
     const result: HomepageData = {
       HeroText: data.HeroText,

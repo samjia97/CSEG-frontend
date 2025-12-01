@@ -2,6 +2,7 @@ import {BlocksContent} from "@strapi/blocks-react-renderer";
 import {api} from "@/lib/api";
 import {strapiDateToDate} from "@/lib/utils";
 import {FullStrapiImage} from "@/types/strapi-global-types";
+import qs from "qs";
 
 export type ResearchProjectPageData = {
   title: string;
@@ -21,7 +22,15 @@ export type ResearchProjectPageData = {
  */
 export async function getResearchProject(documentId: string): Promise<ResearchProjectPageData | null> {
   try {
-    const res = await api.get("/research-projects/" + documentId + "?populate=*");
+    const query = qs.stringify(
+      {
+        populate: '*',
+      },
+      {
+        encodeValuesOnly: true,
+      }
+    );
+    const res = await api.get(`/research-projects/${documentId}?${query}`);
     const projectData = res.data.data;
     let coverImage: FullStrapiImage | null = null;
     if (projectData.projectPageCoverImage){

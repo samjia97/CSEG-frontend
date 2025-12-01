@@ -1,6 +1,7 @@
 import {api} from "@/lib/api";
 import {BlocksContent} from "@strapi/blocks-react-renderer";
 import {getEventTags} from "@/app/events/event-utils";
+import qs from "qs";
 
 
 /**
@@ -25,21 +26,29 @@ export type EventPageData = {
  */
 export async function getEvent(documentId: string):Promise<EventPageData | null> {
   try {
-    const res = await api.get("/events/" + documentId + "?populate=*");
+    const query = qs.stringify(
+      {
+        populate: '*',
+      },
+      {
+        encodeValuesOnly: true,
+      }
+    );
+    const res = await api.get(`/events/${documentId}?${query}`);
     const eventData = res.data.data;
     const eventTags = getEventTags(eventData);
-    const openTo = eventData.open_to.map((item: { membershipName: string; }) => item.membershipName);
+    const openTo = eventData?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
     return {
-      title: eventData.title,
-      eventDate: new Date(eventData.eventDate),
-      eventStartString: eventData.eventStartTime.toString().substring(0,5),
-      eventEndString: eventData.eventEndTime.toString().substring(0,5),
-      location: eventData.location,
-      speaker: eventData.speaker,
-      eventType: eventData.event_type.EventType,
-      eventPage: eventData.eventPage,
+      title: eventData?.title ?? "Untitled Event",
+      eventDate: eventData?.eventDate ? new Date(eventData.eventDate) : new Date(),
+      eventStartString: eventData?.eventStartTime?.toString().substring(0,5) ?? "00:00",
+      eventEndString: eventData?.eventEndTime?.toString().substring(0,5) ?? "23:59",
+      location: eventData?.location ?? "Location TBA",
+      speaker: eventData?.speaker ?? "Speaker TBA",
+      eventType: eventData?.event_type?.EventType ?? "Event",
+      eventPage: eventData?.eventPage ?? [],
       eventTags: eventTags,
-      publicEvent: eventData.publicEvent,
+      publicEvent: eventData?.publicEvent ?? false,
       openTo: openTo,
     } as EventPageData;
   } catch (error) {

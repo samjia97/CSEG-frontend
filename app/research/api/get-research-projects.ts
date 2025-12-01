@@ -1,5 +1,6 @@
 import {api} from "@/lib/api";
 import {getSlug, strapiDateToDate} from "@/lib/utils";
+import qs from "qs";
 
 export type ResearchProject = {
   id: number;
@@ -24,7 +25,16 @@ export type ResearchProject = {
  */
 export async function getResearchProjects(): Promise<ResearchProject[] | null> {
   try {
-    const res = await api.get("/research-projects?populate=*&sort=projectStartDate:desc");
+    const query = qs.stringify(
+      {
+        populate: '*',
+        sort: ['projectStartDate:desc']
+      },
+      {
+        encodeValuesOnly: true,
+      }
+    );
+    const res = await api.get(`/research-projects?${query}`);
     const researchProjectsData = res.data.data;
     const researchProjects: ResearchProject[] = [];
     for (const project of researchProjectsData) {

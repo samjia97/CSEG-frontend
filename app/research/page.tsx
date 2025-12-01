@@ -14,7 +14,7 @@ import LearnMore from "@/app/research/learn-more";
 
 function ResearchPageHeader() {
   return <>
-    <Breadcrumb className={"bg-neutral-200 px-8"}>
+    <Breadcrumb className={"bg-neutral-200 px-8 w-fit"}>
       <BreadcrumbList className={"text-lg"}>
         <BreadcrumbItem>
           <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -25,7 +25,7 @@ function ResearchPageHeader() {
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
-    <div className={"flex flex-col text-center mt-4 px-4"}>
+    <div className={"flex flex-col text-center px-4"}>
       <h1 className={"text-5xl mb-4"}>Research projects</h1>
       <p>Explore our research projects in the field of Computer Science Education. Created from
         collaboration between multiple CSEG members.</p>
@@ -56,7 +56,6 @@ async function ResearchProjectsPage() {
         <div className={"flex justify-center px-4"}>
           <div className={"flex flex-col w-full max-w-7xl items-left mt-8 gap-8"}>
             {researchProjects.map(project => {
-
               return (
                   <article key={project.documentId} className={"bg-neutral-100 pb-2"}>
                     <div className={"bg-secondary p-2"}>

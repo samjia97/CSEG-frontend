@@ -79,7 +79,7 @@ export default function RootLayout({
             <Link href={"/about"} className={"text-primary text-lg"}>About us</Link>
             <Link href={"/events"} className={"text-primary text-lg"}>Events</Link>
             <Link href={"/publications"} className={"text-primary text-lg"}>Publications</Link>
-            <Link href={"/research_projects"} className={"text-primary text-lg"}>Research Projects</Link>
+            <Link href={"/research"} className={"text-primary text-lg"}>Research Projects</Link>
           </div>
           <div className={"flex flex-col gap-2 w-fit"}>
             <Button asChild>

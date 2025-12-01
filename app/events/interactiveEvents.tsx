@@ -2,16 +2,17 @@
 import {EventCardData} from "@/app/events/api/get-events";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {Label} from "@/components/ui/label";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import Link from "next/link";
 import {formatDate} from "@/lib/formatters";
 import {
   DropdownMenu,
-  DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {Button} from "@/components/ui/button";
-import {ChevronRight, ChevronUp} from "lucide-react";
+import {ChevronRight} from "lucide-react";
 import {Badge} from "@/components/ui/badge";
 
 type InteractiveEventsProps = {
