@@ -4,8 +4,6 @@
  * @returns Formatted date string (e.g., "20 November 2025")
  */
 export function formatDate(date: Date): string {
-  console.log('Formatting date:', date);
-
   return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
     month: 'long',

@@ -1,8 +1,8 @@
 "use client"
-import {EventCardData} from "@/app/events/api/get-events";
+import {EventCardData, EventFilterParams, getEvents} from "@/app/events/api/get-events";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {Label} from "@/components/ui/label";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Link from "next/link";
 import {formatDate} from "@/lib/formatters";
 import {
@@ -14,6 +14,7 @@ import {
 import {Button} from "@/components/ui/button";
 import {ChevronRight} from "lucide-react";
 import {Badge} from "@/components/ui/badge";
+
 
 type InteractiveEventsProps = {
   allEvents: EventCardData[];
@@ -46,90 +47,109 @@ const NoEventsPage = () => {
   )
 }
 
+export type FilterPanelProps = {
+  filters: EventFilterParams
+  setFilters: React.Dispatch<EventFilterParams>
+}
+
+function FilterPanel() {
+  return <div
+      className={"flex flex-col bg-secondary rounded-md  px-2 py-3 text-secondary-foreground min-h-[600px] h-full"}>
+    <h3 className={"text-xl "}>Filter by</h3>
+    <h4 className={"text-lg "}>Time period</h4>
+    <hr/>
+    <RadioGroup defaultValue="UPCOMING" className={"mt-2"}
+    >
+      <div className="flex items-center space-x-2">
+        <RadioGroupItem value="UPCOMING" id="UPCOMING"/>
+        <Label htmlFor="UPCOMING">Upcoming events</Label>
+      </div>
+      <div className="flex items-center space-x-2">
+        <RadioGroupItem value="PAST" id="PAST"/>
+        <Label htmlFor="PAST">Past events</Label>
+      </div>
+      <div className="flex items-center space-x-2">
+        <RadioGroupItem value="ALL" id="ALL"/>
+        <Label htmlFor="ALL">All events</Label>
+      </div>
+    </RadioGroup>
+
+  </div>;
+}
 
 /**
  * A client component for filtering and ordering events
- * @param allEvents
  * @constructor
  */
-export function InteractiveEvents({allEvents}: InteractiveEventsProps) {
-  const [filterEvents, setFilteredEvents] = useState(allEvents.filter(value => value.eventEndDateTime >= new Date()));
-  const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.NEWEST_TO_OLDEST);
-  const handleTimePeriodChange = (newValue: string) => {
-    let newEvents = allEvents;
-    if (newValue === 'UPCOMING') {
-      newEvents = allEvents.filter(value => value.eventEndDateTime >= new Date());
-    } else if (newValue === "PAST") {
-      newEvents = allEvents.filter(value => value.eventEndDateTime < new Date());
+export function InteractiveEvents() {
+  // const filterEvents = await getEvents();
+  const [filters, setFilters] = useState<EventFilterParams>({
+    filters: {
+      eventDate: {
+        // $gte: new Date().toISOString()
+      }
     }
-    setFilteredEvents(newEvents);
-  }
+  });
+  const [events, setEvents] = useState<EventCardData[]>([]);
+  useEffect(() => {
+    getEvents(filters).then(r => setEvents(r))
+  }, [filters]);
+// const [filterEvents, setFilteredEvents] = useState(allEvents.filter(value => value.eventEndDateTime >= new Date()));
+  // const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.NEWEST_TO_OLDEST);
+  // const handleTimePeriodChange = (newValue: string) => {
+  //   let newEvents = allEvents;
+  //   if (newValue === 'UPCOMING') {
+  //     newEvents = allEvents.filter(value => value.eventEndDateTime >= new Date());
+  //   } else if (newValue === "PAST") {
+  //     newEvents = allEvents.filter(value => value.eventEndDateTime < new Date());
+  //   }
+  //   setFilteredEvents(newEvents);
+  // }
   /**
    * Sorts events based on selected sortBy option
    */
-  const sortEvents = (newSortBy: SortByOptions) => {
-    const sortedEvents = [...filterEvents];
-    switch (newSortBy) {
-      case SortByOptions.NEWEST_TO_OLDEST:
-        sortedEvents.sort((a, b) => a.eventStartDateTime.getTime() - b.eventStartDateTime.getTime());
-        break;
-      case SortByOptions.OLDEST_TO_NEWEST:
-        sortedEvents.sort((a, b) => b.eventStartDateTime.getTime() - a.eventStartDateTime.getTime());
-        break;
-      case SortByOptions.TITLE_AZ:
-        sortedEvents.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case SortByOptions.TITLE_ZA:
-        sortedEvents.sort((a, b) => b.title.localeCompare(a.title));
-        break;
-    }
-    setSortBy(newSortBy);
-    setFilteredEvents(sortedEvents);
-  }
+  // const sortEvents = (newSortBy: SortByOptions) => {
+  //   const sortedEvents = [...filterEvents];
+  //   switch (newSortBy) {
+  //     case SortByOptions.NEWEST_TO_OLDEST:
+  //       sortedEvents.sort((a, b) => a.eventStartDateTime.getTime() - b.eventStartDateTime.getTime());
+  //       break;
+  //     case SortByOptions.OLDEST_TO_NEWEST:
+  //       sortedEvents.sort((a, b) => b.eventStartDateTime.getTime() - a.eventStartDateTime.getTime());
+  //       break;
+  //     case SortByOptions.TITLE_AZ:
+  //       sortedEvents.sort((a, b) => a.title.localeCompare(b.title));
+  //       break;
+  //     case SortByOptions.TITLE_ZA:
+  //       sortedEvents.sort((a, b) => b.title.localeCompare(a.title));
+  //       break;
+  //   }
+  //   setSortBy(newSortBy);
+  //   setFilteredEvents(sortedEvents);
+  // }
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
         <div className={"flex self-end gap-2 items-center"}><p>Sort by</p>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild><Button variant="outline"
-                                                 className={"flex px-2 w-[200px] items-center justify-start gap-1"}>
-              <ChevronRight className="h-4 w-4"/>{sortBy}
-            </Button></DropdownMenuTrigger>
-            <DropdownMenuContent className={"w-[200px]"}>
-              {/* Display unselected sortBy options. Note Object.values works on any object */}
-              {Object.values(SortByOptions).map((sortByOption) => (sortByOption !== sortBy &&
-                  <DropdownMenuItem key={sortByOption}
-                                    onClick={() => sortEvents(sortByOption)}>{sortByOption}</DropdownMenuItem>))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/*<DropdownMenu>*/}
+          {/*  <DropdownMenuTrigger asChild><Button variant="outline"*/}
+          {/*                                       className={"flex px-2 w-[200px] items-center justify-start gap-1"}>*/}
+          {/*    <ChevronRight className="h-4 w-4"/>{sortBy}*/}
+          {/*  </Button></DropdownMenuTrigger>*/}
+          {/*  <DropdownMenuContent className={"w-[200px]"}>*/}
+          {/*    /!* Display unselected sortBy options. Note Object.values works on any object *!/*/}
+          {/*    {Object.values(SortByOptions).map((sortByOption) => (sortByOption !== sortBy &&*/}
+          {/*        <DropdownMenuItem key={sortByOption}*/}
+          {/*                          onClick={() => sortEvents(sortByOption)}>{sortByOption}</DropdownMenuItem>))}*/}
+          {/*  </DropdownMenuContent>*/}
+          {/*</DropdownMenu>*/}
         </div>
         <div className={"grid grid-cols-[200px_1fr] w-full gap-4"}>
-          <div
-              className={"flex flex-col bg-secondary rounded-md  px-2 py-3 text-secondary-foreground min-h-[600px] h-full"}>
-            <h3 className={"text-xl "}>Filter by</h3>
-            <h4 className={"text-lg "}>Time period</h4>
-            <hr/>
-            <RadioGroup defaultValue="UPCOMING" className={"mt-2"}
-                        onValueChange={handleTimePeriodChange}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="UPCOMING" id="UPCOMING"/>
-                <Label htmlFor="UPCOMING">Upcoming events</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="PAST" id="PAST"/>
-                <Label htmlFor="PAST">Past events</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="ALL" id="ALL"/>
-                <Label htmlFor="ALL">All events</Label>
-              </div>
-            </RadioGroup>
-
-          </div>
+          <FilterPanel/>
           <div className={"flex flex-col  gap-4 w-full "}>
-            {filterEvents.length === 0 && <NoEventsPage/>}
+            {events.length === 0 && <NoEventsPage/>}
 
-            {filterEvents.map((item) => {
+            {events.map((item) => {
                   const dateString = formatDate(item.eventStartDateTime);
                   const startTimeString = item.eventStartString
                   const endTimeString = item.eventEndString

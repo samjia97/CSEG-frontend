@@ -3,6 +3,15 @@ import {getSlug} from "@/lib/utils";
 import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
 
+export type GetEventsProps = {
+  filter: object,
+  sort: string[],
+  pagination: {
+    page: number,
+    pageSize: number,
+  }
+}
+
 export type EventCardData = {
   title: string;
   slug: string;
@@ -21,35 +30,91 @@ export type EventCardData = {
 }
 
 // Build query using qs library following Strapi best practices
-const query = qs.stringify(
-  {
-    fields: [
-      'title',
-      'id',
-      'eventDate',
-      'location',
-      'speaker',
-      'summary',
-      'eventStartTime',
-      'eventEndTime',
-      'publicEvent'
-    ],
-    populate: '*',
-    sort: ['eventDate:desc']
-  },
-  {
-    encodeValuesOnly: true, // Strapi recommended setting
+// const query = qs.stringify(
+//   {
+//     fields: [
+//       'title',
+//       'id',
+//       'eventDate',
+//       'location',
+//       'speaker',
+//       'summary',
+//       'eventStartTime',
+//       'eventEndTime',
+//       'publicEvent'
+//     ],
+//     populate: '*',
+//     sort: ['eventDate:desc'],
+//     pagination: {
+//       pageSize: 100, // Adjust as needed
+//     }
+//   },
+//   {
+//     encodeValuesOnly: true,
+//   }
+// );
+
+const baseQuery = {
+  fields: [
+    'title',
+    'id',
+    'eventDate',
+    'location',
+    'speaker',
+    'summary',
+    'eventStartTime',
+    'eventEndTime',
+    'publicEvent'
+  ],
+  populate: '*',
+}
+
+export type EventFilterParams = {
+  filters?: {
+    eventDate?: {
+      $gte?: string
+      $lte?: string
+    }
+    topic?: {
+      id?: {
+        $in?: number[]
+      }
+    },
+    open_to?: {
+      membershipName?: {
+        $in?: string[]
+      }
+    }
   }
-);
+  populate?: string | string[]
+  sort?: string | string[]
+  pagination?: {
+    page?: number
+    pageSize?: number
+  }
+}
+
 
 /**
  * Gets all events
  */
-export async function getEvents() {
+export async function getEvents({ filters, sort, pagination }: EventFilterParams): Promise<EventCardData[]>{
   try {
+    const query = qs.stringify(
+      {
+        ...baseQuery,
+        filters: filters,
+        sort: sort,
+        pagination: pagination,
+      }, {
+        encodeValuesOnly: true,
+        }
+    );
+    console.log(api.defaults.baseURL);
     const url = "/events?" + query;
-    console.warn(url);
+    console.log('url', url);
     const res = await api.get(url);
+    console.log( 'res', res.data)
     const data = res.data.data;
     const allEvents : EventCardData[] = [];
     for (const eventItem of data) {

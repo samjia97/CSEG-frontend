@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export const baseURL = process.env.BASE_URL;
+export const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:1337/api';
 export const api = axios.create({
-  baseURL: process.env.BASE_URL,
+  baseURL: baseURL,
 })
 
 /**
@@ -11,8 +11,7 @@ export const api = axios.create({
  * @returns The full URL to the image
  */
 export function getStrapiImageUrl(url: string): string {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:1337/api/';
   // Remove /api/ from base URL to get the Strapi root
-  const strapiRoot = baseUrl.replace('/api/', '');
+  const strapiRoot = baseURL.replace('/api/', '');
   return `${strapiRoot}${url}`;
 }
