@@ -1,6 +1,6 @@
 import {api} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
-import {getEventTagAndId} from "@/app/events/event-utils";
+import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
 
 export type GetEventsProps = {
@@ -24,35 +24,10 @@ export type EventCardData = {
   summary: string;
   eventType: string;
   id: number;
-  eventTags: {tagName: string, tagId: number}[];
+  eventTags: string[];
   publicEvent: boolean;
   openTo: string[];
 }
-
-// Build query using qs library following Strapi best practices
-// const query = qs.stringify(
-//   {
-//     fields: [
-//       'title',
-//       'id',
-//       'eventDate',
-//       'location',
-//       'speaker',
-//       'summary',
-//       'eventStartTime',
-//       'eventEndTime',
-//       'publicEvent'
-//     ],
-//     populate: '*',
-//     sort: ['eventDate:desc'],
-//     pagination: {
-//       pageSize: 100, // Adjust as needed
-//     }
-//   },
-//   {
-//     encodeValuesOnly: true,
-//   }
-// );
 
 const baseQuery = {
   fields: [
@@ -72,8 +47,8 @@ const baseQuery = {
 export type EventFilterParams = {
   filters: {
     $and?: {event_tags: {
-      id: {
-        $eq: number
+      tagName: {
+        $eq: string
       }
       }}[];
     eventDate?: {
@@ -131,8 +106,7 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
       const [startHour, startMinute] = startTimeStr.split(":").map(Number);
       const [endHour, endMinute] = endTimeStr.split(":").map(Number);
 
-      const eventTags = getEventTagAndId(eventItem);
-      eventTags.sort();
+      const eventTags = getEventTags(eventItem);
       const openTo = eventItem?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
       openTo.sort();
 

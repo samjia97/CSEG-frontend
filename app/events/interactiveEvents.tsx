@@ -9,32 +9,41 @@ import {FilterPanel} from "@/app/events/filterPanel";
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
 
-const extractTags = (eventItems: EventCardData[]) => {
-  const eventTags: Map<string, number> = new Map();
+/**
+ * Extracts unique tag names from events and returns them as a Set
+ */
+const extractTags = (eventItems: EventCardData[]): Set<string> => {
+  const eventTags: Set<string> = new Set();
   for (const eventItem of eventItems) {
     for (const tag of eventItem.eventTags) {
-      if (!eventTags.has(tag.tagName)) {
-        eventTags.set(tag.tagName, tag.tagId);
-      }
+      eventTags.add(tag);
     }
   }
-  // Sort by tagName alphabetically
-  return new Map([...eventTags].sort((a, b) => a[0].localeCompare(b[0])));
+  return eventTags;
 }
 
 type InteractiveEventsProps = {
   events: EventCardData[];
+  allEventTags: Set<string>;
+  selectedTagsFromUrl: Set<string>;
   filters: EventFilterParams;
 }
 
 /**
  * A server component for displaying filtered events
  * @param events - The filtered events from the server
+ * @param allEventTags - All available tag names from complete event set
+ * @param selectedTagsFromUrl - Tag names selected from URL params
  * @param filters - The current filter state
  * @constructor
  */
-export function InteractiveEvents({ events, filters }: InteractiveEventsProps) {
-  const tagMap = extractTags(events);
+export function InteractiveEvents({ events, allEventTags, selectedTagsFromUrl }: InteractiveEventsProps) {
+  // Merge selected tags with tags from filtered results
+  const resultTags = extractTags(events);
+  const combinedTags = new Set([...selectedTagsFromUrl, ...resultTags]);
+
+  // Sort alphabetically
+  const sortedTagArray = Array.from(combinedTags).sort((a, b) => a.localeCompare(b));
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
@@ -54,7 +63,8 @@ export function InteractiveEvents({ events, filters }: InteractiveEventsProps) {
         </div>
         <div className={"grid grid-cols-[240px_1fr] w-full gap-4"}>
           <FilterPanel
-              tagMap={tagMap}
+              availableTags={sortedTagArray}
+              selectedTagsFromUrl={selectedTagsFromUrl}
           />
           <div className={"flex flex-col  gap-4 w-full "}>
             {events.length === 0 && <NoEventsPage/>}
@@ -82,7 +92,7 @@ export function InteractiveEvents({ events, filters }: InteractiveEventsProps) {
                           {/*Topics */}
                           <strong className={"pt-1"}>Topics </strong>
                           <div className={"flex gap-2 pt-1"}>
-                            {item.eventTags.map((tag) => <Badge key={tag.tagName}>{tag.tagName}</Badge>)}
+                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                           </div>
                         </div>
                         <div className={"grid grid-cols-[80px_1fr] mt-2"}>
@@ -92,6 +102,7 @@ export function InteractiveEvents({ events, filters }: InteractiveEventsProps) {
                 }
             )}
           </div>
+
         </div>
       </div>);
 }

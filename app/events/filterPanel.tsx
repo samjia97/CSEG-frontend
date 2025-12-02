@@ -22,35 +22,71 @@ import {
   defaultTimePeriod
 } from "@/app/events/event_constants";
 import {CheckedState} from "@radix-ui/react-checkbox";
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
 export type FilterPanelProps = {
-  tagMap: Map<string, number>; // tagName -> tagId, ordered by tagName
+  availableTags: string[];
+  selectedTagsFromUrl: Set<string>;
 }
 
 /**
  * Client-side filter panel that manages draft filter state.
  * On APPLY, flushes state to URL which triggers server-side re-fetch.
- * @param tagMap - Map of tagName to tagId, ordered by tagName
+ * @param availableTags - Sorted array of available tag names
+ * @param selectedTagsFromUrl - Tag names selected from URL
  * @constructor
  */
-export function FilterPanel({ tagMap }: FilterPanelProps) {
+export function FilterPanel({ availableTags, selectedTagsFromUrl }: FilterPanelProps) {
   // Draft state - managed entirely in FilterPanel
   const pathname = usePathname();
-  const searchParams = new URLSearchParams();
+  const currentSearchParams = useSearchParams();
   const { replace } = useRouter();
-  const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<TimePeriod>(searchParams.get("timePeriod") as TimePeriod ?? defaultTimePeriod);
-  const [selectedOpenTo, setSelectedOpenTo] = React.useState<OpenTo>(defaultOpenTo);
-  const [selectedTags, setSelectedTags] = React.useState<Set<number>>(new Set());
-  const [customStartDate, setCustomStartDate] = React.useState<Date>(defaultStartDate);
-  const [customEndDate, setCustomEndDate] = React.useState<Date>(defaultEndDate);
 
+  // Sync with URL on load
+  const timePeriodParam = currentSearchParams.get("timePeriod");
+  const initialTimePeriod = (timePeriodParam === "upcoming" || timePeriodParam === "past" || timePeriodParam === "all" || timePeriodParam === "custom")
+    ? timePeriodParam
+    : defaultTimePeriod;
 
-  const tagsArray = Array.from(tagMap.keys());
+  const openToParam = currentSearchParams.get("openTo");
+  const initialOpenTo = (openToParam === "Member" || openToParam === "Associate_Member" || openToParam === "Student_Member" || openToParam === "public")
+    ? openToParam
+    : defaultOpenTo;
+
+  const fromParam = currentSearchParams.get("from");
+  const parsedStartDate = fromParam ? Date.parse(fromParam) : NaN;
+  const initialStartDate = !isNaN(parsedStartDate) ? new Date(parsedStartDate) : defaultStartDate;
+
+  const toParam = currentSearchParams.get("to");
+  const parsedEndDate = toParam ? Date.parse(toParam) : NaN;
+  const initialEndDate = !isNaN(parsedEndDate) ? new Date(parsedEndDate) : defaultEndDate;
+
+  const initialTags = selectedTagsFromUrl;
+
+  const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<TimePeriod>(initialTimePeriod);
+  const [selectedOpenTo, setSelectedOpenTo] = React.useState<OpenTo>(initialOpenTo);
+  const [selectedTags, setSelectedTags] = React.useState<Set<string>>(new Set(initialTags));
+  const [customStartDate, setCustomStartDate] = React.useState<Date>(initialStartDate);
+  const [customEndDate, setCustomEndDate] = React.useState<Date>(initialEndDate);
+
+  const setEqual= (a: Set<string>, b: Set<string>)=>  {
+    if (a.size !== b.size) return false;
+    for (const item of a) {
+      if (!b.has(item)) return false;
+    }
+    return true;
+  }
+
+  const filtersModified = () => {
+    return selectedTimePeriod !== initialTimePeriod ||
+      selectedOpenTo !== initialOpenTo ||
+      customStartDate.getTime() !== initialStartDate.getTime() ||
+      customEndDate.getTime() !== initialEndDate.getTime() ||
+      !setEqual(selectedTags, initialTags)
+  }
 
   /**
    * The Time Period radio group change handler
-   * @param newValue
    */
   const handleTimePeriodChange = (newValue: TimePeriod) => {
     setSelectedTimePeriod(newValue);
@@ -58,7 +94,6 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
 
   /**
    * The Open To radio group change handler
-   * @param newValue
    */
   const handleOpenToChange = (newValue: OpenTo) => {
     setSelectedOpenTo(newValue);
@@ -66,7 +101,6 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
 
   /**
    * Start datepicker change handler
-   * @param date
    */
   const handleStartDateChange = (date: Date) => {
     // ensure start date is before end date
@@ -76,7 +110,6 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
 
   /**
    * End datepicker change handler
-   * @param date
    */
   const handleEndDateChange = (date: Date) => {
     // ensure end date is after start date
@@ -88,21 +121,29 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
    * When APPLY FILTERS button clicked
    */
   const handleApplyFilters = () => {
-    // TODO: Build URL search params and navigate
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(currentSearchParams);
+
     if (selectedTimePeriod === "custom"){
-      params.set("from", customStartDate.toISOString())
-      params.set("to", customEndDate.toISOString())
+      params.delete('timePeriod');
+      params.set("from", customStartDate.toISOString());
+      params.set("to", customEndDate.toISOString());
     } else {
+      params.delete('from');
+      params.delete('to');
       params.set('timePeriod', selectedTimePeriod);
     }
-    params.set('openTo', selectedOpenTo)
+
+    params.set('openTo', selectedOpenTo);
+
     if (selectedTags.size > 0){
-      params.set('tags', Array.from(selectedTags).join(","))
+      // Encode tag names for URL
+      const tagNames = Array.from(selectedTags).map(tag => encodeURIComponent(tag));
+      params.set('tags', tagNames.join(","));
     } else {
-      params.delete('tags')
+      params.delete('tags');
     }
-    replace(`${pathname}?${params.toString()}`)
+
+    replace(`${pathname}?${params.toString()}`);
   }
 
   /**
@@ -114,15 +155,19 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
     setCustomStartDate(defaultStartDate);
     setCustomEndDate(defaultEndDate);
     setSelectedTags(new Set());
-    // TODO: Navigate to clean URL
+
+    const params = new URLSearchParams();
+    params.set('timePeriod', defaultTimePeriod);
+    params.set('openTo', defaultOpenTo);
+    replace(`${pathname}?${params.toString()}`);
   }
 
-  function handleOnChecked(tagId: number, checked: boolean) {
+  function handleOnChecked(tagName: string, checked: boolean) {
     const newSelectedTags = new Set(selectedTags);
     if (checked) {
-      newSelectedTags.add(tagId);
+      newSelectedTags.add(tagName);
     } else {
-      newSelectedTags.delete(tagId);
+      newSelectedTags.delete(tagName);
     }
     setSelectedTags(newSelectedTags);
   }
@@ -132,7 +177,7 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
     <h3 className={"text-xl text-center"}>Filter by</h3>
     <div className={"flex justify-between my-2"}>
       <Button size={"sm"} variant={"destructive"} onClick={resetFilters}>RESET</Button>
-      <Button size={"sm"} onClick={handleApplyFilters}>APPLY FILTERS</Button>
+      <Button size={"sm"} onClick={handleApplyFilters} disabled={!filtersModified()}>APPLY FILTERS</Button>
     </div>
     <RadioGroup value={selectedTimePeriod} className={"mt-2"}
                 onValueChange={handleTimePeriodChange}>
@@ -192,15 +237,14 @@ export function FilterPanel({ tagMap }: FilterPanelProps) {
         <AccordionTrigger className={"[&>svg]:text-white py-0 flex items-center "}><p
             className={"text-lg px-2"}>Topics</p></AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 mt-2">
-          {tagsArray.map((tagName) => {
-            const tagId = tagMap.get(tagName)!;
+          {availableTags.map((tagName) => {
             return (
               <div key={tagName} className="flex items-center gap-3">
                 <Checkbox id={tagName}
                           value={tagName}
-                          checked={selectedTags.has(tagId)}
+                          checked={selectedTags.has(tagName)}
                           onCheckedChange={(checked: CheckedState) => {
-                            handleOnChecked(tagId, checked as boolean);
+                            handleOnChecked(tagName, checked as boolean);
                           }}
                           />
                 <Label htmlFor={tagName}>{tagName}</Label>

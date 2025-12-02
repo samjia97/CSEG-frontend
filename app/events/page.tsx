@@ -1,5 +1,5 @@
 import React from 'react'
-import {EventFilterParams, getEvents} from "@/app/events/api/get-events";
+import {EventCardData, EventFilterParams, getEvents} from "@/app/events/api/get-events";
 import {InteractiveEvents} from "@/app/events/interactiveEvents";
 import {
   Breadcrumb,
@@ -8,6 +8,18 @@ import {
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 
+/**
+ * Extracts unique tag names from events
+ */
+const extractAllTags = (eventItems: EventCardData[]): Set<string> => {
+  const eventTags: Set<string> = new Set();
+  for (const eventItem of eventItems) {
+    for (const tag of eventItem.eventTags) {
+      eventTags.add(tag);
+    }
+  }
+  return eventTags;
+}
 
 async function EventsPage(props: {
   searchParams?: Promise<{
@@ -22,6 +34,21 @@ async function EventsPage(props: {
   const searchParams = await props.searchParams;
   console.log('params', searchParams);
 
+  // Parse selected tags from URL
+  const selectedTagsFromUrl = new Set<string>(
+    searchParams?.tags
+      ? searchParams.tags.split(',').map(tag => decodeURIComponent(tag.trim()))
+      : []
+  );
+
+  // Fetch ALL events to get complete tag list
+  const allEvents = await getEvents({
+    filters: {},
+    sort: "eventDate:desc",
+    pagination: { pageSize: 1000 }
+  });
+  const allEventTags = extractAllTags(allEvents);
+
   // Build filters from search params
   const filters: EventFilterParams = {
     filters: {},
@@ -32,59 +59,52 @@ async function EventsPage(props: {
     sort: "eventDate:desc"
   };
 
+  // Default time period and openTo if not specified
+  const timePeriod = searchParams?.timePeriod ?? "upcoming";
+  const openTo = searchParams?.openTo ?? "Member";
+
   // Time period filter
-  if (searchParams) {
-    switch (searchParams.timePeriod) {
-      case "upcoming":
-        filters.filters.eventDate = { $gte: new Date().toISOString() };
-        break;
-      case "past":
-        filters.filters.eventDate = { $lte: new Date().toISOString() };
-        break;
-      case "custom":
-        if (searchParams.from && searchParams.to) {
-          filters.filters.eventDate = { $between: [searchParams.from, searchParams.to] };
-        }
-        break;
-      case "all":
-      default:
-        // no date filter
-        break;
-    }
-
-    // Open To filter
-    if (searchParams.openTo) {
-      if (searchParams.openTo === "public") {
-        filters.filters.publicEvent = { $eq: true };
-      } else {
-        filters.filters.open_to = {
-          membershipName: { $in: [searchParams.openTo] }
-        };
-        filters.filters.publicEvent = { $eq: false };
+  switch (timePeriod) {
+    case "upcoming":
+      filters.filters.eventDate = { $gte: new Date().toISOString() };
+      break;
+    case "past":
+      filters.filters.eventDate = { $lte: new Date().toISOString() };
+      break;
+    case "custom":
+      if (searchParams?.from && searchParams?.to) {
+        filters.filters.eventDate = { $between: [searchParams.from, searchParams.to] };
       }
-    }
-
-    // Tags filter (tag IDs as comma-separated string)
-    if (searchParams.tags) {
-      const tagIds = searchParams.tags
-        .split(',')
-        .map(id => parseInt(id, 10))
-        .filter(id => !isNaN(id));
-
-      if (tagIds.length > 0) {
-        // Each tag becomes a separate condition in $and array
-        filters.filters.$and = tagIds.map(tagId => ({
-          event_tags: {
-            id: {
-              $eq: tagId  // Use $eq for exact match, not $in
-            }
-          }
-        }));
-      }
-    }
+      break;
+    case "all":
+    default:
+      // no date filter
+      break;
   }
 
-  // Fetch events with filters
+  // Open To filter
+  if (openTo === "public") {
+    filters.filters.publicEvent = { $eq: true };
+  } else {
+    filters.filters.open_to = {
+      membershipName: { $in: [openTo.replace("_"," ")] }
+    };
+    filters.filters.publicEvent = { $eq: false };
+  }
+
+  // Tags filter using tag NAMES
+  if (selectedTagsFromUrl.size > 0) {
+    // Build $and filter for each tag name
+    filters.filters.$and = Array.from(selectedTagsFromUrl).map(tagName => ({
+      event_tags: {
+        tagName: {
+          $eq: tagName
+        }
+      }
+    }));
+  }
+
+  // Fetch filtered events
   const events = await getEvents(filters);
 
   return (
@@ -105,7 +125,12 @@ async function EventsPage(props: {
           <p>Our events where we learn more about Computer Science Education together.</p>
         </div>
         <div className={"flex justify-center"}>
-          <InteractiveEvents events={events} filters={filters} />
+          <InteractiveEvents
+            events={events}
+            allEventTags={allEventTags}
+            selectedTagsFromUrl={selectedTagsFromUrl}
+            filters={filters}
+          />
         </div>
 
       </main>
