@@ -74,6 +74,7 @@ export type EventFilterParams = {
     eventDate?: {
       $gte?: string
       $lte?: string
+      $between?: string[]
     }
     event_tags?: object,
     open_to?: {

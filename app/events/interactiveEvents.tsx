@@ -15,6 +15,7 @@ import {
   AccordionTrigger
 } from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
+import {DatePicker1} from "@/components/ui/date-picker1";
 
 type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 type OpenTo = 'public' | 'Member' | 'Associate Member' | 'Student Member';
@@ -47,13 +48,19 @@ const NoEventsPage = () => {
 export type FilterPanelProps = {
   filters: EventFilterParams,
   setFilters: React.Dispatch<EventFilterParams>,
-  tags: Map<string, number>,
+  tags: Set<string>,
   newFilterState: EventFilterParams,
   setNewFilterState: React.Dispatch<React.SetStateAction<EventFilterParams>>,
   selectedOpenTo: OpenTo,
   setSelectedOpenTo: React.Dispatch<React.SetStateAction<OpenTo>>,
+  selectedTimePeriod: TimePeriod,
+  setSelectedTimePeriod: React.Dispatch<React.SetStateAction<TimePeriod>>,
   selectedTags: Set<string>,
-  setSelectedTags: React.Dispatch<React.SetStateAction<Set<string>>>
+  setSelectedTags: React.Dispatch<React.SetStateAction<Set<string>>>,
+  customStartDate: Date,
+  setCustomStartDate: React.Dispatch<React.SetStateAction<Date>>,
+  customEndDate: Date,
+  setCustomEndDate: React.Dispatch<React.SetStateAction<Date>>
 }
 /**
  * Returns default selection of who can attend an event passed form parent component
@@ -79,6 +86,14 @@ const getDefaultOpenTo = (filters: EventFilterParams): OpenTo => {
  * @param setNewFilterState
  * @param selectedOpenTo
  * @param setSelectedOpenTo
+ * @param selectedTimePeriod
+ * @param setSelectedTimePeriod
+ * @param selectedTags
+ * @param setSelectedTags
+ * @param customStartDate
+ * @param setCustomStartDate
+ * @param customEndDate
+ * @param setCustomEndDate
  * @constructor
  */
 function FilterPanel({
@@ -89,12 +104,19 @@ function FilterPanel({
                        setNewFilterState,
                        selectedOpenTo,
                        setSelectedOpenTo,
+                       selectedTimePeriod,
+                       setSelectedTimePeriod,
                        selectedTags,
-                       setSelectedTags
+                       setSelectedTags,
+                       customStartDate,
+                       setCustomStartDate,
+                       customEndDate,
+                       setCustomEndDate
                      }: FilterPanelProps) {
   // Temporary state of filters applied to actual filter state when APPLY clicked
   const sortedTags = Array.from(tags).sort();
   const handleTimePeriodChange = (newValue: TimePeriod) => {
+    setSelectedTimePeriod(newValue);
     switch (newValue) {
       case 'upcoming':
         setNewFilterState({
@@ -131,7 +153,15 @@ function FilterPanel({
         break;
 
       case 'custom':
-        // TODO: Implement custom date range picker
+        setNewFilterState({
+          ...newFilterState,
+          filters:{
+            ...newFilterState.filters,
+            eventDate: {
+              $between: [customStartDate.toISOString(), customEndDate.toISOString()]
+            }
+          }
+        });
         break;
     }
   }
@@ -202,6 +232,43 @@ function FilterPanel({
     }
   }
   /**
+   * Start datepicker change handler
+   * @param date
+   */
+  const handleStartDateChange = (date: Date) => {
+    // ensure start date is before end date
+    date = date < customEndDate ? date : customEndDate;
+    setCustomStartDate(date);
+    setNewFilterState({
+      ...newFilterState,
+      filters:{
+        ...newFilterState.filters,
+        eventDate: {
+          $between: [date.toISOString(), customEndDate.toISOString()]
+        }
+      }
+    });
+  }
+  /**
+   * End datepicker change handler
+   * @param date
+   */
+  const handleEndDateChange = (date: Date) => {
+    // ensure end date is after start date
+    date = date > customStartDate ? date : customStartDate;
+    setCustomEndDate(date);
+    setNewFilterState({
+      ...newFilterState,
+      filters:{
+        ...newFilterState.filters,
+        eventDate: {
+          $between: [customStartDate.toISOString(), date.toISOString()]
+        }
+      }
+    });
+  }
+
+  /**
    * When APPLY FILTERS button clicked
    */
   const handleApplyFilters = () => {
@@ -219,7 +286,7 @@ function FilterPanel({
 
       >APPLY FILTERS</Button>
     </div>
-    <RadioGroup defaultValue="upcoming" className={"mt-2"} onValueChange={handleTimePeriodChange}>
+    <RadioGroup defaultValue={selectedTimePeriod} className={"mt-2"} onValueChange={handleTimePeriodChange}>
       <p className={"text-lg font-semibold px-2"}>Time period</p>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="upcoming" id="upcoming"/>
@@ -235,8 +302,12 @@ function FilterPanel({
       </div>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="custom" id="custom"/>
-        <Label htmlFor="custom">Custom time</Label>
+        <Label htmlFor="custom">Custom time period</Label>
       </div>
+      {selectedTimePeriod === "custom" && <div className={"flex flex-col gap-4"}>
+        <DatePicker1 labelText={"From"} date={customStartDate} onSelect={handleStartDateChange} />
+        <DatePicker1 labelText={"To"} date={customEndDate} onSelect={handleEndDateChange}/>
+      </div>}
     </RadioGroup>
     {/* Allowed attendees (openTo) */}
     <Accordion type="single" collapsible>
@@ -248,7 +319,7 @@ function FilterPanel({
                       onValueChange={handleOpenToChange}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="public" id="public"/>
-              <Label htmlFor="public">Public (incl all member types)</Label>
+              <Label htmlFor="public">Public Event</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Member" id="Member"/>
@@ -272,7 +343,7 @@ function FilterPanel({
         <AccordionTrigger className={"[&>svg]:text-white py-0 flex items-center "}><p
             className={"text-lg px-2"}>Topics</p></AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 mt-2">
-          {sortedTags.map(([tag, tagCount]) =>
+          {sortedTags.map((tag) =>
               <div key={tag} className="flex items-center gap-3">
                 <Checkbox id={tag}
                           checked={selectedTags.has(tag)}
@@ -310,16 +381,16 @@ function FilterPanel({
                             })
                             setSelectedTags(newSelectedTags)
                           }}/>
-                <Label htmlFor={tag}>{tag} ({tagCount})</Label>
+                <Label htmlFor={tag}>{tag}</Label>
               </div>)}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
-
-
   </div>;
 }
 
+const today = new Date();
+const past = new Date(2020,0, 1);
 
 /**
  * A client component for filtering and ordering events
@@ -341,7 +412,10 @@ export function InteractiveEvents() {
   });
   const [newFilterState, setNewFilterState] = useState<EventFilterParams>(filters);
   const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(getDefaultOpenTo(filters));
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>('upcoming');
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [customStartDate, setCustomStartDate] = useState<Date>(past);
+  const [customEndDate, setCustomEndDate] = useState<Date>(today);
   const [events, setEvents] = useState<EventCardData[]>([]);
   useEffect(() => {
     getEvents(filters).then(r => {
@@ -350,11 +424,10 @@ export function InteractiveEvents() {
     })
   }, [filters]);
   const extractTags = (eventItems: EventCardData[]) => {
-    const eventTags: Map<string, number> = new Map();
+    const eventTags: Set<string> = new Set();
     for (const eventItem of eventItems) {
       for (const tagName of eventItem.eventTags) {
-        const currentCount = eventTags.get(tagName);
-        eventTags.set(tagName, currentCount ? currentCount + 1 : 1);
+        eventTags.add(tagName);
       }
     }
     return eventTags
@@ -412,6 +485,12 @@ export function InteractiveEvents() {
               setNewFilterState={setNewFilterState}
               selectedOpenTo={selectedOpenTo}
               setSelectedOpenTo={setSelectedOpenTo}
+              selectedTimePeriod={selectedTimePeriod}
+              setSelectedTimePeriod={setSelectedTimePeriod}
+              customStartDate={customStartDate}
+              setCustomStartDate={setCustomStartDate}
+              customEndDate={customEndDate}
+              setCustomEndDate={setCustomEndDate}
           />
           <div className={"flex flex-col  gap-4 w-full "}>
             {events.length === 0 && <NoEventsPage/>}
