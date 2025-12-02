@@ -70,20 +70,19 @@ const baseQuery = {
 }
 
 export type EventFilterParams = {
-  filters?: {
+  filters: {
     eventDate?: {
       $gte?: string
       $lte?: string
     }
-    topic?: {
-      id?: {
-        $in?: number[]
-      }
-    },
+    event_tags?: object,
     open_to?: {
       membershipName?: {
         $in?: string[]
       }
+    }
+    publicEvent?: {
+      $eq?: boolean
     }
   }
   populate?: string | string[]
@@ -110,11 +109,9 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
         encodeValuesOnly: true,
         }
     );
-    console.log(api.defaults.baseURL);
     const url = "/events?" + query;
     console.log('url', url);
     const res = await api.get(url);
-    console.log( 'res', res.data)
     const data = res.data.data;
     const allEvents : EventCardData[] = [];
     for (const eventItem of data) {
@@ -129,7 +126,9 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
       const [endHour, endMinute] = endTimeStr.split(":").map(Number);
 
       const eventTags = getEventTags(eventItem);
+      eventTags.sort();
       const openTo = eventItem?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
+      openTo.sort();
 
       allEvents.push(
           {

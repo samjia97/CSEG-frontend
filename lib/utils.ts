@@ -49,3 +49,30 @@ export function strapiDateToDate(dateString: string): Date {
 export function getDocumentIdFromSlug(slug: string) {
   return slug.substring(slug.lastIndexOf('-') + 1);
 }
+
+/**
+ * Returns true if 2 objects contain the same values.
+ * @param obj1
+ * @param obj2
+ */
+export function deepEqual(obj1: any, obj2: any) : boolean {
+  // pointing to same object or same primitive
+  if (obj1 === obj2) return true;
+  // both null or undefined
+  if (obj1 == null || obj2 == null) return false;
+  // one is not an object
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  // Different keys
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1){
+    // Object 2 must include the same key and perform comparisons going down.
+    if (!keys2.includes(key) || !deepEqual(obj1[key], obj2[key])){
+      return false;
+    }
+  }
+  return true;
+}
