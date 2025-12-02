@@ -54,18 +54,13 @@ async function EventsPage(props: {
 
     // Open To filter
     if (searchParams.openTo) {
-      switch (searchParams.openTo) {
-        case 'public':
-          filters.filters.publicEvent = { $eq: true };
-          break;
-        case 'Member':
-        case 'Associate Member':
-        case 'Student Member':
-          filters.filters.open_to = {
-            membershipName: { $in: [searchParams.openTo] }
-          };
-          filters.filters.publicEvent = { $eq: false };
-          break;
+      if (searchParams.openTo === "public") {
+        filters.filters.publicEvent = { $eq: true };
+      } else {
+        filters.filters.open_to = {
+          membershipName: { $in: [searchParams.openTo] }
+        };
+        filters.filters.publicEvent = { $eq: false };
       }
     }
 
@@ -77,10 +72,14 @@ async function EventsPage(props: {
         .filter(id => !isNaN(id));
 
       if (tagIds.length > 0) {
-        // Use event_tags filter with id in array
-        filters.filters.event_tags = {
-          id: { $in: tagIds }
-        };
+        // Each tag becomes a separate condition in $and array
+        filters.filters.$and = tagIds.map(tagId => ({
+          event_tags: {
+            id: {
+              $eq: tagId  // Use $eq for exact match, not $in
+            }
+          }
+        }));
       }
     }
   }

@@ -71,6 +71,11 @@ const baseQuery = {
 
 export type EventFilterParams = {
   filters: {
+    $and?: {event_tags: {
+      id: {
+        $eq: number
+      }
+      }}[];
     eventDate?: {
       $gte?: string
       $lte?: string
