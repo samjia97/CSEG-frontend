@@ -1,67 +1,40 @@
-import {EventCardData, getEvents} from "@/app/events/api/get-events";
+import {EventCardData, EventFilterParams} from "@/app/events/api/get-events";
 import React from "react";
 import Link from "next/link";
 import {formatDate} from "@/lib/formatters";
 import {Badge} from "@/components/ui/badge";
 import {NoEventsPage} from "@/app/events/noEventsPage";
 import {FilterPanel} from "@/app/events/filterPanel";
-import {defaultFilters} from "@/app/events/event_constants";
 
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
-export type SortByOption = "Title A to Z" | "Title Z to A" | "New to Old" | "Old to New";
 
 const extractTags = (eventItems: EventCardData[]) => {
   const eventTags: Map<string, number> = new Map();
   for (const eventItem of eventItems) {
-    for (const entry of eventItem.eventTags) {
-      console.log('entry', entry);
-      eventTags.set(entry.tagName, entry.tagId);
-
+    for (const tag of eventItem.eventTags) {
+      if (!eventTags.has(tag.tagName)) {
+        eventTags.set(tag.tagName, tag.tagId);
+      }
     }
   }
-  console.log('eventTags map', eventTags);
-  return eventTags
+  // Sort by tagName alphabetically
+  return new Map([...eventTags].sort((a, b) => a[0].localeCompare(b[0])));
+}
+
+type InteractiveEventsProps = {
+  events: EventCardData[];
+  filters: EventFilterParams;
 }
 
 /**
- * A client component for filtering and ordering events
+ * A server component for displaying filtered events
+ * @param events - The filtered events from the server
+ * @param filters - The current filter state
  * @constructor
  */
-export async function InteractiveEvents() {
-  const events = await getEvents(defaultFilters);
+export function InteractiveEvents({ events, filters }: InteractiveEventsProps) {
   const tagMap = extractTags(events);
-  // tagId is from events.tag
-
-  // const [filters, setFilters] = useState<EventFilterParams>(defaultFilters);
-  // const [newFilterState, setNewFilterState] = useState<EventFilterParams>(filters);
-  // const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(defaultOpenTo);
-  // const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>(defaultTimePeriod);
-  // const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  // const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
-  // const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
-  // const [events, setEvents] = useState<EventCardData[]>([]);
-  // useEffect(() => {
-  //   getEvents(filters).then(r => {
-  //     setEvents(r);
-  //     window.scrollTo(
-  //         {
-  //           top: 0,
-  //           behavior: 'smooth'
-  //         }
-  //     )
-  //   })
-  // }, [filters]);
-
-  // /**
-  //  * Sorts events based on selected sortBy option
-  //  */
-  // const sortEvents = (newSortBy: SortByOption) => {
-  //   setFilters({
-  //     ...filters,
-  //     sort: newSortBy
-  //   })
-  // }
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
@@ -122,3 +95,4 @@ export async function InteractiveEvents() {
         </div>
       </div>);
 }
+

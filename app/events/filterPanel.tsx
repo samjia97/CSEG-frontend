@@ -36,14 +36,14 @@ export type FilterPanelProps = {
  */
 export function FilterPanel({ tagMap }: FilterPanelProps) {
   // Draft state - managed entirely in FilterPanel
-  const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<TimePeriod>(defaultTimePeriod);
+  const pathname = usePathname();
+  const searchParams = new URLSearchParams();
+  const { replace } = useRouter();
+  const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<TimePeriod>(searchParams.get("timePeriod") as TimePeriod ?? defaultTimePeriod);
   const [selectedOpenTo, setSelectedOpenTo] = React.useState<OpenTo>(defaultOpenTo);
   const [selectedTags, setSelectedTags] = React.useState<Set<number>>(new Set());
   const [customStartDate, setCustomStartDate] = React.useState<Date>(defaultStartDate);
   const [customEndDate, setCustomEndDate] = React.useState<Date>(defaultEndDate);
-  const pathname = usePathname();
-  const searchParams = new URLSearchParams();
-  const { replace } = useRouter();
 
 
   const tagsArray = Array.from(tagMap.keys());

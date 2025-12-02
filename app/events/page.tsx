@@ -1,5 +1,5 @@
 import React from 'react'
-import {EventCardData, getEvents} from "@/app/events/api/get-events";
+import {EventFilterParams, getEvents} from "@/app/events/api/get-events";
 import {InteractiveEvents} from "@/app/events/interactiveEvents";
 import {
   Breadcrumb,
@@ -9,9 +9,85 @@ import {
 } from "@/components/ui/breadcrumb";
 
 
-async function EventsPage() {
+async function EventsPage(props: {
+  searchParams?: Promise<{
+    timePeriod?: string;
+    from?: string;
+    to?: string;
+    openTo?: string;
+    tags?: string;
+    page?: string;
+  }>;
+}) {
+  const searchParams = await props.searchParams;
+  console.log('params', searchParams);
 
-  // const allEvents: EventCardData[] = [];
+  // Build filters from search params
+  const filters: EventFilterParams = {
+    filters: {},
+    pagination: {
+      page: searchParams?.page ? parseInt(searchParams.page, 10) : 1,
+      pageSize: 25
+    },
+    sort: "eventDate:desc"
+  };
+
+  // Time period filter
+  if (searchParams) {
+    switch (searchParams.timePeriod) {
+      case "upcoming":
+        filters.filters.eventDate = { $gte: new Date().toISOString() };
+        break;
+      case "past":
+        filters.filters.eventDate = { $lte: new Date().toISOString() };
+        break;
+      case "custom":
+        if (searchParams.from && searchParams.to) {
+          filters.filters.eventDate = { $between: [searchParams.from, searchParams.to] };
+        }
+        break;
+      case "all":
+      default:
+        // no date filter
+        break;
+    }
+
+    // Open To filter
+    if (searchParams.openTo) {
+      switch (searchParams.openTo) {
+        case 'public':
+          filters.filters.publicEvent = { $eq: true };
+          break;
+        case 'Member':
+        case 'Associate Member':
+        case 'Student Member':
+          filters.filters.open_to = {
+            membershipName: { $in: [searchParams.openTo] }
+          };
+          filters.filters.publicEvent = { $eq: false };
+          break;
+      }
+    }
+
+    // Tags filter (tag IDs as comma-separated string)
+    if (searchParams.tags) {
+      const tagIds = searchParams.tags
+        .split(',')
+        .map(id => parseInt(id, 10))
+        .filter(id => !isNaN(id));
+
+      if (tagIds.length > 0) {
+        // Use event_tags filter with id in array
+        filters.filters.event_tags = {
+          id: { $in: tagIds }
+        };
+      }
+    }
+  }
+
+  // Fetch events with filters
+  const events = await getEvents(filters);
+
   return (
       <main className={"min-h-screen pt-2 bg-neutral-50 px-4"}>
         <Breadcrumb className={"bg-neutral-200 px-8 w-fit"}>
@@ -30,7 +106,7 @@ async function EventsPage() {
           <p>Our events where we learn more about Computer Science Education together.</p>
         </div>
         <div className={"flex justify-center"}>
-          <InteractiveEvents/>
+          <InteractiveEvents events={events} filters={filters} />
         </div>
 
       </main>
@@ -38,3 +114,4 @@ async function EventsPage() {
 }
 
 export default EventsPage
+
