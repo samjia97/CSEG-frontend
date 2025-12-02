@@ -274,19 +274,31 @@ function FilterPanel({
   const handleApplyFilters = () => {
     setFilters(newFilterState);
   }
+  /**
+   * Resets all filters to default state
+   */
+  const resetFilters = () => {
+    setNewFilterState(defaultFilters);
+    setSelectedOpenTo(defaultOpenTo);
+    setSelectedTimePeriod(defaultTimePeriod);
+    setCustomStartDate(defaultStartDate);
+    setCustomEndDate(defaultEndDate);
+    setSelectedTags(new Set());
+    setFilters(defaultFilters);
+  }
 
 
   return <div
       className={"flex flex-col bg-secondary rounded-md  px-2 py-3 gap-2 text-secondary-foreground min-h-[600px] h-full"}>
     <h3 className={"text-xl text-center"}>Filter by</h3>
     <div className={"flex justify-between my-2"}>
-      <Button size={"sm"} variant={"destructive"}>RESET</Button>
+      <Button size={"sm"} variant={"destructive"} onClick={resetFilters}>RESET</Button>
       <Button size={"sm"} onClick={handleApplyFilters}
               disabled={deepEqual(filters, newFilterState)}
 
       >APPLY FILTERS</Button>
     </div>
-    <RadioGroup defaultValue={selectedTimePeriod} className={"mt-2"} onValueChange={handleTimePeriodChange}>
+    <RadioGroup value={selectedTimePeriod} className={"mt-2"} onValueChange={handleTimePeriodChange}>
       <p className={"text-lg font-semibold px-2"}>Time period</p>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="upcoming" id="upcoming"/>
@@ -310,17 +322,13 @@ function FilterPanel({
       </div>}
     </RadioGroup>
     {/* Allowed attendees (openTo) */}
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible defaultValue={"item-1"}>
       <AccordionItem value="item-1">
         <AccordionTrigger className={"[&>svg]:text-white mt-2 py-0 flex items-center "}><p
             className={"text-lg px-2"}>Allowed attendees</p></AccordionTrigger>
         <AccordionContent>
-          <RadioGroup className={"mt-2"} defaultValue={selectedOpenTo}
+          <RadioGroup className={"mt-2"} value={selectedOpenTo}
                       onValueChange={handleOpenToChange}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="public" id="public"/>
-              <Label htmlFor="public">Public Event</Label>
-            </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Member" id="Member"/>
               <Label htmlFor="Member">Members</Label>
@@ -332,6 +340,10 @@ function FilterPanel({
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Student Member" id="Student Member"/>
               <Label htmlFor="Student Member">Student Members</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="public" id="public"/>
+              <Label htmlFor="public">Public Event</Label>
             </div>
           </RadioGroup>
         </AccordionContent>
@@ -389,8 +401,22 @@ function FilterPanel({
   </div>;
 }
 
-const today = new Date();
-const past = new Date(2020,0, 1);
+const defaultEndDate = new Date();
+const defaultStartDate = new Date(2020,0, 1);
+const defaultOpenTo = "Member";
+const defaultTimePeriod: TimePeriod = 'upcoming';
+const defaultFilters: EventFilterParams = {
+  filters: {
+    eventDate: {
+      $gte: new Date().toISOString()
+    },
+    open_to: {
+      membershipName: {
+        $in: [defaultOpenTo]
+      }
+    }
+  }
+};
 
 /**
  * A client component for filtering and ordering events
@@ -398,29 +424,17 @@ const past = new Date(2020,0, 1);
  */
 export function InteractiveEvents() {
   // const filterEvents = await getEvents();
-  const [filters, setFilters] = useState<EventFilterParams>({
-    filters: {
-      eventDate: {
-        $gte: new Date().toISOString()
-      },
-      open_to: {
-        membershipName: {
-          $in: ["Member"]
-        }
-      }
-    }
-  });
+  const [filters, setFilters] = useState<EventFilterParams>(defaultFilters);
   const [newFilterState, setNewFilterState] = useState<EventFilterParams>(filters);
-  const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(getDefaultOpenTo(filters));
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>('upcoming');
+  const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(defaultOpenTo);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>(defaultTimePeriod);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [customStartDate, setCustomStartDate] = useState<Date>(past);
-  const [customEndDate, setCustomEndDate] = useState<Date>(today);
+  const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
+  const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
   const [events, setEvents] = useState<EventCardData[]>([]);
   useEffect(() => {
     getEvents(filters).then(r => {
       setEvents(r);
-
     })
   }, [filters]);
   const extractTags = (eventItems: EventCardData[]) => {
@@ -432,8 +446,6 @@ export function InteractiveEvents() {
     }
     return eventTags
   }
-// const [filterEvents, setFilteredEvents] = useState(allEvents.filter(value => value.eventEndDateTime >= new Date()));
-  // const [sortBy, setSortBy] = useState<SortByOptions>(SortByOptions.NEWEST_TO_OLDEST);
 
   /**
    * Sorts events based on selected sortBy option
