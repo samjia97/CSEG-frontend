@@ -1,6 +1,6 @@
 import {api} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
-import {getEventTags} from "@/app/events/event-utils";
+import {getEventTagAndId} from "@/app/events/event-utils";
 import qs from "qs";
 
 export type GetEventsProps = {
@@ -24,7 +24,7 @@ export type EventCardData = {
   summary: string;
   eventType: string;
   id: number;
-  eventTags: string[];
+  eventTags: {tagName: string, tagId: number}[];
   publicEvent: boolean;
   openTo: string[];
 }
@@ -126,7 +126,7 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
       const [startHour, startMinute] = startTimeStr.split(":").map(Number);
       const [endHour, endMinute] = endTimeStr.split(":").map(Number);
 
-      const eventTags = getEventTags(eventItem);
+      const eventTags = getEventTagAndId(eventItem);
       eventTags.sort();
       const openTo = eventItem?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
       openTo.sort();

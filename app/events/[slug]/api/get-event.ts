@@ -1,6 +1,6 @@
 import {api} from "@/lib/api";
 import {BlocksContent} from "@strapi/blocks-react-renderer";
-import {getEventTags} from "@/app/events/event-utils";
+import {getEventTagAndId, getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
 
 
@@ -16,7 +16,7 @@ export type EventPageData = {
   speaker: string;
   eventType: string;
   eventPage: BlocksContent;
-  eventTags: string[];
+  eventTags:  string[];
   publicEvent: boolean;
   openTo: string[];
 }

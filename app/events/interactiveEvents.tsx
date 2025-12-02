@@ -1,37 +1,26 @@
-"use client"
-import {EventCardData, EventFilterParams, getEvents} from "@/app/events/api/get-events";
-import React, {useEffect, useState} from "react";
+import {EventCardData, getEvents} from "@/app/events/api/get-events";
+import React from "react";
 import Link from "next/link";
 import {formatDate} from "@/lib/formatters";
 import {Badge} from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import {NoEventsPage} from "@/app/events/noEventsPage";
 import {FilterPanel} from "@/app/events/filterPanel";
-import {
-  defaultEndDate,
-  defaultFilters,
-  defaultOpenTo,
-  defaultStartDate,
-  defaultTimePeriod
-} from "@/app/events/event_constants";
+import {defaultFilters} from "@/app/events/event_constants";
 
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
-export type OpenTo = 'public' | 'Member' | 'Associate Member' | 'Student Member';
+export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
 export type SortByOption = "Title A to Z" | "Title Z to A" | "New to Old" | "Old to New";
 
 const extractTags = (eventItems: EventCardData[]) => {
-  const eventTags: Set<string> = new Set();
+  const eventTags: Map<string, number> = new Map();
   for (const eventItem of eventItems) {
-    for (const tagName of eventItem.eventTags) {
-      eventTags.add(tagName);
+    for (const entry of eventItem.eventTags) {
+      console.log('entry', entry);
+      eventTags.set(entry.tagName, entry.tagId);
+
     }
   }
+  console.log('eventTags map', eventTags);
   return eventTags
 }
 
@@ -39,71 +28,60 @@ const extractTags = (eventItems: EventCardData[]) => {
  * A client component for filtering and ordering events
  * @constructor
  */
-export function InteractiveEvents() {
-  // const filterEvents = await getEvents();
-  const [filters, setFilters] = useState<EventFilterParams>(defaultFilters);
-  const [newFilterState, setNewFilterState] = useState<EventFilterParams>(filters);
-  const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(defaultOpenTo);
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>(defaultTimePeriod);
-  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
-  const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
-  const [events, setEvents] = useState<EventCardData[]>([]);
-  useEffect(() => {
-    getEvents(filters).then(r => {
-      setEvents(r);
-      window.scrollTo(
-          {
-            top: 0,
-            behavior: 'smooth'
-          }
-      )
-    })
-  }, [filters]);
+export async function InteractiveEvents() {
+  const events = await getEvents(defaultFilters);
+  const tagMap = extractTags(events);
+  // tagId is from events.tag
 
-  /**
-   * Sorts events based on selected sortBy option
-   */
-  const sortEvents = (newSortBy: SortByOption) => {
-    setFilters({
-      ...filters,
-      sort: newSortBy
-    })
-  }
+  // const [filters, setFilters] = useState<EventFilterParams>(defaultFilters);
+  // const [newFilterState, setNewFilterState] = useState<EventFilterParams>(filters);
+  // const [selectedOpenTo, setSelectedOpenTo] = useState<OpenTo>(defaultOpenTo);
+  // const [selectedTimePeriod, setSelectedTimePeriod] = useState<TimePeriod>(defaultTimePeriod);
+  // const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  // const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
+  // const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
+  // const [events, setEvents] = useState<EventCardData[]>([]);
+  // useEffect(() => {
+  //   getEvents(filters).then(r => {
+  //     setEvents(r);
+  //     window.scrollTo(
+  //         {
+  //           top: 0,
+  //           behavior: 'smooth'
+  //         }
+  //     )
+  //   })
+  // }, [filters]);
+
+  // /**
+  //  * Sorts events based on selected sortBy option
+  //  */
+  // const sortEvents = (newSortBy: SortByOption) => {
+  //   setFilters({
+  //     ...filters,
+  //     sort: newSortBy
+  //   })
+  // }
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
         <div className={"flex self-end gap-2 items-center"}><p>Sort by</p>
-          <Select onValueChange={sortEvents} defaultValue={"eventDate:desc"}>
-            <SelectTrigger
-                className="w-[150px] rounded-none border-black drop-shadow-none transition-none focus-visible:ring-0 focus-visible:border-black">
-              <SelectValue placeholder={"eventDate:desc"}/>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={"eventDate:desc"}>New to Old </SelectItem>
-              <SelectItem value={"eventDate:asc"}>Old to New</SelectItem>
-              <SelectItem value={"title:asc"}>Title A to Z</SelectItem>
-              <SelectItem value={"title:desc"}>Title Z to A</SelectItem>
-            </SelectContent>
-          </Select>
+          {/*<Select onValueChange={sortEvents} defaultValue={"eventDate:desc"}>*/}
+          {/*  <SelectTrigger*/}
+          {/*      className="w-[150px] rounded-none border-black drop-shadow-none transition-none focus-visible:ring-0 focus-visible:border-black">*/}
+          {/*    <SelectValue placeholder={"eventDate:desc"}/>*/}
+          {/*  </SelectTrigger>*/}
+          {/*  <SelectContent>*/}
+          {/*    <SelectItem value={"eventDate:desc"}>New to Old </SelectItem>*/}
+          {/*    <SelectItem value={"eventDate:asc"}>Old to New</SelectItem>*/}
+          {/*    <SelectItem value={"title:asc"}>Title A to Z</SelectItem>*/}
+          {/*    <SelectItem value={"title:desc"}>Title Z to A</SelectItem>*/}
+          {/*  </SelectContent>*/}
+          {/*</Select>*/}
         </div>
         <div className={"grid grid-cols-[240px_1fr] w-full gap-4"}>
           <FilterPanel
-              filters={filters}
-              setFilters={setFilters}
-              tags={extractTags(events)}
-              selectedTags={selectedTags}
-              setSelectedTags={setSelectedTags}
-              newFilterState={newFilterState}
-              setNewFilterState={setNewFilterState}
-              selectedOpenTo={selectedOpenTo}
-              setSelectedOpenTo={setSelectedOpenTo}
-              selectedTimePeriod={selectedTimePeriod}
-              setSelectedTimePeriod={setSelectedTimePeriod}
-              customStartDate={customStartDate}
-              setCustomStartDate={setCustomStartDate}
-              customEndDate={customEndDate}
-              setCustomEndDate={setCustomEndDate}
+              tagMap={tagMap}
           />
           <div className={"flex flex-col  gap-4 w-full "}>
             {events.length === 0 && <NoEventsPage/>}
@@ -131,7 +109,7 @@ export function InteractiveEvents() {
                           {/*Topics */}
                           <strong className={"pt-1"}>Topics </strong>
                           <div className={"flex gap-2 pt-1"}>
-                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                            {item.eventTags.map((tag) => <Badge key={tag.tagName}>{tag.tagName}</Badge>)}
                           </div>
                         </div>
                         <div className={"grid grid-cols-[80px_1fr] mt-2"}>
