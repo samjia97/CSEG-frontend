@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {DatePicker1} from "@/components/ui/date-picker1";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 type OpenTo = 'public' | 'Member' | 'Associate Member' | 'Student Member';
@@ -24,13 +31,12 @@ type InteractiveEventsProps = {
   allEvents: EventCardData[];
 }
 
-enum SortByOptions {
-  NEWEST_TO_OLDEST = "newest to oldest",
-  OLDEST_TO_NEWEST = "oldest to newest",
-  TITLE_AZ = "title A to Z",
-  TITLE_ZA = "title Z to A"
-}
+type SortByOption = "Title A to Z" | "Title Z to A" | "New to Old" | "Old to New";
 
+/**
+ * Page shown when no events returned but no errors encountered.
+ * @constructor
+ */
 const NoEventsPage = () => {
   return (
       <div
@@ -62,20 +68,7 @@ export type FilterPanelProps = {
   customEndDate: Date,
   setCustomEndDate: React.Dispatch<React.SetStateAction<Date>>
 }
-/**
- * Returns default selection of who can attend an event passed form parent component
- * @param filters
- */
-const getDefaultOpenTo = (filters: EventFilterParams): OpenTo => {
-  if (filters.filters?.publicEvent) {
-    return "public"
-  }
-  const membershipNameArray = filters.filters?.open_to?.membershipName?.$in ?? [];
-  if (membershipNameArray.length > 0) {
-    return membershipNameArray[0] as OpenTo;
-  }
-  return "Member";
-}
+
 
 /**
  * Updates applied filter state when APPLY clicked.
@@ -155,7 +148,7 @@ function FilterPanel({
       case 'custom':
         setNewFilterState({
           ...newFilterState,
-          filters:{
+          filters: {
             ...newFilterState.filters,
             eventDate: {
               $between: [customStartDate.toISOString(), customEndDate.toISOString()]
@@ -241,7 +234,7 @@ function FilterPanel({
     setCustomStartDate(date);
     setNewFilterState({
       ...newFilterState,
-      filters:{
+      filters: {
         ...newFilterState.filters,
         eventDate: {
           $between: [date.toISOString(), customEndDate.toISOString()]
@@ -259,7 +252,7 @@ function FilterPanel({
     setCustomEndDate(date);
     setNewFilterState({
       ...newFilterState,
-      filters:{
+      filters: {
         ...newFilterState.filters,
         eventDate: {
           $between: [customStartDate.toISOString(), date.toISOString()]
@@ -289,7 +282,7 @@ function FilterPanel({
 
 
   return <div
-      className={"flex flex-col bg-secondary rounded-md  px-2 py-3 gap-2 text-secondary-foreground min-h-[600px] h-full"}>
+      className={"flex flex-col bg-secondary rounded-md  px-2 py-3 gap-2 text-secondary-foreground min-h-[600px] h-fit sticky top-4"}>
     <h3 className={"text-xl text-center"}>Filter by</h3>
     <div className={"flex justify-between my-2"}>
       <Button size={"sm"} variant={"destructive"} onClick={resetFilters}>RESET</Button>
@@ -298,7 +291,8 @@ function FilterPanel({
 
       >APPLY FILTERS</Button>
     </div>
-    <RadioGroup value={selectedTimePeriod} className={"mt-2"} onValueChange={handleTimePeriodChange}>
+    <RadioGroup value={selectedTimePeriod} className={"mt-2"}
+                onValueChange={handleTimePeriodChange}>
       <p className={"text-lg font-semibold px-2"}>Time period</p>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="upcoming" id="upcoming"/>
@@ -317,7 +311,7 @@ function FilterPanel({
         <Label htmlFor="custom">Custom time period</Label>
       </div>
       {selectedTimePeriod === "custom" && <div className={"flex flex-col gap-4"}>
-        <DatePicker1 labelText={"From"} date={customStartDate} onSelect={handleStartDateChange} />
+        <DatePicker1 labelText={"From"} date={customStartDate} onSelect={handleStartDateChange}/>
         <DatePicker1 labelText={"To"} date={customEndDate} onSelect={handleEndDateChange}/>
       </div>}
     </RadioGroup>
@@ -402,7 +396,7 @@ function FilterPanel({
 }
 
 const defaultEndDate = new Date();
-const defaultStartDate = new Date(2020,0, 1);
+const defaultStartDate = new Date(2020, 0, 1);
 const defaultOpenTo = "Member";
 const defaultTimePeriod: TimePeriod = 'upcoming';
 const defaultFilters: EventFilterParams = {
@@ -432,9 +426,16 @@ export function InteractiveEvents() {
   const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
   const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
   const [events, setEvents] = useState<EventCardData[]>([]);
+  const [sortBy, setSortBy] = useState<SortByOption>("New to Old");
   useEffect(() => {
     getEvents(filters).then(r => {
       setEvents(r);
+      window.scrollTo(
+          {
+            top: 0,
+            behavior: 'smooth'
+          }
+      )
     })
   }, [filters]);
   const extractTags = (eventItems: EventCardData[]) => {
@@ -450,41 +451,28 @@ export function InteractiveEvents() {
   /**
    * Sorts events based on selected sortBy option
    */
-  // const sortEvents = (newSortBy: SortByOptions) => {
-  //   const sortedEvents = [...filterEvents];
-  //   switch (newSortBy) {
-  //     case SortByOptions.NEWEST_TO_OLDEST:
-  //       sortedEvents.sort((a, b) => a.eventStartDateTime.getTime() - b.eventStartDateTime.getTime());
-  //       break;
-  //     case SortByOptions.OLDEST_TO_NEWEST:
-  //       sortedEvents.sort((a, b) => b.eventStartDateTime.getTime() - a.eventStartDateTime.getTime());
-  //       break;
-  //     case SortByOptions.TITLE_AZ:
-  //       sortedEvents.sort((a, b) => a.title.localeCompare(b.title));
-  //       break;
-  //     case SortByOptions.TITLE_ZA:
-  //       sortedEvents.sort((a, b) => b.title.localeCompare(a.title));
-  //       break;
-  //   }
-  //   setSortBy(newSortBy);
-  //   setFilteredEvents(sortedEvents);
-  // }
+  const sortEvents = (newSortBy: SortByOption) => {
+    setFilters({
+      ...filters,
+      sort: newSortBy
+    })
+    setSortBy(newSortBy);
+  }
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
         <div className={"flex self-end gap-2 items-center"}><p>Sort by</p>
-          {/*<DropdownMenu>*/}
-          {/*  <DropdownMenuTrigger asChild><Button variant="outline"*/}
-          {/*                                       className={"flex px-2 w-[200px] items-center justify-start gap-1"}>*/}
-          {/*    <ChevronRight className="h-4 w-4"/>{sortBy}*/}
-          {/*  </Button></DropdownMenuTrigger>*/}
-          {/*  <DropdownMenuContent className={"w-[200px]"}>*/}
-          {/*    /!* Display unselected sortBy options. Note Object.values works on any object *!/*/}
-          {/*    {Object.values(SortByOptions).map((sortByOption) => (sortByOption !== sortBy &&*/}
-          {/*        <DropdownMenuItem key={sortByOption}*/}
-          {/*                          onClick={() => sortEvents(sortByOption)}>{sortByOption}</DropdownMenuItem>))}*/}
-          {/*  </DropdownMenuContent>*/}
-          {/*</DropdownMenu>*/}
+          <Select onValueChange={sortEvents} defaultValue={"eventDate:desc"}>
+            <SelectTrigger className="w-[150px] rounded-none border-black drop-shadow-none transition-none focus-visible:ring-0 focus-visible:border-black">
+              <SelectValue placeholder={"eventDate:desc"}/>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"eventDate:desc"}>New to Old </SelectItem>
+              <SelectItem value={"eventDate:asc"}>Old to New</SelectItem>
+              <SelectItem value={"title:asc"}>Title A to Z</SelectItem>
+              <SelectItem value={"title:desc"}>Title Z to A</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className={"grid grid-cols-[240px_1fr] w-full gap-4"}>
           <FilterPanel
