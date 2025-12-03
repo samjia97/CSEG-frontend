@@ -67,7 +67,7 @@ export type EventFilterParams = {
     }
   }
   populate?: string | string[]
-  sort: string | string[]
+  sort?: string | string[]
   pagination?: {
     page?: number
     pageSize?: number
