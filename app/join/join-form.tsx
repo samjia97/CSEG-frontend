@@ -185,7 +185,7 @@ export default function MyForm() {
               </RadioGroup>
               <FieldError>{form.formState.errors.willingnessToVolunteer?.message}</FieldError>
             </Field>
-            <Button type="submit" disabled={form.formState.isSubmitting}>Submit</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Submitting..." : "Submit"}</Button>
           </form>
         </Form>
       </div>

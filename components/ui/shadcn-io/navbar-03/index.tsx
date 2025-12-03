@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import type { ComponentProps } from 'react';
 import Image from 'next/image'
 import {usePathname, useRouter} from "next/navigation";
+import Link from "next/link";
 
 // Simple logo component for the navbar
 const Logo = (props: React.SVGAttributes<SVGElement>) => {
@@ -207,14 +208,9 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
 
           </div>
           <div className="flex items-center gap-6 justify-between w-full px-6">
-            <button
-                onClick={(e) => e.preventDefault()}
-                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
-            >
-              <div>
-                {logo}
-              </div>
-            </button>
+            <Link href={logoHref}>
+              {logo}
+            </Link>
             {/* Navigation menu */}
             {!isMobile && (
                 <NavigationMenu className="flex">

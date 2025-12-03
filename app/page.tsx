@@ -52,7 +52,6 @@ export default async function Home() {
 
   return (
       <>
-
       <main className="w-full pt-4 px-4">
         <div className={"w-full flex flex-col items-center"}>
           <Link className={"text-2xl italic underline"} href={"https://www.ed.ac.uk/informatics"}>School of informatics</Link>
