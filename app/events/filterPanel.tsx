@@ -142,7 +142,7 @@ export function FilterPanel({ availableTags, selectedTagsFromUrl }: FilterPanelP
     } else {
       params.delete('tags');
     }
-
+    params.set("page", "1");
     replace(`${pathname}?${params.toString()}`);
   }
 

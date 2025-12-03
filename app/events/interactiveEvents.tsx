@@ -12,6 +12,10 @@ import {
   PaginationPrevious
 } from "@/components/ui/pagination";
 import {SortBy, SortOption} from "@/app/events/sortBy";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Search} from "lucide-react";
+import SearchBar from "@/app/events/searchBar";
 
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
@@ -83,15 +87,25 @@ export function InteractiveEvents({ events, selectedTagsFromUrl, currentURLParam
   // Sort alphabetically
   const sortedTagArray = Array.from(combinedTags).sort((a, b) => a.localeCompare(b));
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+  }
+
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
-        <SortBy currentSort={currentSort} />
-        <div className={"grid grid-cols-[240px_1fr] w-full gap-4"}>
+
+        <div className={"grid grid-cols-[220px_1fr] w-full gap-4"}>
           <FilterPanel
               availableTags={sortedTagArray}
               selectedTagsFromUrl={selectedTagsFromUrl}
           />
           <div className={"flex flex-col  gap-4 w-full "}>
+            <div className={"flex justify-between"}>
+              <SearchBar/>
+              <SortBy currentSort={currentSort} />
+            </div>
+            {/* SearchBar results */}
             {events.length === 0 && <NoEventsPage/>}
 
             {events.map((item) => {
