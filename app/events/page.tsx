@@ -1,14 +1,6 @@
 import React from 'react'
 import {EventFilterParams, getEvents} from "@/app/events/api/get-events";
 import {InteractiveEvents} from "@/app/events/interactiveEvents";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
 import {defaultOpenTo, defaultSort, defaultTimePeriod} from "@/app/events/event_constants";
 import {SortOption} from "@/app/events/sortBy";
 
@@ -21,6 +13,7 @@ export type EventPageSearchParams = {
   tags?: string;
   page: string;
   sort: SortOption;
+  query?: string;
 }
 
 /**
@@ -76,6 +69,27 @@ function buildFilters(parsedSearchParams: EventPageSearchParams): EventFilterPar
     };
     filters.filters.publicEvent = {$eq: false};
   }
+
+  // Search query over title, summary, speaker
+  if (parsedSearchParams.query){
+    filters.filters.$or = [
+      {
+        title: {
+          $containsi: parsedSearchParams.query
+        }
+      },
+      {
+        speaker: {
+          $containsi: parsedSearchParams.query
+        }
+      },
+      {
+        summary: {
+          $containsi: parsedSearchParams.query
+        }
+      }
+    ]
+  }
   return filters;
 }
 
@@ -83,7 +97,7 @@ async function EventsPage(props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const searchParams = await props.searchParams;
-  console.log('params', searchParams);
+
 
   // Parse search params into typed object with default values if not a string.
   const parsedSearchParams: EventPageSearchParams = {
@@ -94,6 +108,7 @@ async function EventsPage(props: {
     tags: typeof searchParams?.tags === 'string' ? searchParams.tags : undefined,
     page: typeof searchParams?.page === 'string' ? searchParams.page : '1',
     sort: parseSort(searchParams?.sort),
+    query: typeof searchParams?.query === 'string' ? searchParams.query : undefined,
   };
   // Generate filters object for qs
   const filters = buildFilters(parsedSearchParams);

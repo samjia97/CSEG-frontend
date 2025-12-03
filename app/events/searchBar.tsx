@@ -31,10 +31,18 @@ export default function SearchBar () {
     replace(`${pathname}?${params.toString()}`);
   }
 
+  const handleReset = () => {
+    const params = new URLSearchParams(currentSearchParams);
+    params.delete("query");
+    params.set("page", "1");
+    replace(`${pathname}?${params.toString()}`);
+  }
+
   return (
-      <form className={"flex gap-2 w-full max-w-[400px]"} onSubmit={handleSubmit}>
+      <form className={"flex gap-2 w-full max-w-[450px] items-center"} onSubmit={handleSubmit}>
         <Input type={"text"} name={"search"} placeholder={"search events"} className={" w-full rounded-none focus-visible:ring-0"}/>
-        <Button type={"submit"} variant={"outline"} size={"icon"} aria-label={"Submit"}><Search /></Button>
+        <Button type={"submit"} aria-label={"Submit"} size={"icon"}><Search/></Button>
+        <Button type={"reset"} variant={"destructive"} onClick={handleReset}>CLEAR</Button>
       </form>
   )
 }

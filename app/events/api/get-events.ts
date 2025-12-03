@@ -64,7 +64,22 @@ export type EventFilterParams = {
     }
     publicEvent?: {
       $eq?: boolean
-    }
+    },
+    $or? : [{
+      title: {
+        $containsi: string
+      },
+    },
+      {
+        speaker: {
+          $containsi: string
+        },
+    }, {
+        summary: {
+          $containsi: string
+        },
+      }
+    ]
   }
   populate?: string | string[]
   sort?: string | string[]
@@ -81,6 +96,10 @@ export type StrapiMeta = {
     pageCount: number,
     total: number
   }
+}
+
+function markField (field: string) : string {
+  return `&fields[]=${field}`;
 }
 
 
