@@ -1,8 +1,12 @@
 import React from 'react'
+import MyForm from "@/app/join/join-form";
 
 function JoinPage() {
   return (
-      <div>JoinPage</div>
+      <main>
+        <div>Join Page</div>
+        <MyForm/>
+      </main>
   )
 }
 

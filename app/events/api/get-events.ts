@@ -74,11 +74,23 @@ export type EventFilterParams = {
   }
 }
 
+export type StrapiMeta = {
+  pagination: {
+    page: number,
+    pageSize: number,
+    pageCount: number,
+    total: number
+  }
+}
+
 
 /**
  * Gets all events
  */
-export async function getEvents({ filters, sort, pagination }: EventFilterParams): Promise<EventCardData[]>{
+export async function getEvents({ filters, sort, pagination }: EventFilterParams): Promise<{
+  events: EventCardData[],
+  meta: StrapiMeta
+}>{
   try {
     const query = qs.stringify(
       {
@@ -130,10 +142,10 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
       )
     }
     console.debug("Number of events: ", allEvents.length);
-    return allEvents
+    return {events: allEvents, meta: res.data.meta} ;
   } catch (e) {
     console.error(e);
-    return [];
+    return {events: [], meta: {pagination: {page: 1, pageSize: 0, pageCount: 0, total: 0}}} ;
   }
 }
 

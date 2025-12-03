@@ -1,10 +1,17 @@
-import {EventCardData, EventFilterParams} from "@/app/events/api/get-events";
+import {EventCardData, StrapiMeta} from "@/app/events/api/get-events";
 import React from "react";
 import Link from "next/link";
 import {formatDate} from "@/lib/formatters";
 import {Badge} from "@/components/ui/badge";
 import {NoEventsPage} from "@/app/events/noEventsPage";
 import {FilterPanel} from "@/app/events/filterPanel";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem, PaginationLink, PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
+import {SortBy, SortOption} from "@/app/events/sortBy";
 
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
@@ -24,43 +31,61 @@ const extractTags = (eventItems: EventCardData[]): Set<string> => {
 
 type InteractiveEventsProps = {
   events: EventCardData[];
-  allEventTags: Set<string>;
   selectedTagsFromUrl: Set<string>;
-  filters: EventFilterParams;
+  currentURLParams: {
+    [key: string]: string | string[] | undefined;
+  } | undefined
+  meta: StrapiMeta;
+  currentSort: SortOption;
 }
 
 /**
  * A server component for displaying filtered events
  * @param events - The filtered events from the server
- * @param allEventTags - All available tag names from complete event set
  * @param selectedTagsFromUrl - Tag names selected from URL params
- * @param filters - The current filter state
+ * @param currentURLParams - Current URL search parameters
+ * @param meta - Strapi pagination metadata
+ * @param currentSort - Current sort option from URL
  * @constructor
  */
-export function InteractiveEvents({ events, allEventTags, selectedTagsFromUrl }: InteractiveEventsProps) {
+export function InteractiveEvents({ events, selectedTagsFromUrl, currentURLParams, meta, currentSort }: InteractiveEventsProps) {
   // Merge selected tags with tags from filtered results
   const resultTags = extractTags(events);
   const combinedTags = new Set([...selectedTagsFromUrl, ...resultTags]);
+  const previousURLParams = new URLSearchParams(currentURLParams as Record<string, string>);
+  const nextURLParams = new URLSearchParams(currentURLParams as Record<string, string>);
+
+  const currentPage = parseInt(previousURLParams.get('page') || '1', 10);
+  const previousPage = Math.max(currentPage - 1, 1);
+  previousURLParams.set('page', String(previousPage));
+  const prevLink = `/events?${previousURLParams.toString()}`;
+
+  const nextPage = currentPage + 1;
+  nextURLParams.set('page', String(nextPage));
+  const nextLink = `/events?${nextURLParams.toString()}`;
+
+  // Pagination links with numbers
+  const numberLinks = [];
+  for (let i = 0; i < meta.pagination.pageCount; i++) {
+    const pageNum = i + 1;
+    const pageURLParams = new URLSearchParams(currentURLParams as Record<string, string>);
+    pageURLParams.set('page', String(pageNum));
+    const pageLink = `/events?${pageURLParams.toString()}`;
+    numberLinks.push(
+        <PaginationItem key={pageNum}>
+          <PaginationLink href={pageLink} isActive={pageNum === currentPage}>
+            {pageNum}
+          </PaginationLink>
+        </PaginationItem>
+    );
+  }
 
   // Sort alphabetically
   const sortedTagArray = Array.from(combinedTags).sort((a, b) => a.localeCompare(b));
 
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
-        <div className={"flex self-end gap-2 items-center"}><p>Sort by</p>
-          {/*<Select onValueChange={sortEvents} defaultValue={"eventDate:desc"}>*/}
-          {/*  <SelectTrigger*/}
-          {/*      className="w-[150px] rounded-none border-black drop-shadow-none transition-none focus-visible:ring-0 focus-visible:border-black">*/}
-          {/*    <SelectValue placeholder={"eventDate:desc"}/>*/}
-          {/*  </SelectTrigger>*/}
-          {/*  <SelectContent>*/}
-          {/*    <SelectItem value={"eventDate:desc"}>New to Old </SelectItem>*/}
-          {/*    <SelectItem value={"eventDate:asc"}>Old to New</SelectItem>*/}
-          {/*    <SelectItem value={"title:asc"}>Title A to Z</SelectItem>*/}
-          {/*    <SelectItem value={"title:desc"}>Title Z to A</SelectItem>*/}
-          {/*  </SelectContent>*/}
-          {/*</Select>*/}
-        </div>
+        <SortBy currentSort={currentSort} />
         <div className={"grid grid-cols-[240px_1fr] w-full gap-4"}>
           <FilterPanel
               availableTags={sortedTagArray}
@@ -101,6 +126,17 @@ export function InteractiveEvents({ events, allEventTags, selectedTagsFromUrl }:
                       </div>)
                 }
             )}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href={prevLink} />
+              </PaginationItem>
+              {numberLinks}
+              <PaginationItem>
+                <PaginationNext href={nextLink} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
           </div>
 
         </div>

@@ -1,67 +1,70 @@
 import React from 'react'
-import {EventCardData, EventFilterParams, getEvents} from "@/app/events/api/get-events";
+import {EventFilterParams, getEvents} from "@/app/events/api/get-events";
 import {InteractiveEvents} from "@/app/events/interactiveEvents";
 import {
   Breadcrumb,
-  BreadcrumbItem, BreadcrumbLink,
-  BreadcrumbList, BreadcrumbPage,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 
-/**
- * Extracts unique tag names from events
- */
-const extractAllTags = (eventItems: EventCardData[]): Set<string> => {
-  const eventTags: Set<string> = new Set();
-  for (const eventItem of eventItems) {
-    for (const tag of eventItem.eventTags) {
-      eventTags.add(tag);
-    }
-  }
-  return eventTags;
+
+export type EventPageSearchParams = {
+  timePeriod?: string;
+  from?: string;
+  to?: string;
+  openTo?: string;
+  tags?: string;
+  page?: string;
 }
 
 async function EventsPage(props: {
-  searchParams?: Promise<{
-    timePeriod?: string;
-    from?: string;
-    to?: string;
-    openTo?: string;
-    tags?: string;
-    page?: string;
-  }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const searchParams = await props.searchParams;
   console.log('params', searchParams);
 
+  // Parse search params into typed object
+  const parsedSearchParams: EventPageSearchParams = {
+    timePeriod: typeof searchParams?.timePeriod === 'string' ? searchParams.timePeriod : undefined,
+    from: typeof searchParams?.from === 'string' ? searchParams.from : undefined,
+    to: typeof searchParams?.to === 'string' ? searchParams.to : undefined,
+    openTo: typeof searchParams?.openTo === 'string' ? searchParams.openTo : undefined,
+    tags: typeof searchParams?.tags === 'string' ? searchParams.tags : undefined,
+    page: typeof searchParams?.page === 'string' ? searchParams.page : undefined,
+    sort: typeof searchParams?.sort === 'string' ? searchParams.sort : undefined,
+  };
+
   // Parse selected tags from URL
   const selectedTagsFromUrl = new Set<string>(
-    searchParams?.tags
-      ? searchParams.tags.split(',').map(tag => decodeURIComponent(tag.trim()))
+    parsedSearchParams?.tags
+      ? parsedSearchParams.tags.split(',').map(tag => decodeURIComponent(tag.trim()))
       : []
   );
 
-  // Fetch ALL events to get complete tag list
-  const allEvents = await getEvents({
-    filters: {},
-    sort: "eventDate:desc",
-    pagination: { pageSize: 1000 }
-  });
-  const allEventTags = extractAllTags(allEvents);
+  // Parse sort option with validation
+  const currentSort: SortOption = (parsedSearchParams.sort === "eventDate:desc" ||
+    parsedSearchParams.sort === "eventDate:asc" ||
+    parsedSearchParams.sort === "title:asc" ||
+    parsedSearchParams.sort === "title:desc")
+    ? parsedSearchParams.sort
+    : "eventDate:desc";
 
-  // Build filters from search params
+// Build filters from search params
   const filters: EventFilterParams = {
     filters: {},
     pagination: {
-      page: searchParams?.page ? parseInt(searchParams.page, 10) : 1,
+      page: parsedSearchParams.page ? parseInt(parsedSearchParams.page, 10) : 1,
       pageSize: 25
     },
-    sort: "eventDate:desc"
+    sort: currentSort
   };
 
   // Default time period and openTo if not specified
-  const timePeriod = searchParams?.timePeriod ?? "upcoming";
-  const openTo = searchParams?.openTo ?? "Member";
+  const timePeriod = parsedSearchParams?.timePeriod ?? "upcoming";
+  const openTo = parsedSearchParams?.openTo ?? "Member";
 
   // Time period filter
   switch (timePeriod) {
@@ -72,8 +75,8 @@ async function EventsPage(props: {
       filters.filters.eventDate = { $lte: new Date().toISOString() };
       break;
     case "custom":
-      if (searchParams?.from && searchParams?.to) {
-        filters.filters.eventDate = { $between: [searchParams.from, searchParams.to] };
+      if (parsedSearchParams?.from && parsedSearchParams?.to) {
+        filters.filters.eventDate = { $between: [parsedSearchParams.from, parsedSearchParams.to] };
       }
       break;
     case "all":
@@ -105,7 +108,8 @@ async function EventsPage(props: {
   }
 
   // Fetch filtered events
-  const events = await getEvents(filters);
+  const {events, meta} = await getEvents(filters);
+  console.log(meta)
 
   return (
       <main className={"min-h-screen pt-2 bg-neutral-50 px-4"}>
@@ -127,9 +131,10 @@ async function EventsPage(props: {
         <div className={"flex justify-center"}>
           <InteractiveEvents
             events={events}
-            allEventTags={allEventTags}
             selectedTagsFromUrl={selectedTagsFromUrl}
-            filters={filters}
+            currentURLParams={searchParams}
+            meta={meta}
+            currentSort={currentSort}
           />
         </div>
 
