@@ -18,53 +18,48 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {CheckedState} from "@radix-ui/react-checkbox";
 import {Label} from "@/components/ui/label";
 import {Publication} from "@/app/publications/api/get-publications";
+import {defaultStartYear, thisYear, yearArray} from "@/app/publications/interactivePublications";
 
-const defaultStartYear = "2022";
-const thisYear = new Date().getFullYear();
-const generateYearArray = (): number[] => {
-  const yearArray = [];
-  const startYearInt = parseInt(defaultStartYear);
-  for (let i = thisYear; i >= startYearInt; i--) {
-    yearArray.push(i);
-  }
-  return yearArray
-}
-const yearArray = generateYearArray();
 type PublicationsFilterPanelProps = {
   setPublications: React.Dispatch<React.SetStateAction<Publication[]>>;
   initialPublications: Publication[];
   topics: string[];
+  startYear: string;
+  setStartYear: React.Dispatch<React.SetStateAction<string>>;
+  endYear: string;
+  setEndYear: React.Dispatch<React.SetStateAction<string>>;
+  selectedTopics: Set<string>;
+  setSelectedTopics: React.Dispatch<React.SetStateAction<Set<string>>>;
 };
 
 export function PublicationsFilterPanel({
-                                          setPublications,
-                                          initialPublications,
                                           topics,
+                                          startYear,
+                                          setStartYear,
+                                          endYear,
+                                          setEndYear,
+                                          selectedTopics,
+                                          setSelectedTopics
                                         }: PublicationsFilterPanelProps) {
-  const [startYear, setStartYear] = useState(defaultStartYear);
-  const [endYear, setEndYear] = useState(String(thisYear));
-  const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
 
-  const filterPublications = (start: string, end: string, topicsSet: Set<string>) => {
-    setPublications(
-        initialPublications.filter((value) =>
-            value.publicationDate <= new Date(parseInt(end, 10), 11, 31) &&
-            value.publicationDate >= new Date(parseInt(start, 10), 0, 1) &&
-            (topicsSet.size === 0 || topicsSet.difference(new Set(value.topics)).size === 0)
-        )
-    );
-  };
+  // const filterPublications = (start: string, end: string, topicsSet: Set<string>) => {
+  //   setPublications(
+  //       initialPublications.filter((value) =>
+  //           value.publicationDate <= new Date(parseInt(end, 10), 11, 31) &&
+  //           value.publicationDate >= new Date(parseInt(start, 10), 0, 1) &&
+  //           (topicsSet.size === 0 || topicsSet.difference(new Set(value.topics)).size === 0)
+  //       )
+  //   );
+  // };
 
   const handleStartDateChange = (newStartYear: string) => {
     const validatedNewStartYear = Math.min(parseInt(newStartYear), parseInt(endYear)).toString();
     setStartYear(validatedNewStartYear);
-    filterPublications(validatedNewStartYear, endYear, selectedTopics);
   };
 
   const handleEndDateChange = (newEndYear: string) => {
     const validatedNewEndYear = Math.max(parseInt(newEndYear), parseInt(startYear)).toString();
     setEndYear(validatedNewEndYear);
-    filterPublications(startYear, validatedNewEndYear, selectedTopics);
   };
 
   const handleOnChecked = (tagName: string, checked: boolean) => {
@@ -75,14 +70,12 @@ export function PublicationsFilterPanel({
       newSelectedTopics.delete(tagName);
     }
     setSelectedTopics(newSelectedTopics);
-    filterPublications(startYear, endYear, newSelectedTopics);
   };
 
   const clearFilters = () => {
     setStartYear(defaultStartYear);
     setEndYear(String(thisYear));
     setSelectedTopics(new Set());
-    setPublications(initialPublications);
   };
 
   return (
