@@ -127,7 +127,8 @@ export async function getPublications(){
     },
     pagination:{
       // pageSize: -1,
-    }
+    },
+    sort: ["publicationDate:desc"]
   }
   const params = qs.stringify(query);
   const res = await api.get("/publications?"+params);

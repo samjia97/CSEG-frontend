@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {Button} from "@/components/ui/button";
 import {
   Select,
@@ -18,10 +18,9 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {CheckedState} from "@radix-ui/react-checkbox";
 import {Label} from "@/components/ui/label";
 import {Publication} from "@/app/publications/api/get-publications";
-import {defaultStartYear, thisYear, yearArray} from "@/app/publications/interactivePublications";
+import {defaultStartYear, thisYear} from "@/app/publications/publication_constants";
 
 type PublicationsFilterPanelProps = {
-  setPublications: React.Dispatch<React.SetStateAction<Publication[]>>;
   initialPublications: Publication[];
   topics: string[];
   startYear: string;
@@ -31,6 +30,16 @@ type PublicationsFilterPanelProps = {
   selectedTopics: Set<string>;
   setSelectedTopics: React.Dispatch<React.SetStateAction<Set<string>>>;
 };
+
+const generateYearArray = (): number[] => {
+  const yearArray = [];
+  const startYearInt = parseInt(defaultStartYear);
+  for (let i = thisYear; i >= startYearInt; i--) {
+    yearArray.push(i);
+  }
+  return yearArray
+}
+export const yearArray = generateYearArray();
 
 export function PublicationsFilterPanel({
                                           topics,
@@ -42,15 +51,6 @@ export function PublicationsFilterPanel({
                                           setSelectedTopics
                                         }: PublicationsFilterPanelProps) {
 
-  // const filterPublications = (start: string, end: string, topicsSet: Set<string>) => {
-  //   setPublications(
-  //       initialPublications.filter((value) =>
-  //           value.publicationDate <= new Date(parseInt(end, 10), 11, 31) &&
-  //           value.publicationDate >= new Date(parseInt(start, 10), 0, 1) &&
-  //           (topicsSet.size === 0 || topicsSet.difference(new Set(value.topics)).size === 0)
-  //       )
-  //   );
-  // };
 
   const handleStartDateChange = (newStartYear: string) => {
     const validatedNewStartYear = Math.min(parseInt(newStartYear), parseInt(endYear)).toString();

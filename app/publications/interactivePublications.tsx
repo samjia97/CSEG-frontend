@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Publication} from "@/app/publications/api/get-publications";
 import {formatDate} from "@/lib/formatters";
 import {Badge} from "@/components/ui/badge";
@@ -8,6 +8,13 @@ import {PublicationsFilterPanel} from "@/app/publications/PublicationsFilterPane
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Search} from "lucide-react";
+import {defaultStartYear, thisYear} from "@/app/publications/publication_constants";
+import {
+  Pagination, PaginationClientLink, PaginationClientNext, PaginationClientPrevious,
+  PaginationContent,
+  PaginationItem, PaginationLink, PaginationNext,
+  PaginationPrevious
+} from "@/components/ui/pagination";
 
 type InteractivePublicationsProps = {
   initialPublications: Publication[],
@@ -18,12 +25,14 @@ const validateAgainstQuery = (publication: Publication, query: string): boolean 
   return publication.title.toLowerCase().includes(query) || publication.author.toLowerCase().includes(query);
 }
 
+const PAGE_SIZE=4;
+
 function InteractivePublications({initialPublications, topics}: InteractivePublicationsProps) {
-  const [publications, setPublications] = useState(initialPublications);
   const [startYear, setStartYear] = useState(defaultStartYear);
   const [endYear, setEndYear] = useState(String(thisYear));
   const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
 
   /**
    * Processes search query
@@ -42,19 +51,20 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
     setSearchQuery("");
   }
 
-  console.log('initialPublications', initialPublications);
   const filteredPublications = initialPublications.filter((value) =>
             value.publicationDate <= new Date(parseInt(endYear, 10), 11, 31) &&
             value.publicationDate >= new Date(parseInt(startYear, 10), 0, 1) &&
             (selectedTopics.size === 0 || selectedTopics.difference(new Set(value.topics)).size === 0) &&
             validateAgainstQuery(value, searchQuery)
   );
-  console.log('applied filters', {startYear, endYear, selectedTopics}, 'filteredPublications', filteredPublications);
+  console.log('length of filteredPublications:', filteredPublications.length, 'page', page);
+  useEffect(() => {setPage(1)}, [searchQuery, startYear, endYear, selectedTopics]);
+  const maxPage = Math.ceil(filteredPublications.length / PAGE_SIZE);
+  const paginatedPublications = filteredPublications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
       <div className={"max-w-7xl w-full grid grid-cols-[220px_1fr] gap-4"}>
         <PublicationsFilterPanel
-            setPublications={setPublications}
             initialPublications={initialPublications}
             topics={topics}
             startYear={startYear}
@@ -70,7 +80,9 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
             <Button type={"submit"} aria-label={"Submit"} size={"icon"}><Search/></Button>
             <Button type={"reset"} variant={"destructive"} onClick={handleReset}>CLEAR</Button>
           </form>
-          {filteredPublications.map((item) =>
+          <div className={"mt-1 mb-3"}>
+
+          {paginatedPublications.map((item) =>
               <div key={item.id} className={"flex flex-col border-b border-neutral-500 py-2"}>
                 <p className={"text-lg"}>{item.title}</p>
                 <div className={"grid grid-cols-[150px_1fr]"}>
@@ -89,21 +101,28 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
                     :
                     <p>No link provided</p>
                 }
+
               </div>)}
+          </div>
+          <div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationClientPrevious onClick={() => setPage(Math.max(1, page - 1))} />
+              </PaginationItem>
+
+              {Array.from({length: maxPage},(_, i) => <PaginationItem key={i+1}><PaginationClientLink onClick={() => { console.log('click',i+1); setPage(i+1)}} isActive={page===i+1}>{i+1}</PaginationClientLink></PaginationItem>)}
+
+              <PaginationItem>
+                <PaginationClientNext  onClick={() => setPage(Math.min(maxPage, page + 1))}/>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          </div>
         </div>
       </div>
   )
 }
 
 export default InteractivePublications
-export const defaultStartYear = "2022";
-export const thisYear = new Date().getFullYear();
-const generateYearArray = (): number[] => {
-  const yearArray = [];
-  const startYearInt = parseInt(defaultStartYear);
-  for (let i = thisYear; i >= startYearInt; i--) {
-    yearArray.push(i);
-  }
-  return yearArray
-}
-export const yearArray = generateYearArray();
+

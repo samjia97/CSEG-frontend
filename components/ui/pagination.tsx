@@ -43,6 +43,11 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<typeof Link>
 
+type PaginationClientLinkProps = {
+  isActive?: boolean
+} & Pick<React.ComponentProps<typeof Button>, "size"> &
+  React.ComponentProps<"div">
+
 function PaginationLink({
   className,
   isActive,
@@ -62,6 +67,70 @@ function PaginationLink({
             )}
             {...props}>
       </Link>
+  )
+}
+
+/**
+ * Link for client side pagination
+ * @param className
+ * @param isActive
+ * @param size
+ * @param props
+ * @constructor
+ */
+function PaginationClientLink({
+                                className,
+                                isActive,
+                                size = "icon",
+                                ...props
+                              }: PaginationClientLinkProps) {
+  return (
+      <div aria-current={isActive ? "page" : undefined}
+            data-slot="pagination-link"
+            data-active={isActive}
+            className={cn(
+                buttonVariants({
+                  variant: isActive ? "outline" : "ghost",
+                  size,
+                }),
+                className
+            )}
+            {...props}>
+      </div>
+  )
+}
+
+function PaginationClientPrevious({
+                              className,
+                              ...props
+                            }: React.ComponentProps<typeof PaginationClientLink>) {
+  return (
+      <PaginationClientLink
+          aria-label="Go to previous page"
+          size="default"
+          className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
+          {...props}
+      >
+        <ChevronLeftIcon />
+        <span className="hidden sm:block">Previous</span>
+      </PaginationClientLink>
+  )
+}
+
+function PaginationClientNext({
+                          className,
+                          ...props
+                        }: React.ComponentProps<typeof PaginationClientLink>) {
+  return (
+      <PaginationClientLink
+          aria-label="Go to next page"
+          size="default"
+          className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
+          {...props}
+      >
+        <span className="hidden sm:block">Next</span>
+        <ChevronRightIcon />
+      </PaginationClientLink>
   )
 }
 
@@ -124,4 +193,7 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  PaginationClientLink,
+  PaginationClientPrevious,
+  PaginationClientNext,
 }
