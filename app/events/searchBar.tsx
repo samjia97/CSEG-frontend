@@ -40,7 +40,7 @@ export default function SearchBar () {
 
   return (
       <form className={"flex gap-2 w-full max-w-[450px] items-center"} onSubmit={handleSubmit}>
-        <Input type={"text"} name={"search"} placeholder={"search events"} className={" w-full rounded-none focus-visible:ring-0"}/>
+        <Input type={"text"} name={"search"} placeholder={"search by title, summary or speaker"} className={" w-full rounded-none focus-visible:ring-0"}/>
         <Button type={"submit"} aria-label={"Submit"} size={"icon"}><Search/></Button>
         <Button type={"reset"} variant={"destructive"} onClick={handleReset}>CLEAR</Button>
       </form>
