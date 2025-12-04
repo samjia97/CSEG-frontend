@@ -75,8 +75,8 @@ export default async function Home() {
               alternativeText={homepageData.PublicationsCardImage.alternativeText}
               titleText="Publications"
               bodyText={homepageData.PublicationsCardText}
-              buttonText="Explore our publications"
-              buttonHref="/publications"
+              buttonText="Explore our initialPublications"
+              buttonHref="/initialPublications"
             />
             <HomepageCard
                 url={homepageData.ResearchProjectsCardImage.url}

@@ -87,11 +87,6 @@ export function InteractiveEvents({ events, selectedTagsFromUrl, currentURLParam
   // Sort alphabetically
   const sortedTagArray = Array.from(combinedTags).sort((a, b) => a.localeCompare(b));
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-  }
-
   return (
       <div className={"flex flex-col gap-2 items-start mt-2 max-w-7xl w-full"}>
 

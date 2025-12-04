@@ -39,28 +39,14 @@ export type FilterPanelProps = {
 export function FilterPanel({ availableTags, selectedTagsFromUrl }: FilterPanelProps) {
   // Draft state - managed entirely in FilterPanel
   const pathname = usePathname();
-  const currentSearchParams = useSearchParams();
+  const currentParams = useSearchParams();
   const { replace } = useRouter();
 
   // Sync with URL on load
-  const timePeriodParam = currentSearchParams.get("timePeriod");
-  const initialTimePeriod = (timePeriodParam === "upcoming" || timePeriodParam === "past" || timePeriodParam === "all" || timePeriodParam === "custom")
-    ? timePeriodParam
-    : defaultTimePeriod;
-
-  const openToParam = currentSearchParams.get("openTo");
-  const initialOpenTo = (openToParam === "Member" || openToParam === "Associate_Member" || openToParam === "Student_Member" || openToParam === "public")
-    ? openToParam
-    : defaultOpenTo;
-
-  const fromParam = currentSearchParams.get("from");
-  const parsedStartDate = fromParam ? Date.parse(fromParam) : NaN;
-  const initialStartDate = !isNaN(parsedStartDate) ? new Date(parsedStartDate) : defaultStartDate;
-
-  const toParam = currentSearchParams.get("to");
-  const parsedEndDate = toParam ? Date.parse(toParam) : NaN;
-  const initialEndDate = !isNaN(parsedEndDate) ? new Date(parsedEndDate) : defaultEndDate;
-
+  const initialTimePeriod = (["upcoming", "past", "all", "custom"].includes(currentParams.get("timePeriod") || "")) ? currentParams.get("timePeriod") as TimePeriod : defaultTimePeriod;
+  const initialOpenTo = (["Member", "Associate_Member", "Student_Member", "public"].includes(currentParams.get("openTo") || "")) ? currentParams.get("openTo") as OpenTo : defaultOpenTo;
+  const initialStartDate = currentParams.get("from") && !isNaN(Date.parse(currentParams.get("from")!)) ? new Date(Date.parse(currentParams.get("from")!)) : defaultStartDate;
+  const initialEndDate = currentParams.get("to") && !isNaN(Date.parse(currentParams.get("to")!)) ? new Date(Date.parse(currentParams.get("to")!)) : defaultEndDate;
   const initialTags = selectedTagsFromUrl;
 
   const [selectedTimePeriod, setSelectedTimePeriod] = React.useState<TimePeriod>(initialTimePeriod);
@@ -121,7 +107,7 @@ export function FilterPanel({ availableTags, selectedTagsFromUrl }: FilterPanelP
    * When APPLY FILTERS button clicked
    */
   const handleApplyFilters = () => {
-    const params = new URLSearchParams(currentSearchParams);
+    const params = new URLSearchParams(currentParams);
 
     if (selectedTimePeriod === "custom"){
       params.delete('timePeriod');
@@ -174,7 +160,7 @@ export function FilterPanel({ availableTags, selectedTagsFromUrl }: FilterPanelP
 
   return <div
       className={"flex flex-col bg-secondary rounded-md  px-2 py-3 gap-2 text-secondary-foreground min-h-[600px] max-h-dvh overflow-y-auto sticky top-4"}>
-    <h3 className={"text-xl text-center"}>Filter by</h3>
+    <p className={"text-xl text-center"}>Filter by</p>
     <div className={"flex justify-between my-2"}>
       <Button size={"sm"} variant={"destructive"} onClick={resetFilters}>RESET</Button>
       <Button size={"sm"} onClick={handleApplyFilters} disabled={!filtersModified()}>APPLY FILTERS</Button>

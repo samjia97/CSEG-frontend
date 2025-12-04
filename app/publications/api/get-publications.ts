@@ -115,7 +115,7 @@ const PublicationsResponseSchema = z.object({
 type PublicationFromStrapi = z.infer<typeof PublicationSchema>;
 
 /**
- * Get list of all publications
+ * Get list of all initialPublications
  */
 export async function getPublications(){
   const query = {

@@ -30,7 +30,7 @@ The project uses Next.js App Router with file-based routing in the `app/` direct
 - `app/layout.tsx` - Root layout with global navigation (Navbar03)
 - `app/page.tsx` - Home page
 - `app/about/page.tsx` - About page
-- Additional routes expected: `/events`, `/research_projects`, `/publications`, `/join`, `/contact`
+- Additional routes expected: `/events`, `/research_projects`, `/initialPublications`, `/join`, `/contact`
 
 ### Navigation System
 
