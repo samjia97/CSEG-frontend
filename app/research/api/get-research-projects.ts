@@ -7,7 +7,6 @@ export type ResearchProject = {
   documentId: string;
   title: string;
   slug: string;
-  shortSummary: string;
   longSummaryOnLearnMore: string;
   primaryInvestigator: string;
   coInvestigator?: string;
@@ -43,7 +42,6 @@ export async function getResearchProjects(): Promise<ResearchProject[] | null> {
         documentId: project.documentId,
         title: project.title,
         slug: getSlug(project.title, project.documentId),
-        shortSummary: project.shortSummary,
         longSummaryOnLearnMore: project.longSummaryOnLearnMore,
         primaryInvestigator: project.primaryInvestigator,
         coInvestigator: project.coInvestigator,

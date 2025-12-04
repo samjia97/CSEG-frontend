@@ -33,7 +33,7 @@ export default async function Page({
   }
 
   return <main className={"p-4 flex flex-col items-center bg-neutral-50"}>
-    <div className={"flex gap-4 self-start mb-4"}>
+    <div className={"flex gap-4 self-start"}>
       <Button asChild>
         <Link href={"/research"}>Back to research</Link>
       </Button>
@@ -229,11 +229,11 @@ export default async function Page({
     {/*    <BlocksRenderer content={researchProjectData.projectPageContent}/>*/}
     {/*  </div>*/}
     {/*</article>*/}
-    <article className={"flex flex-col items-center gap-4 max-w-[1168px]"}>
-      <h1 className={"text-3xl bg-secondary text-secondary-foreground p-2"}>{researchProjectData.title}</h1>
+    <article className={"flex flex-col items-center max-w-[1168px] w-full"}>
+      <h2 className={"my-2"}>{researchProjectData.title}</h2>
 
       {/* Image and metadata side by side on large screens */}
-      <div className={"flex flex-col lg:flex-row gap-4 w-full"}>
+      <div className={"flex"}>
         {/* Image on left - capped height */}
         {researchProjectData.projectPageCoverImage &&
             <div className={"flex-1 min-w-0"}>
@@ -243,14 +243,20 @@ export default async function Page({
                   width={researchProjectData.projectPageCoverImage.width}
                   height={researchProjectData.projectPageCoverImage.height}
                   sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-contain max-h-[380px] w-auto"
+                  className="object-contain max-h-[300px] w-auto"
               />
             </div>
         }
 
         {/* Metadata on right - fixed width on large screens */}
+      <hr/>
+      </div>
+
+      <div className={"w-full prose max-w-none self-start"}>
+        <BlocksRenderer content={researchProjectData.projectPageContent}/>
+      </div>
         <div
-            className={"w-full lg:w-[550px] lg:flex-shrink-0 border-primary rounded-md border-2 p-4"}>
+            className={"w-full lg:w-[550px] lg:flex-shrink-0 self-start border-primary rounded-md border-2 p-2 mt-2"}>
           <div className={"flex flex-col gap-2"}>
             <div className={"flex justify-between gap-2"}>
               <span className={"font-semibold"}>Primary investigator</span>
@@ -285,15 +291,9 @@ export default async function Page({
             </div>
 
             <div className={"flex justify-between gap-2"}>
-              <span className={"font-semibold"}>Ongoing project</span>
-              <span
-                  className={"text-right"}>{researchProjectData.ongoingProject ? "Yes" : "No"}</span>
-            </div>
-
-            <div className={"flex justify-between gap-2"}>
               <span className={"font-semibold"}>Completion date</span>
               <span
-                  className={"text-right"}>{researchProjectData.ongoingProject || !researchProjectData.projectEndDate ? "Ongoing" : formatDate(researchProjectData.projectEndDate)}</span>
+                  className={"text-right"}>{researchProjectData.ongoingProject || !researchProjectData.projectEndDate ? "Ongoing project" : formatDate(researchProjectData.projectEndDate)}</span>
             </div>
 
             <hr className={"my-1"}/>
@@ -304,11 +304,6 @@ export default async function Page({
             </div>
           </div>
         </div>
-      </div>
-
-      <div className={"w-full prose max-w-none"}>
-        <BlocksRenderer content={researchProjectData.projectPageContent}/>
-      </div>
     </article>
   </main>
 }

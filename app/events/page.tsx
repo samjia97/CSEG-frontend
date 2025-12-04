@@ -138,7 +138,7 @@ async function EventsPage(props: {
   return (
       <main className={"min-h-screen pt-2 bg-neutral-50 px-4"}>
         <div className={"flex flex-col text-center"}>
-          <h1 className={"text-5xl mb-4"}>Events</h1>
+          <h1 className={"mb-4"}>Events</h1>
           <p>Our events where we learn more about Computer Science Education together.</p>
         </div>
         <div className={"flex justify-center"}>

@@ -49,19 +49,26 @@ async function ResearchProjectsPage() {
                   <article key={project.documentId} className={"bg-neutral-100 pb-2"}>
                     <div className={"bg-secondary p-2"}>
                       <Link href={`/research/${project.slug}`}
-                            className={"text-xl text-secondary-foreground bg-secondary underline"}>
+                            className={"text-secondary-foreground bg-secondary underline"}>
                         <h3>{project.title}</h3>
                       </Link>
                     </div>
-                    <div className={"px-2"}>
-                    <p><strong>Completion
-                      Date: </strong>{project.projectEndDate === null ? 'N/A - Ongoing project' : formatDate(project.projectEndDate)}
-                    </p>
-                    <p><strong>Summary: </strong>{project.shortSummary}</p>
-                    <LearnMore projectEndDate={project.projectEndDate}
-                               longSummaryOnLearnMore={project.longSummaryOnLearnMore}
-                               primaryInvestigator={project.primaryInvestigator}
-                               coInvestigator={project.coInvestigator}/>
+                    <div className={"px-2 grid grid-cols-[200px_1fr] mt-2"}>
+                      <strong>Start date</strong>
+                      <p>{formatDate(project.projectStartDate)}</p>
+                      <strong>End date</strong>
+                      <p>{project.projectEndDate === null ? 'Ongoing project' : formatDate(project.projectEndDate)}</p>
+                      <strong>Primary investigator</strong>
+                      <p>{project.primaryInvestigator}</p>
+                      <strong>Co-investigator</strong>
+                      <p>{project.coInvestigator}</p>
+                    {/*<p><strong>Completion*/}
+                    {/*  Date: </strong>{project.projectEndDate === null ? 'N/A - Ongoing project' : formatDate(project.projectEndDate)}*/}
+                    {/*</p>*/}
+                    {/*<LearnMore projectEndDate={project.projectEndDate}*/}
+                    {/*           longSummaryOnLearnMore={project.longSummaryOnLearnMore}*/}
+                    {/*           primaryInvestigator={project.primaryInvestigator}*/}
+                    {/*           coInvestigator={project.coInvestigator}/>*/}
                     </div>
                   </article>)
             })}
