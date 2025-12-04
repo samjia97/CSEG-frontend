@@ -6,9 +6,8 @@ import {getTopics} from "@/lib/get-topics";
 async function PublicationsPage() {
   const publications = await getPublications();
   const topics = await getTopics();
-  console.log(publications)
   return (
-      <main className={"p-4 flex flex-col items-center"}>
+      <main className={"p-4 flex flex-col items-center gap-4"}>
         <div>
           <h1 className={"text-center"}>Publications</h1>
           <p>Research papers, presentations, posters and other types of content</p>

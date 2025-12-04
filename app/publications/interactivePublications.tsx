@@ -12,6 +12,10 @@ import {Search} from "lucide-react";
 type InteractivePublicationsProps = {
   initialPublications: Publication[],
   topics: string[]
+};
+
+const validateAgainstQuery = (publication: Publication, query: string): boolean => {
+  return publication.title.toLowerCase().includes(query) || publication.author.toLowerCase().includes(query);
 }
 
 function InteractivePublications({initialPublications, topics}: InteractivePublicationsProps) {
@@ -19,21 +23,31 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
   const [startYear, setStartYear] = useState(defaultStartYear);
   const [endYear, setEndYear] = useState(String(thisYear));
   const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-
+  /**
+   * Processes search query
+   * @param e
+   */
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget)
     const query = (formData.get("search") as string).toLowerCase();
-    if (query.length > 0) {
-
-    }
+    setSearchQuery(query.toLowerCase());
   }
+  /**
+   * Clears search query in action.
+   */
+  const handleReset = () => {
+    setSearchQuery("");
+  }
+
   console.log('initialPublications', initialPublications);
   const filteredPublications = initialPublications.filter((value) =>
             value.publicationDate <= new Date(parseInt(endYear, 10), 11, 31) &&
             value.publicationDate >= new Date(parseInt(startYear, 10), 0, 1) &&
-            (selectedTopics.size === 0 || selectedTopics.difference(new Set(value.topics)).size === 0)
+            (selectedTopics.size === 0 || selectedTopics.difference(new Set(value.topics)).size === 0) &&
+            validateAgainstQuery(value, searchQuery)
   );
   console.log('applied filters', {startYear, endYear, selectedTopics}, 'filteredPublications', filteredPublications);
 
@@ -51,10 +65,10 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
             setSelectedTopics={setSelectedTopics}
         />
         <div>
-          <form className={"flex gap-2 w-full max-w-[450px] items-center"}>
+          <form className={"flex gap-2 w-full max-w-[450px] items-center"} onSubmit={handleSubmit}>
             <Input type={"text"} name={"search"} placeholder={"search in title and author"} className={" w-full rounded-none focus-visible:ring-0"}/>
             <Button type={"submit"} aria-label={"Submit"} size={"icon"}><Search/></Button>
-            <Button type={"reset"} variant={"destructive"}>CLEAR</Button>
+            <Button type={"reset"} variant={"destructive"} onClick={handleReset}>CLEAR</Button>
           </form>
           {filteredPublications.map((item) =>
               <div key={item.id} className={"flex flex-col border-b border-neutral-500 py-2"}>
