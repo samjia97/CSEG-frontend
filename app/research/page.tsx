@@ -14,19 +14,8 @@ import LearnMore from "@/app/research/learn-more";
 
 function ResearchPageHeader() {
   return <>
-    <Breadcrumb className={"bg-neutral-200 px-8 w-fit"}>
-      <BreadcrumbList className={"text-lg"}>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/">Home</BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator/>
-        <BreadcrumbItem>
-          <BreadcrumbPage>Research</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
     <div className={"flex flex-col text-center px-4"}>
-      <h1 className={"text-5xl mb-4"}>Research projects</h1>
+      <h1 className={"mb-4"}>Research projects</h1>
       <p>Explore our research projects in the field of Computer Science Education. Created from
         collaboration between multiple CSEG members.</p>
     </div>
