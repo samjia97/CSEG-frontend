@@ -34,6 +34,14 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
+  if (initialPublications.length === 0){
+    return (
+        <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
+          <h4>No publications to show</h4>
+        </div>
+    )
+  }
+
   /**
    * Processes search query
    * @param e
