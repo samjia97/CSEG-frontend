@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       //   Strapi Cloud
       {
         protocol: 'https',
-        hostname:'https://heroic-bouquet-2407f56d2e.strapiapp.com/admin'
+        hostname:'https://heroic-bouquet-2407f56d2e.strapiapp.com'
       }
     ],
     dangerouslyAllowLocalIP: true,
