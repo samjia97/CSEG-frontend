@@ -21,7 +21,7 @@ export type EventCardData = {
   eventEndString: string;
   location: string;
   speaker: string;
-  summary: string;
+  summary?: string;
   eventType: string;
   id: number;
   eventTags: string[];
@@ -152,7 +152,7 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
             eventEndString: endTimeStr.toString().substring(0,5),
             location: eventItem?.location ?? "Location TBA",
             speaker: eventItem?.speaker ?? "Speaker TBA",
-            summary: eventItem?.summary ?? "No description available",
+            summary: eventItem?.summary,
             eventType: eventItem?.event_type?.EventType ?? "Event",
             eventTags: eventTags,
             publicEvent: eventItem?.publicEvent ?? false,

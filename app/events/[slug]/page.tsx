@@ -73,7 +73,7 @@ export default async function Page({
         <span>{eventData.title}</span></h1>
       <hr className={"h-3 w-full bg-primary"}/>
       <div className={"grid grid-cols-[1fr_340px] gap-2"}>
-        <div className={"bg-white border-r-2 p-4"}>
+        <div className={"bg-white border-r-2 p-4 prose prose-invert max-w-none"}>
           <BlocksRenderer content={eventData.eventPage}/>
         </div>
         <div className={"flex flex-col items-start bg-white p-3"}>

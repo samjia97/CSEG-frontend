@@ -57,14 +57,15 @@ export default async function Home() {
           <Link className={"text-2xl italic underline"} href={"https://www.ed.ac.uk/informatics"}>School of informatics</Link>
           <h1 className={"text-3xl text-primary"}>Computer Science Education Group (CSEG)</h1>
           {/*Hero*/}
-          <div className={"max-w-[900px] bg-white"}>
+          <div className={"max-w-[1200px] flex flex-col lg:flex-row gap-2 items-center justify-center bg-white"}>
             <Image
                 src={getStrapiImageUrl(homepageData.HeroImage.url)}
                 alt={homepageData.HeroImage.alternativeText}
-                width={900}
-                height={400}
+                width={450}
+                height={200}
+                className={"flex justify-center items-center mx-auto my-4"}
             />
-            <div className={"border-4 border-primary px-4 py-2"}>
+            <div className={"border-4 border-primary px-4 py-2 h-[200px]"}>
               <BlocksRenderer content={homepageData.HeroText}/>
             </div>
           </div>
@@ -75,8 +76,8 @@ export default async function Home() {
               alternativeText={homepageData.PublicationsCardImage.alternativeText}
               titleText="Publications"
               bodyText={homepageData.PublicationsCardText}
-              buttonText="Explore our initialPublications"
-              buttonHref="/initialPublications"
+              buttonText="Explore our Publications"
+              buttonHref="/publications"
             />
             <HomepageCard
                 url={homepageData.ResearchProjectsCardImage.url}
@@ -84,7 +85,7 @@ export default async function Home() {
                 titleText="Research projects"
                 bodyText={homepageData.ResearchProjectsCardText}
                 buttonText="Explore our projects"
-                buttonHref="/research_projects"
+                buttonHref="/research"
             />
             <HomepageCard
               url={homepageData.AboutUsCardImage.url}
