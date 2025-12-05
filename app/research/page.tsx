@@ -45,11 +45,15 @@ async function ResearchProjectsPage() {
 
     )
   }
+  console.log(researchProjects)
   return (
-      <main className={"min-h-screen bg-neutral-50 pt-2 px-4"}>
+      <main className={"min-h-screen bg-neutral-50 pt-2 px-4 flex flex-col items-center"}>
         <ResearchPageHeader/>
-        <div className={"flex justify-center px-4"}>
-          <div className={"flex flex-col w-full max-w-7xl items-left mt-8 gap-8"}>
+        <div className={"grid grid-cols-[200px_1fr] gap-4 mt-8 max-w-7xl w-full"}>
+          <div>
+            Filters and sorting coming soon!
+          </div>
+          <div className={"flex flex-col w-full max-w-7xl gap-4"}>
             {researchProjects.map(project => {
               return (
                   <article key={project.documentId} className={"bg-neutral-100 pb-2 px-2"}>
@@ -68,22 +72,16 @@ async function ResearchProjectsPage() {
                       <p>{project.primaryInvestigator}</p>
                       <strong>Co-investigator</strong>
                       <p>{project.coInvestigator}</p>
-                    {/*<p><strong>Completion*/}
-                    {/*  Date: </strong>{project.projectEndDate === null ? 'N/A - Ongoing project' : formatDate(project.projectEndDate)}*/}
-                    {/*</p>*/}
-                    {/*<LearnMore projectEndDate={project.projectEndDate}*/}
-                    {/*           longSummaryOnLearnMore={project.longSummaryOnLearnMore}*/}
-                    {/*           primaryInvestigator={project.primaryInvestigator}*/}
-                    {/*           coInvestigator={project.coInvestigator}/>*/}
                     </div>
-                    <Accordion type="single" collapsible >
-                      <AccordionItem value="item-1">
-                        <AccordionTrigger className={"pt-2 pb-0"}>View summary</AccordionTrigger>
-                        <AccordionContent>
-                          {project.longSummaryOnLearnMore}
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
+                    <LearnMore summary={project.summary} />
+                    {/*<Accordion type="single" collapsible >*/}
+                    {/*  <AccordionItem value="item-1">*/}
+                    {/*    <AccordionTrigger className={"pt-2 pb-0"}>View summary</AccordionTrigger>*/}
+                    {/*    <AccordionContent>*/}
+                    {/*      {project.longSummaryOnLearnMore}*/}
+                    {/*    </AccordionContent>*/}
+                    {/*  </AccordionItem>*/}
+                    {/*</Accordion>*/}
                   </article>)
             })}
 

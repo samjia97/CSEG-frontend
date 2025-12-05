@@ -7,7 +7,7 @@ export type ResearchProject = {
   documentId: string;
   title: string;
   slug: string;
-  longSummaryOnLearnMore: string;
+  summary: string;
   primaryInvestigator: string;
   coInvestigator?: string;
   projectPageContent: object[];
@@ -40,12 +40,12 @@ export async function getResearchProjects(): Promise<ResearchProject[] | null> {
       researchProjects.push({
         id: project.id,
         documentId: project.documentId,
-        title: project.title,
-        slug: getSlug(project.title, project.documentId),
-        longSummaryOnLearnMore: project.longSummaryOnLearnMore,
-        primaryInvestigator: project.primaryInvestigator,
-        coInvestigator: project.coInvestigator,
-        projectPageContent: project.projectPageContent,
+        title: project.title ?? "Untitled Project",
+        slug: project.title && project.documentId ? getSlug(project.title, project.documentId) : "Untitled Project",
+        summary: project.summary ?? "",
+        primaryInvestigator: project.primaryInvestigator ?? "",
+        coInvestigator: project.coInvestigator ?? "",
+        projectPageContent: project.projectPageContent ?? [],
         projectStartDate: strapiDateToDate(project.projectStartDate),
         ongoingProject: project.ongoingProject,
         projectEndDate: project.projectEndDate === null ? null : strapiDateToDate(project.projectEndDate),

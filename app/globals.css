@@ -259,10 +259,10 @@
   body {
     @apply bg-background text-foreground;
   }
-  ul {
+  article ul {
     @apply list-disc ml-4;
   }
-  ol {
+  article ol {
     @apply list-decimal ml-4;
   }
 }

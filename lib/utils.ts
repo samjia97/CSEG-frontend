@@ -22,6 +22,10 @@ export function getSlug(title: string, documentId: string) {
   .replace(/-+/g, '-') + '-' + documentId
 }
 
+/**
+ * Converts Strapi date string to Date object. Raises error if invalid format.
+ * @param dateString
+ */
 export function strapiDateToDate(dateString: string): Date {
   if (dateString.includes('T')) {
     // Full ISO date-time string e.g. 2025-12-31T23:59:59

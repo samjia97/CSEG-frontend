@@ -48,7 +48,7 @@ export async function getResearchProject(documentId: string): Promise<ResearchPr
       primaryInvestigator: projectData.primaryInvestigator,
       coInvestigator: projectData.coInvestigator,
       projectPageContent: projectData.projectPageContent,
-      projectStartDate: strapiDateToDate(projectData.projectStartDate),
+      projectStartDate:  strapiDateToDate(projectData.projectStartDate),
       ongoingProject: projectData.ongoingProject,
       projectEndDate: projectData.projectEndDate === null ? null : strapiDateToDate(projectData.projectEndDate),
       primaryInvestigatorEmail: projectData.primaryInvestigatorEmail,
