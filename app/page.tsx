@@ -20,12 +20,13 @@ interface HomepageCardProps {
 
 function HomepageCard({ url, alternativeText, titleText, bodyText, buttonText, buttonHref }: HomepageCardProps) {
   return (
-    <Card className={"p-0 rounded-none w-[400px] max-h-[400px] box-border flex gap-2"}>
+    <Card className={"p-0 rounded-none max-w-[400px] max-h-[400px] box-border flex gap-2"}>
       <Image
         src={getStrapiImageUrl(url)}
         alt={alternativeText}
         width={400}
         height={200}
+        className={"h-[200px]"}
       />
       {/*Problem is h-full attempts to take 100% of parent - 400 px*/}
       <div className={"border-b-4 border-primary flex flex-col justify-between flex-1 "}>
@@ -64,6 +65,7 @@ export default async function Home() {
             {/*<div className={"bg-primary min-w-[900px] h-[300px]"}>*/}
             {/*  IMAGE*/}
             {/*</div>*/}
+            {/*  Object-voer and h- in Image class forces image to follow a specifcic height*/}
             <Image
                 src={getStrapiImageUrl(homepageData.HeroImage.url)}
                 alt={homepageData.HeroImage.alternativeText}
