@@ -13,7 +13,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname:'https://heroic-bouquet-2407f56d2e.strapiapp.com'
-      }
+      },
+      {
+        protocol: 'https',
+        hostname:'https://heroic-bouquet-2407f56d2e.media.strapiapp.com'
+      },
     ],
     dangerouslyAllowLocalIP: true,
 
