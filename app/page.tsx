@@ -7,6 +7,7 @@ import {BlocksRenderer} from "@strapi/blocks-react-renderer";
 import {getHomepage} from "@/app/get-homepage";
 import {getStrapiImageUrl} from "@/lib/api";
 import {Card, CardAction, CardContent} from "@/components/ui/card";
+import {ChevronDown} from "lucide-react";
 
 interface HomepageCardProps {
   url: string;
@@ -55,20 +56,31 @@ export default async function Home() {
       <main className="w-full pt-4 px-4">
         <div className={"w-full flex flex-col items-center"}>
           <Link className={"text-2xl italic underline"} href={"https://www.ed.ac.uk/informatics"}>School of informatics</Link>
-          <h1 className={"text-primary mb-4"}>Computer Science Education Group (CSEG)</h1>
+          <h1 className={"text-primary mb-2"}>Computer Science Education Group (CSEG)</h1>
           {/*Hero*/}
-          <div className={"max-w-[960px] flex flex-col gap-4 items-stretch justify-stretch bg-white"}>
-            {/*<Image*/}
-            {/*    src={getStrapiImageUrl(homepageData.HeroImage.url)}*/}
-            {/*    alt={homepageData.HeroImage.alternativeText}*/}
-            {/*    width={450}*/}
-            {/*    height={200}*/}
-            {/*    className={"flex justify-center items-center mx-auto my-4"}*/}
-            {/*/>*/}
-            <div className={"bg-primary w-[960px] h-[420px]"}>
-              IMAGE
+          <div className={"max-w-[1200px] flex flex-col gap-0 items-stretch justify-stretch bg-white"}>
+            {/* Images DIV*/}
+            <div className={"flex"}>
+            {/*<div className={"bg-primary min-w-[900px] h-[300px]"}>*/}
+            {/*  IMAGE*/}
+            {/*</div>*/}
+            <Image
+                src={getStrapiImageUrl(homepageData.HeroImage.url)}
+                alt={homepageData.HeroImage.alternativeText}
+                width={900}
+                height={300}
+                className={"flex justify-center items-center mx-auto object-cover h-[300px]"}
+            />
+              <div className={"flex flex-col"}>
+                <div className={"h-[126px] w-[280px] mx-5 mt-5"}>
+                  <Image src="/UOE_logo.webp" alt="University of Edinburgh Logo" width={300} height={126} />
+                </div>
+                <div className={"h-[126px] w-[280px] mx-5"}>
+                  <Image src="/CSEG_Logo_large_supercropped.webp" alt="CSEG Logo" width={300} height={126} />
+                </div>
+              </div>
             </div>
-            <div className={"border-4 border-primary px-4 py-2"}>
+            <div className={"border-2 border-primary px-4 py-2"}>
               <BlocksRenderer content={homepageData.HeroText}/>
             </div>
           </div>
