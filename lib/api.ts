@@ -12,6 +12,10 @@ export const api = axios.create({
  */
 export function getStrapiImageUrl(url: string): string {
   // Remove /api/ from base URL to get the Strapi root
-  const strapiRoot = baseURL.replace('/api/', '');
-  return `${strapiRoot}${url}`;
+  if (url.startsWith('http')){
+    return url;
+  } else {
+    const strapiRoot = baseURL.replace('/api/', '');
+    return `${strapiRoot}${url}`;
+  }
 }
