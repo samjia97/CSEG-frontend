@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       //   Strapi Cloud
       {
         protocol: 'https',
-        hostname:process.env.STRAPI_CLOUD_HOSTNAME || 'https://wise-wealth-46b9441c98.strapiapp.com',
+        hostname:process.env.STRAPI_CLOUD_FOR_IMAGES || 'wise-wealth-46b9441c98.strapiapp.com',
         pathname:'/**',
       },
     ],
