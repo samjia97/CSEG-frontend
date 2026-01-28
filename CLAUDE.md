@@ -4,93 +4,109 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 16 frontend for the CSEG (Computer Science Engineering Group) website. The project uses the App Router, TypeScript, Tailwind CSS v4, and shadcn/ui components.
+This is a Next.js 16 frontend for the CSEG (Computer Science Education Group) website. The project uses the App Router, TypeScript, Tailwind CSS v4, and shadcn/ui components. Content is managed via a Strapi CMS backend.
 
 ## Development Commands
 
 ```bash
-# Start development server (runs on http://localhost:3000)
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Run linter
-npm run lint
+npm run dev     # Development server (http://localhost:3000)
+npm run build   # Production build
+npm start       # Start production server
+npm run lint    # Run ESLint
 ```
 
 ## Architecture
 
+### Backend Integration
+
+The frontend connects to a Strapi CMS:
+- **API Client**: `lib/api.ts` - Axios instance with base URL from `NEXT_PUBLIC_BASE_URL` env var (defaults to `http://localhost:1337/api`)
+- **Image Handling**: `getStrapiImageUrl()` converts relative Strapi image paths to full URLs
+- **Image Domains**: Configured in `next.config.ts` for localhost:1337 and Strapi Cloud
+
+### Data Fetching Pattern
+
+Pages use server-side async components that fetch from Strapi:
+```
+app/[route]/page.tsx          # Page component (async, fetches data)
+app/[route]/api/get-*.ts      # Data fetching functions using lib/api.ts
+app/[route]/interactive-*.tsx # Client components for interactivity
+```
+
+Example: Events page fetches via `getEvents()` in `app/events/api/get-events.ts`, passes data to `InteractiveEvents` client component for filtering/sorting.
+
+### Filtering System
+
+Events and Publications use a complex filtering pattern:
+- Query params: `timePeriod`, `openTo`, `tags`, `page`, `sort`, `query`
+- Filter building with `qs.stringify()` for Strapi-compatible queries
+- `EventFilterParams` type defines the filter structure with `$and`/`$or` operators
+
 ### App Router Structure
 
-The project uses Next.js App Router with file-based routing in the `app/` directory:
-- `app/layout.tsx` - Root layout with global navigation (Navbar03)
-- `app/page.tsx` - Home page
-- `app/about/page.tsx` - About page
-- Additional routes expected: `/events`, `/research_projects`, `/initialPublications`, `/join`, `/contact`
+- `app/layout.tsx` - Root layout with Navbar03 and footer
+- `app/page.tsx` - Home page with hero and card grid
+- `app/events/` - Events listing with `[slug]` detail pages
+- `app/research/` - Research projects with `[slug]` detail pages
+- `app/publications/` - Publications listing with filtering
+- `app/join/` - Join form with `api/create-application.ts` handler
+- `app/about/` and `app/contact/` - Stub pages needing implementation
 
 ### Navigation System
 
-Navigation is centralized in `app/layout.tsx` where the `navigationLinks` array defines all routes. The `Navbar03` component (from `components/ui/shadcn-io/navbar-03/index.tsx`) handles both desktop and mobile navigation:
-- Desktop: Horizontal navigation menu with hover underline animations
-- Mobile: Hamburger menu with popover overlay
-- Uses ResizeObserver to detect screen width and switch between layouts at 768px breakpoint
-
-**Important**: Navigation menu items in Navbar03 currently use `onClick={(e) => e.preventDefault()}` which prevents default link behavior. This suggests navigation is intended to be handled programmatically via the Next.js router.
+Navigation is centralized in `app/layout.tsx`:
+- `navigationLinks` array defines all routes
+- `Navbar03` component handles responsive nav (768px breakpoint)
+- Uses Next.js router for programmatic navigation via `handleMenuItemClicked()`
 
 ### Component System
 
-The project uses shadcn/ui with the "new-york" style configuration:
-- **Configuration**: `components.json` defines aliases and paths
-- **UI Components Location**: `components/ui/`
-- **Custom shadcn Components**: `components/ui/shadcn-io/` (contains modified shadcn components like Navbar03)
-- **Standard Components**: `components/ui/button.tsx`, `components/ui/navigation-menu.tsx`, `components/ui/popover.tsx`, `components/ui/menu-button.tsx`
-- **Utilities**: `lib/utils.ts` exports `cn()` for className merging using `clsx` and `tailwind-merge`
+shadcn/ui with "new-york" style:
+- **Standard**: `components/ui/` (button, card, form, input, etc.)
+- **Custom**: `components/ui/shadcn-io/navbar-03/` (modified navbar)
+- **Utilities**: `lib/utils.ts` exports `cn()` for className merging
+
+### Key Utilities
+
+`lib/utils.ts`:
+- `cn()` - Tailwind class merging
+- `getSlug(title, documentId)` - Creates URL-friendly slugs with ID suffix
+- `getDocumentIdFromSlug(slug)` - Extracts document ID from slug
+- `strapiDateToDate(dateString)` - Parses Strapi date formats
+
+`lib/formatters.ts`:
+- `formatDate(date)` - Formats to GB locale (e.g., "20 November 2025")
 
 ### Styling
 
-- **Tailwind CSS v4** with PostCSS
-- **CSS Variables**: Used for theming (see `app/globals.css`)
-- **Fonts**: Geist Sans and Geist Mono (Google Fonts via next/font)
-- **Color Scheme**: Neutral base color with primary/accent system
+- **Tailwind CSS v4** with PostCSS and Lightning CSS
+- **Theming**: CSS variables in oklch color space (`app/globals.css`)
+- **Fonts**: Geist Sans and Geist Mono (next/font)
 - **Icons**: Lucide React
 
-### TypeScript Configuration
+### TypeScript
 
-- **Path Aliases**: `@/*` maps to the root directory
-- **JSX Runtime**: Modern `react-jsx` transform
-- **Target**: ES2017
+- **Path Aliases**: `@/*` maps to root directory
 - **Strict Mode**: Enabled
+- **Types**: `types/strapi-global-types.ts` for Strapi image types
 
 ## Important Notes
 
-### Navigation Implementation
+### Adding New Routes
 
-When working on navigation:
-1. Update the `navigationLinks` array in `app/layout.tsx` when adding new routes
-2. Create corresponding page.tsx files in the app directory
-3. The Navbar03 component has a `handleMenuItemClicked` function (line 148) that should be connected to menu items for proper routing
-4. Mobile menu items currently use `alert(link.href)` (line 186) instead of proper navigation - this needs to be fixed
+1. Update `navigationLinks` array in `app/layout.tsx`
+2. Create `app/[route]/page.tsx`
+3. For Strapi content: create `app/[route]/api/get-*.ts` data fetcher
 
 ### Component Development
 
-- All new UI components should follow the shadcn/ui pattern with variant-based styling using `class-variance-authority`
-- Use the `cn()` utility from `@/lib/utils` for conditional className merging
-- Client-side interactivity requires `"use client"` directive at the top of the file
-- Components should use the `React.forwardRef` pattern when they need to expose a ref
+- Use `"use client"` directive for client-side interactivity
+- Follow shadcn/ui patterns with `class-variance-authority` for variants
+- Use `cn()` for conditional className merging
+- Use `React.forwardRef` pattern when exposing refs
 
-### Asset Management
+### Strapi Content
 
-- Static assets go in `public/` directory
-- Logo is at `public/CSEG_Logo_Cropped.webp` (144x60px)
-- Use Next.js `<Image>` component for optimized image loading
-
-### Code Style
-
-- Use TypeScript interfaces for component props (export them for reusability)
-- Prefer named exports for components except page components
-- Follow Next.js conventions: page.tsx for routes, layout.tsx for layouts
-- Use Tailwind classes directly in components rather than separate CSS files
+- Rich text renders via `@strapi/blocks-react-renderer`
+- Images use `getStrapiImageUrl()` to build full URLs
+- Populate relations with `qs.stringify({ populate: '*' })`

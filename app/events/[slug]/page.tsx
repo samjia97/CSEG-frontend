@@ -16,6 +16,17 @@ import {baseURL} from "@/lib/api";
 import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
+import Markdown from 'react-markdown'
+export function MarkdownRenderer( {content} : {content: string | undefined} ){
+  if (!content){
+    return <div></div>
+  }
+  return (
+      <article className={"prose prose-slate max-w-none"}>
+        <Markdown>{content}</Markdown>
+      </article>
+  )
+}
 
 export default async function Page({
                                      params,
@@ -68,14 +79,15 @@ export default async function Page({
       </Breadcrumb>
     </div>
 
-    <article className={"flex flex-col items-center gap-2  max-w-[1320px]"}>
+    <article className={"flex flex-col items-center gap-2  max-w-[1320px] h-full w-full"}>
       <h1 className={"text-2xl"}><span className={"text-accent"}>[{eventData.eventType}] </span>
         <span>{eventData.title}</span></h1>
       <hr className={"h-3 w-full bg-primary"}/>
-      <div className={"grid grid-cols-[1fr_340px] gap-2"}>
-        <div className={"bg-white border-r-2 p-4 prose prose-invert max-w-none"}>
-          <BlocksRenderer content={eventData.eventPage}/>
-        </div>
+      <div className={"grid grid-cols-[1fr_340px] gap-2 w-full"}>
+        {/*<div className={"bg-white border-r-2 p-4 prose prose-invert "}>*/}
+        {/*  <BlocksRenderer content={eventData.eventPage}/>*/}
+        {/*</div>*/}
+        <MarkdownRenderer content={eventData.markdownTest}/>
         <div className={"flex flex-col items-start bg-white p-3"}>
           <div className={"grid grid-cols-[80px_1fr] "}>
             <strong>Date</strong><p className={"inline"}>{dateString}</p>

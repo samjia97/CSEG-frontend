@@ -19,6 +19,7 @@ export type EventPageData = {
   eventTags:  string[];
   publicEvent: boolean;
   openTo: string[];
+  markdownTest?: string;
 }
 
 /**
@@ -50,6 +51,7 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
       eventTags: eventTags,
       publicEvent: eventData?.publicEvent ?? false,
       openTo: openTo,
+      markdownTest: eventData?.markdownTest ?? undefined,
     } as EventPageData;
   } catch (error) {
     console.error("Error fetching event:", error);

@@ -136,7 +136,7 @@ async function EventsPage(props: {
   console.log(meta)
 
   return (
-      <main className={"min-h-screen pt-2 bg-neutral-50 px-4"}>
+      <>
         <div className={"flex flex-col text-center"}>
           <h1 className={"mb-4"}>Events</h1>
           <p>Our events where we learn more about Computer Science Education together.</p>
@@ -150,8 +150,7 @@ async function EventsPage(props: {
               currentSort={parsedSearchParams.sort}
           />
         </div>
-
-      </main>
+      </>
   )
 }
 
