@@ -25,8 +25,18 @@ const navigationLinks: Navbar03NavItem[] = [
     label:"Home",
   },
   {
-    href:"/about",
+
     label:"About us",
+    children: [
+      {
+        label:"Our people",
+        href:"/about/people"
+      },
+      {
+        label:"Our aims",
+        href: "/about"
+      }
+    ]
   },
   {
     href:"/events",

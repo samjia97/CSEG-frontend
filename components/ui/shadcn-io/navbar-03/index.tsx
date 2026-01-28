@@ -5,10 +5,10 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {MenuButton} from "@/components/ui/menu-button";
 import {
-  NavigationMenu,
+  NavigationMenu, NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
+  NavigationMenuList, NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import {
   Popover,
@@ -69,6 +69,7 @@ export interface Navbar03NavItem {
   href?: string;
   label: string;
   active?: boolean;
+  children?: Navbar03NavItem[];
 }
 
 export interface Navbar03Props extends React.HTMLAttributes<HTMLElement> {
@@ -182,25 +183,48 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                   </MenuButton>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-64 p-1">
-                  <NavigationMenu className="max-w-none">
-                    <NavigationMenuList className="flex-col items-start gap-0">
-                      {navigationLinks.map((link, index) => {
-                        const active = link.href === pathname ? true : null;
-                        return(
-                        <NavigationMenuItem key={index} className="w-full">
-                          <button
-                            onClick={(e) => handleMenuItemClicked(e, link.href)}
-                            className={cn(
-                              'flex w-full items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent/50 focus-visible:text-accent-foreground cursor-pointer no-underline',
-                              // active && 'bg-/accent/50 text-accent-foreground'
-                            )}
-                          >
-                            {link.label}
-                          </button>
-                        </NavigationMenuItem>
-                      )})}
-                    </NavigationMenuList>
-                  </NavigationMenu>
+                  <nav className="flex flex-col gap-0">
+                    {navigationLinks.map((link, index) => {
+                      const active = link.href === pathname || pathname.startsWith(link.href + '/');
+
+                      // If has children, show parent label then children indented
+                      if (link.children && link.children.length > 0) {
+                        return (
+                          <div key={index}>
+                            <div className="px-3 py-2 text-sm font-medium text-muted-foreground">
+                              {link.label}
+                            </div>
+                            {link.children.map((child, childIndex) => (
+                              <button
+                                key={childIndex}
+                                onClick={(e) => handleMenuItemClicked(e, child.href)}
+                                className={cn(
+                                  'flex w-full items-center rounded-md px-3 py-2 pl-6 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer',
+                                  child.href === pathname && 'bg-accent/50'
+                                )}
+                              >
+                                {child.label}
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      }
+
+                      // Regular link with no children
+                      return (
+                        <button
+                          key={index}
+                          onClick={(e) => handleMenuItemClicked(e, link.href)}
+                          className={cn(
+                            'flex w-full items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer',
+                            active && 'bg-accent/50'
+                          )}
+                        >
+                          {link.label}
+                        </button>
+                      );
+                    })}
+                  </nav>
                 </PopoverContent>
               </Popover>
             )}
@@ -213,30 +237,62 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
             </Link>
             {/* Navigation menu */}
             {!isMobile && (
-                <NavigationMenu className="flex">
+                <NavigationMenu className="flex" viewport={false}>
                   <NavigationMenuList className="gap-1">
                     {navigationLinks.map((link, index) => {
-                      let active = null;
-                      if (pathname === link.href){
-                        active = true
-                      }
-                      return (
+                      const active = pathname === link.href || pathname.startsWith(link.href + '/');
 
+                      // If has children, render dropdown (not clickable, only opens dropdown)
+                      if (link.children && link.children.length > 0) {
+                        return (
+                          <NavigationMenuItem key={index}>
+                            <NavigationMenuTrigger
+                              className={cn(
+                                "inline-flex h-10 items-center px-4 py-2 text-sm font-medium bg-background hover:bg-accent hover:text-accent-foreground rounded-none",
+                                active && "bg-accent/50"
+                              )}
+                              onClick={(e) => e.preventDefault()}
+                            >
+                              {link.label}
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent className="p-0">
+                              <ul className="py-1 min-w-[140px]">
+                                {link.children.map((child, childIndex) => (
+                                  <li key={childIndex}>
+                                    <NavigationMenuLink asChild>
+                                      <a
+                                        href={child.href}
+                                        onClick={(e) => handleMenuItemClicked(e, child.href)}
+                                        className="block px-3 py-1.5 text-sm hover:bg-accent whitespace-nowrap"
+                                      >
+                                        {child.label}
+                                      </a>
+                                    </NavigationMenuLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            </NavigationMenuContent>
+                          </NavigationMenuItem>
+                        );
+                      }
+
+                      // Regular link (no children)
+                      return (
                         <NavigationMenuItem key={index}>
                           <NavigationMenuLink
                               href={link.href}
                               onClick={(e) => handleMenuItemClicked(e, link.href)}
                               className={cn(
-                                  "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:!text-black focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground flex-col gap-1 p-2 outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4 group inline-flex h-10 w-max items-center justify-center bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50  cursor-pointer relative before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:transition-transform before:duration-300 before:scale-x-100 " +
-                                  'before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary before:scale-x-0 before:transition-transform before:duration-300',
-
+                                "inline-flex h-10 items-center px-4 py-2 text-sm font-medium bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer rounded-none",
+                                active && "bg-accent/50"
                               )}
-                              data-active={active}
+                              data-active={active || null}
                           >
                             {link.label}
                           </NavigationMenuLink>
                         </NavigationMenuItem>
-                    )})}
+                      );
+                    })}
                   </NavigationMenuList>
                 </NavigationMenu>
             )}
