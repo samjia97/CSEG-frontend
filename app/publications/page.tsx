@@ -1,6 +1,6 @@
 import React from 'react'
 import InteractivePublications from "@/app/publications/interactivePublications";
-import {getPublications, Publication} from "@/app/publications/api/get-publications";
+import {getPublications} from "@/app/publications/api/get-publications";
 import {getTopics} from "@/lib/get-topics";
 
 async function PublicationsPage() {
@@ -9,7 +9,7 @@ async function PublicationsPage() {
 
   return (
       <>
-        <div>
+        <div className={"mb-2"}>
           <h1 className={"text-center"}>Publications</h1>
           <p>Research papers, presentations, posters and other types of content</p>
         </div>

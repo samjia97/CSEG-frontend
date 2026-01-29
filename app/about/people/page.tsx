@@ -9,8 +9,8 @@ export default async function PeoplePage() {
   console.log(peopleData);
   return (
       <>
-        <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg "}>
-          <h2 className={""}>Our team</h2>
+        <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg p-1 "}>
+          <h2 className={""}>Our people</h2>
         </div>
         <div className={"flex flex-col"}>
           {peopleData.map((value) =>

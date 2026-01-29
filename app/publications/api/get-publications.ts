@@ -41,6 +41,9 @@ export async function getPublications(): Promise<Publication[]> {
   }
   const params = qs.stringify(query);
   try {
+    // fetch caches data at NextJS so that it does not have to query Strapi
+    // and the database the Webhook informs NextJS an administrator has added/modified
+    // data to strapi.
     const res = await fetch(`${baseURL}publications?${params}`,
         {
           next: {

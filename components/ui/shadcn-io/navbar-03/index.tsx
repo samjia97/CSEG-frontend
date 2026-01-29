@@ -235,7 +235,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
             <Link href={logoHref}>
               {logo}
             </Link>
-            {/* Navigation menu */}
+            {/* Navigation menu for desktop*/}
             {!isMobile && (
                 <NavigationMenu className="flex" viewport={false}>
                   <NavigationMenuList className="gap-1">
@@ -260,13 +260,13 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                                 {link.children.map((child, childIndex) => (
                                   <li key={childIndex}>
                                     <NavigationMenuLink asChild>
-                                      <a
-                                        href={child.href}
+                                      <Link
+                                        href={child.href || '/'}
                                         onClick={(e) => handleMenuItemClicked(e, child.href)}
                                         className="block px-3 py-1.5 text-sm hover:bg-accent whitespace-nowrap"
                                       >
                                         {child.label}
-                                      </a>
+                                      </Link>
                                     </NavigationMenuLink>
                                   </li>
                                 ))}
