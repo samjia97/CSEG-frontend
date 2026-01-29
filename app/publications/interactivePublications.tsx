@@ -25,7 +25,7 @@ const validateAgainstQuery = (publication: Publication, query: string): boolean 
   return publication.title.toLowerCase().includes(query) || publication.author.toLowerCase().includes(query);
 }
 
-const PAGE_SIZE=4;
+const PAGE_SIZE=20;
 
 function InteractivePublications({initialPublications, topics}: InteractivePublicationsProps) {
   const [startYear, setStartYear] = useState(defaultStartYear);
@@ -34,13 +34,6 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
-  if (initialPublications.length === 0){
-    return (
-        <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
-          <h4>No publications to show</h4>
-        </div>
-    )
-  }
 
   /**
    * Processes search query
@@ -70,8 +63,16 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
   const maxPage = Math.ceil(filteredPublications.length / PAGE_SIZE);
   const paginatedPublications = filteredPublications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+
+  if (initialPublications.length === 0){
+    return (
+        <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
+          <h4>No publications to show</h4>
+        </div>
+    )
+  }
   return (
-      <div className={"max-w-7xl w-full grid grid-cols-[220px_1fr] gap-4"}>
+      <div className={"grid grid-cols-[220px_1fr] gap-4"}>
         <PublicationsFilterPanel
             initialPublications={initialPublications}
             topics={topics}
@@ -91,7 +92,7 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
           <div className={"mt-1 mb-3"}>
 
           {paginatedPublications.map((item) =>
-              <div key={item.id} className={"flex flex-col border-b border-neutral-500 py-2"}>
+              <div key={item.id} className={"flex flex-col border-b border-neutral-500 mb-2"}>
                 <p className={"text-lg"}>{item.title}</p>
                 <div className={"grid grid-cols-[150px_1fr]"}>
                   <strong>Author</strong>

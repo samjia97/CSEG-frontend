@@ -3,7 +3,7 @@
  * to a Strapi webhook
  */
 
-import {revalidatePath} from "next/cache";
+import {revalidatePath, revalidateTag} from "next/cache";
 import {NextRequest, NextResponse} from "next/server";
 
 export async function POST(request: NextRequest){
@@ -22,6 +22,10 @@ export async function POST(request: NextRequest){
     for (const path of pathsToRevalidate){
       revalidatePath(path);
       console.log(`Revalidated path: ${path}`);
+    }
+    const tagsToRevalidate = ['strapi']
+    for (const tag of tagsToRevalidate){
+      revalidateTag(tag, "max");
     }
     return NextResponse.json({
       success: true,

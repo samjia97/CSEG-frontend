@@ -46,7 +46,7 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
       eventEndString: eventData?.eventEndTime?.toString().substring(0,5) ?? "23:59",
       location: eventData?.location ?? "Location TBA",
       speaker: eventData?.speaker ?? "Speaker TBA",
-      eventType: eventData?.event_type?.EventType ?? "Event",
+      eventType: eventData?.eventType ?? "Event",
       eventPage: eventData?.eventPage ?? [],
       eventTags: eventTags,
       publicEvent: eventData?.publicEvent ?? false,

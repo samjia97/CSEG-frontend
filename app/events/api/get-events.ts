@@ -2,6 +2,7 @@ import {api} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
 import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
+import {z} from "zod";
 
 export type GetEventsProps = {
   filter: object,
@@ -98,10 +99,25 @@ export type StrapiMeta = {
   }
 }
 
-function markField (field: string) : string {
-  return `&fields[]=${field}`;
-}
-
+const EventSchema = z.array(z.object({
+  id: z.number(),
+  documentId: z.string(),
+  title: z.string(),
+  eventDate: z.string(),
+  location: z.string().nullable().optional(),
+  speaker: z.string().nullable().optional(),
+  summary: z.string().nullable().optional(),
+  eventStartTime: z.string(),
+  eventEndTime: z.string(),
+  publicEvent: z.boolean(),
+  eventType: z.string().nullable().optional(),
+  event_tags: z.array(z.object({
+    tagName: z.string()
+  })).optional(),
+  open_to: z.array(z.object({
+    membershipName: z.string()
+  })).optional()
+}));
 
 /**
  * Gets all events
@@ -124,9 +140,12 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
     const url = "/events?" + query;
     console.log('url', url);
     const res = await api.get(url);
-    const data = res.data.data;
+
+    // Validate the data with Zod
+    const validatedData = EventSchema.parse(res.data?.data);
+
     const allEvents : EventCardData[] = [];
-    for (const eventItem of data) {
+    for (const eventItem of validatedData) {
       // eventDate must be in ISO format - safely parse with fallbacks
       const eventDateStr = eventItem?.eventDate ?? new Date().toISOString();
       const [year, month, day] = eventDateStr.split('T')[0].split('-').map(Number);
@@ -152,8 +171,8 @@ export async function getEvents({ filters, sort, pagination }: EventFilterParams
             eventEndString: endTimeStr.toString().substring(0,5),
             location: eventItem?.location ?? "Location TBA",
             speaker: eventItem?.speaker ?? "Speaker TBA",
-            summary: eventItem?.summary,
-            eventType: eventItem?.event_type?.EventType ?? "Event",
+            summary: eventItem?.summary ?? undefined,
+            eventType: eventItem?.eventType ?? "Event",
             eventTags: eventTags,
             publicEvent: eventItem?.publicEvent ?? false,
             openTo: openTo,

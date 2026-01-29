@@ -10,13 +10,13 @@ import {
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
 import React from "react";
-import {BlocksRenderer} from "@strapi/blocks-react-renderer";
 import ShareButtons from "@/app/events/[slug]/share-buttons";
 import {baseURL} from "@/lib/api";
 import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
 import Markdown from 'react-markdown'
+
 export function MarkdownRenderer( {content} : {content: string | undefined} ){
   if (!content){
     return <div></div>
