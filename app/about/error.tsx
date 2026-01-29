@@ -1,7 +1,8 @@
 'use client' // Error boundaries must be Client Components
 
-import { useEffect } from 'react'
+import {useEffect} from 'react'
 import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 /**
  * Copied from https://nextjs.org/docs/app/getting-started/error-handling#handling-uncaught-exceptions
@@ -22,8 +23,9 @@ export default function Error({
   }, [error])
 
   return (
-      <div style={{display:"flex", justifyContent:"center"}}>
-          <h2>Something went wrong</h2>
+      <div style={{display: "flex", justifyContent: "center"}}>
+        <div className={"flex flex-col gap-4"}>
+          <h2>Sorry, something went wrong</h2>
           <Button
               onClick={
                 // Attempt to recover by trying to re-render the segment
@@ -32,6 +34,13 @@ export default function Error({
           >
             Try again
           </Button>
+          <Button asChild
+              variant={"secondary"}
+          >
+            <Link href={"/"}>Navigate home</Link>
+          </Button>
+
+        </div>
       </div>
   )
 }
