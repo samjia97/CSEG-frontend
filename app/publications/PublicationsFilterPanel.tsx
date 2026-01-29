@@ -77,7 +77,7 @@ export function PublicationsFilterPanel({
             <div>
               <p className="text-sm mb-1">From</p>
               <Select onValueChange={handleStartDateChange} value={startYear}>
-                <SelectTrigger className="w-[100px] bg-primary" variant="simple">
+                <SelectTrigger className="w-[80px] bg-primary" variant="simple">
                   <SelectValue placeholder={startYear} />
                 </SelectTrigger>
                 <SelectContent>
@@ -94,7 +94,7 @@ export function PublicationsFilterPanel({
             <div>
               <p className="text-sm mb-1">To</p>
               <Select onValueChange={handleEndDateChange} value={endYear}>
-                <SelectTrigger className="w-[100px] bg-primary" variant="simple">
+                <SelectTrigger className="w-[80px] bg-primary" variant="simple">
                   <SelectValue placeholder={String(thisYear)} />
                 </SelectTrigger>
                 <SelectContent>
