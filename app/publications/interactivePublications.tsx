@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useMemo, useState} from 'react'
 import {Publication} from "@/app/publications/api/get-publications";
 import {formatDate} from "@/lib/formatters";
 import {Badge} from "@/components/ui/badge";
@@ -27,32 +27,54 @@ const validateAgainstQuery = (publication: Publication, query: string): boolean 
   return publication.title.toLowerCase().includes(query) || publication.author.toLowerCase().includes(query);
 }
 
+const NoPublicationsToShow = () => {
+  return (
+      <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
+        <h4>No publications to show</h4>
+        <p>Please change your filter / search settings</p>
+      </div>
+  )
+}
+
 function InteractivePublications({initialPublications, topics}: InteractivePublicationsProps) {
-  const [startYear, setStartYear] = useState(defaultStartYear);
-  const [endYear, setEndYear] = useState(String(thisYear));
-  const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
+  const [startYear, setStartYearState] = useState(defaultStartYear);
+  const [endYear, setEndYearState] = useState(String(thisYear));
+  const [selectedTopics, setSelectedTopicsState] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
+  // Wrapper setters that also reset page to 1 (avoids useEffect cascading renders)
+  const setStartYear: typeof setStartYearState = (value) => {
+    setStartYearState(value);
+    setPage(1);
+  };
+  const setEndYear: typeof setEndYearState = (value) => {
+    setEndYearState(value);
+    setPage(1);
+  };
+  const setSelectedTopics: typeof setSelectedTopicsState = (value) => {
+    setSelectedTopicsState(value);
+    setPage(1);
+  };
+
 
   /**
-   * Processes search query
-   * @param e
+   * Processes search query and resets page to 1
    */
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget)
     const query = formData.get("search")?.toString() ?? ''
     setSearchQuery(query.toLowerCase());
+    setPage(1);
   }
   /**
-   * Clears search query in action.
+   * Clears search query and resets page to 1
    */
   const handleReset = () => {
     setSearchQuery("");
+    setPage(1);
   }
-
-
 
   const filteredPublications = useMemo(()=>{
     const endYearDate = new Date(parseInt(endYear, 10), 11, 31)
@@ -65,18 +87,9 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
     );
   }, [initialPublications, endYear, startYear, searchQuery, selectedTopics])
 
-  useEffect(() => {setPage(1)}, [searchQuery, startYear, endYear, selectedTopics]);
   const maxPage = Math.ceil(filteredPublications.length / PAGE_SIZE);
   const paginatedPublications = filteredPublications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-
-  if (initialPublications.length === 0){
-    return (
-        <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
-          <h4>No publications to show</h4>
-        </div>
-    )
-  }
   return (
       <div className={"grid grid-cols-[220px_1fr] gap-4"}>
         <PublicationsFilterPanel
@@ -96,26 +109,30 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
             <Button type={"reset"} variant={"destructive"} onClick={handleReset}>CLEAR</Button>
           </form>
           <div className={"mt-1 mb-3"}>
+            {paginatedPublications.length === 0 ?
+                <NoPublicationsToShow/>
+                :
+                paginatedPublications.map((item) =>
+                    <div key={item.id} className={"flex flex-col border-b border-neutral-500 pb-2"}>
+                      <p className={"text-lg"}>{item.title}</p>
+                      <div className={"grid grid-cols-[150px_1fr]"}>
+                        <strong>Author</strong>
+                        <p>{item.author}</p>
+                        <strong>Publication Date</strong>
+                        <p>{formatDate(item.publicationDate)}</p>
+                        <strong>Topics</strong>
+                        <div className={"flex gap-2 pt-1"}>
+                          {item.topics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                        </div>
+                      </div>
+                      {item.linkToPublication &&
+                          <Link href={item.linkToPublication} className={"underline"}>Link to
+                            resource</Link>
+                      }
 
-          {paginatedPublications.map((item) =>
-              <div key={item.id} className={"flex flex-col border-b border-neutral-500 mb-2"}>
-                <p className={"text-lg"}>{item.title}</p>
-                <div className={"grid grid-cols-[150px_1fr]"}>
-                  <strong>Author</strong>
-                  <p>{item.author}</p>
-                  <strong>Publication Date</strong>
-                  <p>{formatDate(item.publicationDate)}</p>
-                  <strong>Topics</strong>
-                  <div className={"flex gap-2 pt-1"}>
-                    {item.topics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-                  </div>
-                </div>
-                {item.linkToPublication &&
-                    <Link href={item.linkToPublication} className={"underline"}>Link to
-                      resource</Link>
-                }
+                    </div>)
+            }
 
-              </div>)}
           </div>
           <div>
           <Pagination>
