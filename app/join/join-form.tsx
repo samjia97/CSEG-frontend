@@ -1,31 +1,13 @@
 "use client"
-import {
-  useForm
-} from "react-hook-form"
-import {
-  zodResolver
-} from "@hookform/resolvers/zod"
-import {
-  z
-} from "zod"
+import {useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {z} from "zod"
 
 import {Form} from "@/components/ui/form"
-import {
-  Field,
-  FieldLabel,
-  FieldError
-} from "@/components/ui/field"
-import {
-  Button
-} from "@/components/ui/button"
-import {
-  Input
-} from "@/components/ui/input"
-import {
-  Textarea
-} from "@/components/ui/textarea"
-import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
-import {Label} from "@/components/ui/label";
+import {Field, FieldError, FieldLabel} from "@/components/ui/field"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Textarea} from "@/components/ui/textarea"
 import createApplication from "@/app/join/api/create-application";
 import {useState} from "react";
 

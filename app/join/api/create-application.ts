@@ -22,5 +22,4 @@ export type ApplicationData = {
 };
 export default async function createApplication(applicationData: ApplicationData){
   const res = await api.post('member-applications', {data: applicationData});
-  console.debug(res.data, res.status)
 }
