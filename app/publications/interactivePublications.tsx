@@ -137,12 +137,12 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
           </form>
 
           {/* Results */}
-          <div className="mt-3 mb-3">
+          <div className="mt-3 mb-3 max-w-3xl">
             {paginatedPublications.length === 0 ?
                 <NoPublicationsToShow />
                 :
                 paginatedPublications.map((item) =>
-                    <div key={item.id} className="flex flex-col border-b border-neutral-500 pb-2 max-w-3xl">
+                    <div key={item.id} className="flex flex-col border-b border-neutral-500 pb-2">
                       <p className="text-lg">{item.title}</p>
                       <div className="grid grid-cols-[150px_1fr]">
                         <strong>Author</strong>
