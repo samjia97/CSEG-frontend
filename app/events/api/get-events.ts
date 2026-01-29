@@ -1,4 +1,4 @@
-import {api} from "@/lib/api";
+import {api, baseURL} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
 import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
@@ -13,22 +13,6 @@ export type GetEventsProps = {
   }
 }
 
-export type EventCardData = {
-  title: string;
-  slug: string;
-  eventStartDateTime: Date;
-  eventEndDateTime: Date;
-  eventStartString: string;
-  eventEndString: string;
-  location: string;
-  speaker: string;
-  summary?: string;
-  eventType: string;
-  id: number;
-  eventTags: string[];
-  publicEvent: boolean;
-  openTo: string[];
-}
 
 const baseQuery = {
   fields: [
@@ -40,18 +24,21 @@ const baseQuery = {
     'summary',
     'eventStartTime',
     'eventEndTime',
-    'publicEvent'
+    'publicEvent',
+    'eventType'
   ],
   populate: '*',
 }
 
 export type EventFilterParams = {
   filters: {
-    $and?: {event_tags: {
-      tagName: {
-        $eq: string
+    $and?: {
+      event_tags: {
+        tagName: {
+          $eq: string
+        }
       }
-      }}[];
+    }[];
     eventDate?: {
       $gte?: string
       $lte?: string
@@ -66,7 +53,7 @@ export type EventFilterParams = {
     publicEvent?: {
       $eq?: boolean
     },
-    $or? : [{
+    $or?: [{
       title: {
         $containsi: string
       },
@@ -75,7 +62,7 @@ export type EventFilterParams = {
         speaker: {
           $containsi: string
         },
-    }, {
+      }, {
         summary: {
           $containsi: string
         },
@@ -99,91 +86,97 @@ export type StrapiMeta = {
   }
 }
 
-const EventSchema = z.array(z.object({
-  id: z.number(),
-  documentId: z.string(),
-  title: z.string(),
-  eventDate: z.string(),
-  location: z.string().nullable().optional(),
-  speaker: z.string().nullable().optional(),
-  summary: z.string().nullable().optional(),
-  eventStartTime: z.string(),
-  eventEndTime: z.string(),
-  publicEvent: z.boolean(),
-  eventType: z.string().nullable().optional(),
-  event_tags: z.array(z.object({
-    tagName: z.string()
-  })).optional(),
-  open_to: z.array(z.object({
-    membershipName: z.string()
-  })).optional()
-}));
+const EventSchema = z.array(
+    z.object({
+      id: z.number(),
+      documentId: z.string(),
+      title: z.string(),
+      eventDate: z.string(),
+      location: z.string(),
+      speaker: z.string(),
+      summary: z.string().nullable().optional(),
+      eventStartTime: z.string(),
+      eventEndTime: z.string(),
+      publicEvent: z.boolean(),
+      eventType: z.string(),
+      event_tags: z.array(z.object({
+        tagName: z.string()
+      })).optional(),
+      open_to: z.array(z.object({
+        membershipName: z.string()
+      })).optional()
+    }).transform((event) => {
+      const eventDateStr = event.eventDate ?? new Date().toISOString();
+      const [year, month, day] = eventDateStr.split('T')[0].split('-').map(Number);
+
+      // Safely parse time strings with fallback to "00:00"
+      const startTimeStr = event?.eventStartTime ?? "00:00";
+      const endTimeStr = event?.eventEndTime ?? "23:59";
+      const [startHour, startMinute] = startTimeStr.split(":").map(Number);
+      const [endHour, endMinute] = endTimeStr.split(":").map(Number);
+
+      const eventTags = getEventTags(event);
+      const openTo = event?.open_to?.map((item: {
+        membershipName: string;
+      }) => item?.membershipName ?? "Member") ?? [];
+      openTo.sort();
+
+      return (
+          {
+            id: event?.id ?? 0,
+            title: event?.title ?? "Untitled Event",
+            slug: event?.title && event?.documentId ? getSlug(event.title, event.documentId) : "untitled-event",
+            eventStartDateTime: new Date(year, month - 1, day, startHour, startMinute),
+            eventEndDateTime: new Date(year, month - 1, day, endHour, endMinute),
+            eventStartString: startTimeStr.toString().substring(0, 5),
+            eventEndString: endTimeStr.toString().substring(0, 5),
+            location: event?.location,
+            speaker: event?.speaker,
+            summary: event?.summary ?? undefined,
+            eventType: event?.eventType ?? "Event",
+            eventTags: eventTags,
+            publicEvent: event?.publicEvent ?? false,
+            openTo: openTo,
+          }
+      )
+    })
+)
+
+export type EventCardData = z.infer<typeof EventSchema>[number];
+const MAX_EVENTS_RECORDS = 99999;
 
 /**
  * Gets all events
  */
-export async function getEvents({ filters, sort, pagination }: EventFilterParams): Promise<{
-  events: EventCardData[],
-  meta: StrapiMeta
-}>{
+export async function getEvents(): Promise<EventCardData[]> {
   try {
     const query = qs.stringify(
-      {
-        ...baseQuery,
-        filters: filters,
-        sort: sort,
-        pagination: pagination,
-      }, {
-        encodeValuesOnly: true,
+        {
+          ...baseQuery,
+          sort: ["eventDate:desc"],
+          pagination: {
+            pageSize: MAX_EVENTS_RECORDS
+          }
+        }, {
+          encodeValuesOnly: true,
         }
     );
-    const url = "/events?" + query;
-    console.log('url', url);
-    const res = await api.get(url);
+    const url = `${baseURL}events?${query}`
+    const res = await fetch(url, {
+      next: {
+        tags: ['strapi'],
+        revalidate: 1800
+      }
+    })
+    const data = await res.json();
 
     // Validate the data with Zod
-    const validatedData = EventSchema.parse(res.data?.data);
-
-    const allEvents : EventCardData[] = [];
-    for (const eventItem of validatedData) {
-      // eventDate must be in ISO format - safely parse with fallbacks
-      const eventDateStr = eventItem?.eventDate ?? new Date().toISOString();
-      const [year, month, day] = eventDateStr.split('T')[0].split('-').map(Number);
-
-      // Safely parse time strings with fallback to "00:00"
-      const startTimeStr = eventItem?.eventStartTime ?? "00:00";
-      const endTimeStr = eventItem?.eventEndTime ?? "23:59";
-      const [startHour, startMinute] = startTimeStr.split(":").map(Number);
-      const [endHour, endMinute] = endTimeStr.split(":").map(Number);
-
-      const eventTags = getEventTags(eventItem);
-      const openTo = eventItem?.open_to?.map((item: { membershipName: string; }) => item?.membershipName ?? "Member") ?? [];
-      openTo.sort();
-
-      allEvents.push(
-          {
-            id: eventItem?.id ?? 0,
-            title: eventItem?.title ?? "Untitled Event",
-            slug: eventItem?.title && eventItem?.documentId ? getSlug(eventItem.title, eventItem.documentId) : "untitled-event",
-            eventStartDateTime: new Date(year, month - 1, day, startHour, startMinute),
-            eventEndDateTime: new Date(year, month - 1, day, endHour, endMinute),
-            eventStartString: startTimeStr.toString().substring(0,5),
-            eventEndString: endTimeStr.toString().substring(0,5),
-            location: eventItem?.location ?? "Location TBA",
-            speaker: eventItem?.speaker ?? "Speaker TBA",
-            summary: eventItem?.summary ?? undefined,
-            eventType: eventItem?.eventType ?? "Event",
-            eventTags: eventTags,
-            publicEvent: eventItem?.publicEvent ?? false,
-            openTo: openTo,
-          }
-      )
-    }
-    console.debug("Number of events: ", allEvents.length);
-    return {events: allEvents, meta: res.data.meta} ;
+    const validatedData = EventSchema.parse(data.data);
+    return validatedData
   } catch (e) {
     console.error(e);
-    return {events: [], meta: {pagination: {page: 1, pageSize: 0, pageCount: 0, total: 0}}} ;
+    const message = e instanceof Error ? e.message : 'Unknown error loading events'
+    throw new Error(message);
   }
 }
 

@@ -1,26 +1,50 @@
 import {api} from "@/lib/api";
-import {BlocksContent} from "@strapi/blocks-react-renderer";
-import {getEventTagAndId, getEventTags} from "@/app/events/event-utils";
+import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
+import {z} from "zod";
 
+// Zod schema for single event validation and transformation
+const EventPageSchema = z.object({
+  title: z.string(),
+  eventDate: z.string(),
+  eventStartTime: z.string(),
+  eventEndTime: z.string(),
+  location: z.string(),
+  speaker: z.string(),
+  eventType: z.string().nullable(),
+  eventPage: z.string(), // BlocksContent type
+  publicEvent: z.boolean(),
+  event_tags: z.array(z.object({
+    tagName: z.string()
+  })).optional(),
+  open_to: z.array(z.object({
+    membershipName: z.string()
+  })),
+  markdownTest: z.string().nullable().optional()
+}).transform((event) => {
+  const eventTags = getEventTags(event);
+  const openTo = event.open_to.map((item) => item.membershipName);
+
+  return {
+    title: event.title,
+    eventDate: new Date(event.eventDate),
+    eventStartString: event.eventStartTime.substring(0, 5),
+    eventEndString: event.eventEndTime.substring(0, 5),
+    location: event.location,
+    speaker: event.speaker,
+    eventType: event.eventType ?? "Event",
+    eventPage: event.eventPage,
+    eventTags: eventTags,
+    publicEvent: event.publicEvent,
+    openTo: openTo,
+    markdownTest: event.markdownTest ?? undefined,
+  };
+});
 
 /**
  * Data for a single event page
  */
-export type EventPageData = {
-  title: string;
-  eventDate: Date;
-  eventStartString: string;
-  eventEndString: string;
-  location: string;
-  speaker: string;
-  eventType: string;
-  eventPage: BlocksContent;
-  eventTags:  string[];
-  publicEvent: boolean;
-  openTo: string[];
-  markdownTest?: string;
-}
+export type EventPageData = z.infer<typeof EventPageSchema>;
 
 /**
  * Gets singular event
@@ -36,23 +60,9 @@ export async function getEvent(documentId: string):Promise<EventPageData | null>
       }
     );
     const res = await api.get(`/events/${documentId}?${query}`);
-    const eventData = res.data.data;
-    const eventTags = getEventTags(eventData);
-    const openTo = eventData.open_to.map((item: { membershipName: string; }) => item.membershipName);
-    return {
-      title: eventData?.title ?? "Untitled Event",
-      eventDate: eventData?.eventDate ? new Date(eventData.eventDate) : new Date(),
-      eventStartString: eventData?.eventStartTime?.toString().substring(0,5) ?? "00:00",
-      eventEndString: eventData?.eventEndTime?.toString().substring(0,5) ?? "23:59",
-      location: eventData?.location ?? "Location TBA",
-      speaker: eventData?.speaker ?? "Speaker TBA",
-      eventType: eventData?.eventType ?? "Event",
-      eventPage: eventData?.eventPage ?? [],
-      eventTags: eventTags,
-      publicEvent: eventData?.publicEvent ?? false,
-      openTo: openTo,
-      markdownTest: eventData?.markdownTest ?? undefined,
-    } as EventPageData;
+    // Validate and transform with Zod
+    const eventData = EventPageSchema.parse(res.data.data);
+    return eventData;
   } catch (error) {
     console.error("Error fetching event:", error);
     return null;

@@ -268,10 +268,10 @@
   }
 }
 /* Typography plugin does not work in v4 https://github.com/tailwindlabs/tailwindcss/discussions/15305 so manually apply styles*/
-.prose h1 { @apply text-3xl mt-8 mb-4; }
-.prose h2 { @apply text-2xl mt-6 mb-3; }
-.prose h3 { @apply text-xl mt-5 mb-2; }
-.prose h4 { @apply text-lg mt-4 mb-2; }
+.prose h1 { @apply text-3xl mt-0 mb-4; }
+.prose h2 { @apply text-2xl mt-0 mb-3; }
+.prose h3 { @apply text-xl mt-0 mb-2; }
+.prose h4 { @apply text-lg mt-0 mb-2; }
 .prose p { @apply mb-4; }
 .prose ul { @apply list-disc list-outside ml-6 mb-4; }
 .prose ol { @apply list-decimal list-outside ml-6 mb-4; }

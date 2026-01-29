@@ -1,6 +1,4 @@
 import {getEvent} from "@/app/events/[slug]/api/get-event";
-import {Button} from "@/components/ui/button";
-import Link from "next/link";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +14,7 @@ import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
 import Markdown from 'react-markdown'
+import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
 
 export function MarkdownRenderer( {content} : {content: string | undefined} ){
   if (!content){
@@ -42,9 +41,9 @@ export default async function Page({
   if (!eventData) {
     return <main className={"p-4 flex flex-col items-center bg-neutral-50"}>
       <div className={"flex gap-4 self-start mb-4"}>
-        <Button asChild>
-          <Link href={"/events"}>Back to Events</Link>
-        </Button>
+        {/*<Button asChild>*/}
+        {/*  <Link href={"/events"}>Back to Events</Link>*/}
+        {/*</Button>*/}
       </div>
       <div>
         <h2 className={"text-2xl"}>Event Not Found</h2>
@@ -58,10 +57,10 @@ export default async function Page({
   const endTimeString = eventData?.eventEndString.substring(0, 5);
 
   return <main className={"p-4 flex flex-col items-center bg-neutral-50"}>
-    <div className={"flex gap-4 self-start mb-4"}>
-      <Button asChild>
-        <Link href={"/events"}>Back to Events</Link>
-      </Button>
+    <div className={"flex gap-2 self-start mb-4"}>
+      {/*<Button asChild>*/}
+      {/*  <Link href={"/events"}>Back to Events</Link>*/}
+      {/*</Button>*/}
       <Breadcrumb className={"bg-neutral-200 px-2"}>
         <BreadcrumbList className={"flex items-center"}>
           <BreadcrumbItem>
@@ -87,7 +86,8 @@ export default async function Page({
         {/*<div className={"bg-white border-r-2 p-4 prose prose-invert "}>*/}
         {/*  <BlocksRenderer content={eventData.eventPage}/>*/}
         {/*</div>*/}
-        <MarkdownRenderer content={eventData.markdownTest}/>
+        <StyledMarkdown text={eventData.eventPage}/>
+
         <div className={"flex flex-col items-start bg-white p-3"}>
           <div className={"grid grid-cols-[80px_1fr] "}>
             <strong>Date</strong><p className={"inline"}>{dateString}</p>
