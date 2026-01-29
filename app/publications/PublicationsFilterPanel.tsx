@@ -69,7 +69,7 @@ export function PublicationsFilterPanel({
   };
 
   return (
-      <div className="flex flex-col bg-secondary/80 text-secondary-foreground sticky max-h-dvh top-4 rounded-md px-4 py-3 gap-4 overflow-y-auto">
+      <div className="flex flex-col bg-secondary/80 text-secondary-foreground sticky top-4 max-h-dvh rounded-md px-4 py-3 gap-4 overflow-y-auto">
         <p className="text-xl font-semibold">Filter by</p>
         <div>
           <p className="font-semibold text-lg">Year</p>

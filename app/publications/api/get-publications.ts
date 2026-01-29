@@ -1,4 +1,4 @@
-import {api, baseURL} from "@/lib/api";
+import {baseURL} from "@/lib/api";
 import qs from "qs";
 import {strapiDateToDate} from "@/lib/utils";
 import {z} from "zod";
