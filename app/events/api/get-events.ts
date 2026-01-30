@@ -94,7 +94,7 @@ const EventSchema = z.array(
       eventDate: z.string(),
       location: z.string(),
       speaker: z.string(),
-      summary: z.string().nullable().optional(),
+      // summary: z.string().nullable().optional(),
       eventStartTime: z.string(),
       eventEndTime: z.string(),
       publicEvent: z.boolean(),

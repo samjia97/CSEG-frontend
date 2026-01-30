@@ -42,8 +42,8 @@ const matchesSearch = (event: EventCardData, query: string): boolean => {
   const lowerQuery = query.toLowerCase();
   return (
       event.title.toLowerCase().includes(lowerQuery) ||
-      event.speaker.toLowerCase().includes(lowerQuery) ||
-      (event.summary?.toLowerCase() || "").includes(lowerQuery)
+      event.speaker.toLowerCase().includes(lowerQuery)
+      // (event.summary?.toLowerCase() || "").includes(lowerQuery)
   );
 }
 
@@ -248,7 +248,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                   const endTimeString = item.eventEndString;
 
                   return (
-                      <div key={item.id} className="drop-shadow-md shadow bg-neutral-100 px-4 pb-4">
+                      <div key={item.id} className="drop-shadow-md shadow bg-neutral-100 px-4 pb-1">
                         {/* Event title */}
                         <Link href={`/events/${item.slug}`} className="text-xl">
                           <span className="text-accent no-underline">[{item.eventType}]</span>{" "}
@@ -277,7 +277,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                           </div>
                         </div>
 
-                        {item.summary && <p className="mt-2">{item.summary}</p>}
+                        {/*{item.summary && <p className="mt-2">{item.summary}</p>}*/}
                       </div>
                   );
                 })
