@@ -21,7 +21,9 @@ const baseQuery = {
     'eventDate',
     'location',
     'speaker',
-    'summary',
+    'location',
+    'teamsLink',
+    // 'summary',
     'eventStartTime',
     'eventEndTime',
     'publicEvent',
@@ -92,7 +94,8 @@ const EventSchema = z.array(
       documentId: z.string(),
       title: z.string(),
       eventDate: z.string(),
-      location: z.string(),
+      location: z.string().nullable(),
+      teamsLink: z.string().nullable(),
       speaker: z.string(),
       // summary: z.string().nullable().optional(),
       eventStartTime: z.string(),
@@ -121,6 +124,16 @@ const EventSchema = z.array(
       }) => item?.membershipName ?? "Member") ?? [];
       openTo.sort();
 
+      if (event.teamsLink && event.location){
+        const location = `Hbrid in person at ${event.location} and online at ${event.teamsLink}`
+      } else if (event.teamsLink) {
+        const location = `Online at ${event.teamsLink}`
+      } else if (event.location) {
+        const location = `In person at ${event.location}`
+      } else {
+        const location = null;
+      }
+
       return (
           {
             id: event?.id ?? 0,
@@ -132,7 +145,7 @@ const EventSchema = z.array(
             eventEndString: endTimeStr.toString().substring(0, 5),
             location: event?.location,
             speaker: event?.speaker,
-            summary: event?.summary ?? undefined,
+            // summary: event?.summary ?? undefined,
             eventType: event?.eventType ?? "Event",
             eventTags: eventTags,
             publicEvent: event?.publicEvent ?? false,
@@ -162,13 +175,14 @@ export async function getEvents(): Promise<EventCardData[]> {
         }
     );
     const url = `${baseURL}events?${query}`
-    const res = await fetch(url, {
-      next: {
-        tags: ['strapi'],
-        revalidate: 1800
-      }
-    })
+    // next: {
+    //   tags: ['strapi'],
+    //   revalidate: 1800
+    // }
+    const res = await fetch(url)
     const data = await res.json();
+    console.log(res);
+    console.log(data);
 
     // Validate the data with Zod
     const validatedData = EventSchema.parse(data.data);

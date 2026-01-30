@@ -44,14 +44,14 @@ export async function getPublications(): Promise<Publication[]> {
     // fetch caches data at NextJS so that it does not have to query Strapi
     // and the database the Webhook informs NextJS an administrator has added/modified
     // data to strapi.
+    {
+      // next: {
+      //   tags: ['strapi'],
+      //   // 30 minutes
+      //   revalidate: 1800
+      // }
+    }
     const res = await fetch(`${baseURL}publications?${params}`,
-        {
-          next: {
-            tags: ['strapi'],
-            // 30 minutes
-            revalidate: 1800
-          }
-        }
     )
     const parsed = PublicationSchema.parse(await res.json());
     return parsed.data;
