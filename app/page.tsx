@@ -62,7 +62,7 @@ export default async function Home() {
           {/*Hero*/}
           <div className={"max-w-[1200px] flex flex-col gap-0 items-stretch justify-stretch bg-white"}>
             {/* Images DIV*/}
-            <div className={"flex"}>
+            <div className={"flex max-w-2xl"}>
             {/*<div className={"bg-primary min-w-[900px] h-[300px]"}>*/}
             {/*  IMAGE*/}
             {/*</div>*/}
@@ -79,7 +79,7 @@ export default async function Home() {
                   <Image src="/UOE_logo.webp" alt="University of Edinburgh Logo" width={300} height={126} />
                 </div>
                 <div className={"h-[126px] w-[280px] mx-5"}>
-                  <Image src="/CSEG_Logo_large_supercropped.webp" alt="CSEG Logo" width={300} height={126} />
+                  <Image src="/CSEG_Logo_large_supercropped.webp" alt="CSEG Logo" width={280} height={126} />
                 </div>
               </div>
             </div>
@@ -91,46 +91,46 @@ export default async function Home() {
           {/*  <BlocksRenderer content={homepageData.HeroText}/>*/}
           {/*</div>*/}
           {/*  Quick action cards*/}
-          <div className={"my-8 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  grid gap-4"}>
-            <HomepageCard
-              url={homepageData.PublicationsCardImage.url}
-              alternativeText={homepageData.PublicationsCardImage.alternativeText}
-              titleText="Publications"
-              bodyText={homepageData.PublicationsCardText}
-              buttonText="Explore our Publications"
-              buttonHref="/publications"
-            />
-            <HomepageCard
-                url={homepageData.ResearchProjectsCardImage.url}
-                alternativeText={homepageData.ResearchProjectsCardImage.alternativeText}
-                titleText="Research projects"
-                bodyText={homepageData.ResearchProjectsCardText}
-                buttonText="Explore our projects"
-                buttonHref="/research"
-            />
-            <HomepageCard
-              url={homepageData.AboutUsCardImage.url}
-              alternativeText={homepageData.AboutUsCardImage.alternativeText}
-              titleText="About us"
-              bodyText={homepageData.AboutUsCardText}
-              buttonText="About us"
-              buttonHref="/about"
-            />            <HomepageCard
-              url={homepageData.JoinUsCardImage.url}
-              alternativeText={homepageData.JoinUsCardImage.alternativeText}
-              titleText="Join us"
-              bodyText={homepageData.JoinUsCardText}
-              buttonText="Join us"
-              buttonHref="/join"
-            />            <HomepageCard
-              url={homepageData.ContactUsCardImage.url}
-              alternativeText={homepageData.ContactUsCardImage.alternativeText}
-              titleText="Contact us"
-              bodyText={homepageData.ContactUsCardText}
-              buttonText="Contact us"
-              buttonHref="/contact"
-            />
-          </div>
+          {/*<div className={"my-8 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  grid gap-4"}>*/}
+            {/*<HomepageCard*/}
+            {/*  url={homepageData.PublicationsCardImage.url}*/}
+            {/*  alternativeText={homepageData.PublicationsCardImage.alternativeText}*/}
+            {/*  titleText="Publications"*/}
+            {/*  bodyText={homepageData.PublicationsCardText}*/}
+            {/*  buttonText="Explore our Publications"*/}
+            {/*  buttonHref="/publications"*/}
+            {/*/>*/}
+            {/*<HomepageCard*/}
+            {/*    url={homepageData.ResearchProjectsCardImage.url}*/}
+            {/*    alternativeText={homepageData.ResearchProjectsCardImage.alternativeText}*/}
+            {/*    titleText="Research projects"*/}
+            {/*    bodyText={homepageData.ResearchProjectsCardText}*/}
+            {/*    buttonText="Explore our projects"*/}
+            {/*    buttonHref="/research"*/}
+            {/*/>*/}
+            {/*<HomepageCard*/}
+            {/*  url={homepageData.AboutUsCardImage.url}*/}
+            {/*  alternativeText={homepageData.AboutUsCardImage.alternativeText}*/}
+            {/*  titleText="About us"*/}
+            {/*  bodyText={homepageData.AboutUsCardText}*/}
+            {/*  buttonText="About us"*/}
+            {/*  buttonHref="/about"*/}
+            {/*/>            <HomepageCard*/}
+            {/*  url={homepageData.JoinUsCardImage.url}*/}
+            {/*  alternativeText={homepageData.JoinUsCardImage.alternativeText}*/}
+            {/*  titleText="Join us"*/}
+            {/*  bodyText={homepageData.JoinUsCardText}*/}
+            {/*  buttonText="Join us"*/}
+            {/*  buttonHref="/join"*/}
+            {/*/>            <HomepageCard*/}
+            {/*  url={homepageData.ContactUsCardImage.url}*/}
+            {/*  alternativeText={homepageData.ContactUsCardImage.alternativeText}*/}
+            {/*  titleText="Contact us"*/}
+            {/*  bodyText={homepageData.ContactUsCardText}*/}
+            {/*  buttonText="Contact us"*/}
+            {/*  buttonHref="/contact"*/}
+            {/*/>*/}
+          {/*</div>*/}
         </div>
       </main>
 
