@@ -157,7 +157,7 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
                   <p>{project.projectEndDate === null ? 'Ongoing project' : formatDate(project.projectEndDate)}</p>
                   <strong>Primary investigator</strong>
                   <p>{project.primaryInvestigator}</p>
-                  <strong>Co-investigator</strong>
+                  <strong>Co-investigator(s)</strong>
                   <p>{project.coInvestigator}</p>
                 </div>
                 <LearnMore summary={project.summary} />

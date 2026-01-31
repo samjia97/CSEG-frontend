@@ -23,7 +23,7 @@ const baseQuery = {
     'speaker',
     'location',
     'teamsLink',
-    // 'summary',
+    'eventFormat',
     'eventStartTime',
     'eventEndTime',
     'publicEvent',
@@ -96,6 +96,7 @@ const EventSchema = z.array(
       eventDate: z.string(),
       location: z.string().nullable(),
       teamsLink: z.string().nullable(),
+      eventFormat: z.string(),
       speaker: z.string(),
       // summary: z.string().nullable().optional(),
       eventStartTime: z.string(),
@@ -124,14 +125,16 @@ const EventSchema = z.array(
       }) => item?.membershipName ?? "Member") ?? [];
       openTo.sort();
 
-      if (event.teamsLink && event.location){
-        const location = `Hbrid in person at ${event.location} and online at ${event.teamsLink}`
-      } else if (event.teamsLink) {
-        const location = `Online at ${event.teamsLink}`
-      } else if (event.location) {
-        const location = `In person at ${event.location}`
+      const eventFormatLower = event.eventFormat.toLowerCase();
+      let location: string | null;
+      if (eventFormatLower.includes('hybrid')) {
+        location = `Hybrid in person at ${event.location} and online at ${event.teamsLink}`
+      } else if (eventFormatLower.includes('online')) {
+        location = `Online at ${event.teamsLink}`
+      } else if (eventFormatLower.includes('person')) {
+        location = `In person at ${event.location}`
       } else {
-        const location = null;
+        location = null;
       }
 
       return (
@@ -143,7 +146,7 @@ const EventSchema = z.array(
             eventEndDateTime: new Date(year, month - 1, day, endHour, endMinute),
             eventStartString: startTimeStr.toString().substring(0, 5),
             eventEndString: endTimeStr.toString().substring(0, 5),
-            location: event?.location,
+            location,
             speaker: event?.speaker,
             // summary: event?.summary ?? undefined,
             eventType: event?.eventType ?? "Event",

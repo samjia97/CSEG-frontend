@@ -4,12 +4,15 @@ import qs from "qs";
 import {z} from "zod";
 
 // Zod schema for single event validation and transformation
+// Zod schema for single event validation and transformation
 const EventPageSchema = z.object({
   title: z.string(),
   eventDate: z.string(),
   eventStartTime: z.string(),
   eventEndTime: z.string(),
-  location: z.string(),
+  location: z.string().nullable(),
+  teamsLink: z.string().nullable(),
+  eventFormat: z.string(),
   speaker: z.string(),
   eventType: z.string().nullable(),
   eventPage: z.string(), // BlocksContent type
@@ -25,12 +28,24 @@ const EventPageSchema = z.object({
   const eventTags = getEventTags(event);
   const openTo = event.open_to.map((item) => item.membershipName);
 
+  const eventFormatLower = event.eventFormat.toLowerCase();
+  let location: string | null;
+  if (eventFormatLower.includes('hybrid')) {
+    location = `Hybrid in person at ${event.location} and online at ${event.teamsLink}`
+  } else if (eventFormatLower.includes('online')) {
+    location = `Online at ${event.teamsLink}`
+  } else if (eventFormatLower.includes('person')) {
+    location = `In person at ${event.location}`
+  } else {
+    location = null;
+  }
+
   return {
     title: event.title,
     eventDate: new Date(event.eventDate),
     eventStartString: event.eventStartTime.substring(0, 5),
     eventEndString: event.eventEndTime.substring(0, 5),
-    location: event.location,
+    location,
     speaker: event.speaker,
     eventType: event.eventType ?? "Event",
     eventPage: event.eventPage,
