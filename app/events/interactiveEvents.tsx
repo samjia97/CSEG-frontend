@@ -271,10 +271,11 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                             {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
                           </p>
 
-                          <strong className="pt-1">Topics</strong>
-                          <div className="flex gap-2 pt-1">
-                            {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-                          </div>
+                          {item.eventTags.length > 0 && <><strong className="pt-1">Topics</strong>
+                            <div className="flex gap-2 pt-1">
+                              {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                            </div>
+                          </> }
                         </div>
 
                         {/*{item.summary && <p className="mt-2">{item.summary}</p>}*/}
