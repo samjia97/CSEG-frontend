@@ -15,6 +15,8 @@ import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
 import Markdown from 'react-markdown'
 import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
+import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 export function MarkdownRenderer( {content} : {content: string | undefined} ){
   if (!content){
@@ -26,6 +28,18 @@ export function MarkdownRenderer( {content} : {content: string | undefined} ){
       </article>
   )
 }
+
+const downloadICS = (icsText: string) => {
+  const blob = new Blob([icsText], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "event.ics";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
 
 export default async function Page({
                                      params,
@@ -51,6 +65,8 @@ export default async function Page({
       </div>
     </main>
   }
+
+  const ics = eventData.ics;
 
   const dateString = formatDate(eventData?.eventDate);
   const startTimeString = eventData?.eventStartString.substring(0, 5);
@@ -105,6 +121,13 @@ export default async function Page({
             </div>
           </div>
           <ShareButtons url={`${baseURL}events/${slug}`}/>
+          {ics && <Link
+              href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
+              download={`${eventData.title || 'event'}.ics`}
+              className={"text-primary"}
+          >
+            Download ICS
+          </Link>}
         </div>
 
       </div>

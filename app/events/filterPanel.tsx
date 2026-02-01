@@ -131,11 +131,11 @@ export function FilterPanel({
                 <Label htmlFor="Member">Members</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Associate_Member" id="Associate_Member" />
+                <RadioGroupItem value="Associate Member" id="Associate_Member" />
                 <Label htmlFor="Associate_Member">Associate Members</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Student_Member" id="Student_Member" />
+                <RadioGroupItem value="Student Member" id="Student_Member" />
                 <Label htmlFor="Student_Member">Student Members</Label>
               </div>
               <div className="flex items-center space-x-2">

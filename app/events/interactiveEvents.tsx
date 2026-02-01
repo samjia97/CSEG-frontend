@@ -24,8 +24,11 @@ import {
   defaultEndDate
 } from "@/app/events/event_constants";
 
+export const OPEN_TO_OPTIONS = ['public', 'Member', 'Associate Member', 'Student Member'] as const;
+
+
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
-export type OpenTo = 'public' | 'Member' | 'Associate_Member' | 'Student_Member';
+export type OpenTo = typeof OPEN_TO_OPTIONS[number];
 
 const PAGE_SIZE = 10;
 
