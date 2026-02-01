@@ -51,7 +51,7 @@ export async function getPublications(): Promise<Publication[]> {
       //   revalidate: 1800
       // }
     }
-    const res = await fetch(`${baseURL}publications?${params}`,
+    const res = await fetch(`${baseURL}/publications?${params}`,
     )
     const parsed = PublicationSchema.parse(await res.json());
     return parsed.data;

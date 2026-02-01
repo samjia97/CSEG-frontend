@@ -177,7 +177,7 @@ export async function getEvents(): Promise<EventCardData[]> {
           encodeValuesOnly: true,
         }
     );
-    const url = `${baseURL}events?${query}`
+    const url = `${baseURL}/events?${query}`
     // next: {
     //   tags: ['strapi'],
     //   revalidate: 1800
