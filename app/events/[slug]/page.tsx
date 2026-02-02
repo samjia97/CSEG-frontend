@@ -120,7 +120,7 @@ export default async function Page({
               {eventData.publicEvent ? "Public" : eventData.openTo.join(", ") + " only"}
             </div>
           </div>
-          <ShareButtons url={`${baseURL}events/${slug}`}/>
+          <ShareButtons url={`${baseURL}/events/${slug}`} title={eventData.title}/>
           {ics && <Link
               href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
               download={`${eventData.title || 'event'}.ics`}
