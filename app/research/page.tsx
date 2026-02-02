@@ -1,6 +1,7 @@
 import React from 'react'
 import { getResearchProjects } from "@/app/research/api/get-research-projects";
 import InteractiveResearch from "@/app/research/interactiveResearch";
+import {getTopics} from "@/lib/get-topics";
 
 function ResearchPageHeader() {
   return (
@@ -14,26 +15,13 @@ function ResearchPageHeader() {
 
 async function ResearchProjectsPage() {
   const researchProjects = await getResearchProjects();
-
-  if (researchProjects === null) {
-    return (
-      <main className="min-h-screen bg-neutral-50 pt-2 px-4">
-        <ResearchPageHeader />
-        <div className="flex justify-center mt-8">
-          <div className="text-center border-8 rounded-xl border-red-400 bg-red-50 w-[500px] h-[100px] flex items-center justify-center">
-            <h2 className="text-xl">Server error encountered. Unable to load research projects.
-              Please try again another time</h2>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const topics = await getTopics();
 
   return (
     <main className="min-h-screen bg-neutral-50 flex flex-col items-center">
       <ResearchPageHeader />
       <div className="mt-4 max-w-7xl w-full">
-        <InteractiveResearch initialProjects={researchProjects} />
+        <InteractiveResearch initialProjects={researchProjects} topics={topics} />
       </div>
     </main>
   );

@@ -13,6 +13,8 @@ import {formatDate} from "@/lib/formatters";
 import {BlocksRenderer} from "@strapi/blocks-react-renderer";
 import Image from "next/image";
 import {getStrapiImageUrl} from "@/lib/api";
+import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
+import {Badge} from "@/components/ui/badge";
 
 export default async function Page({
                                      params,
@@ -22,21 +24,9 @@ export default async function Page({
   const {slug} = await params;
   const documentId = getDocumentIdFromSlug(slug);
   const researchProjectData = await getResearchProject(documentId);
-  if (!researchProjectData) {
-    return (<main className={"p-4 flex flex-col items-center bg-neutral-50 min-h-80 gap-8"}>
-      <h2 className={"text-2xl"}>Research Project Not Found</h2>
-      <p>The research project you are looking for does not exist or has been removed.</p>
-      <Button asChild>
-        <Link href={"/research"}>Back to research projects</Link>
-      </Button>
-    </main>)
-  }
 
   return <main className={"p-4 flex flex-col items-center bg-neutral-50"}>
     <div className={"flex gap-4 self-start"}>
-      <Button asChild>
-        <Link href={"/research"}>Back to research</Link>
-      </Button>
       <Breadcrumb className={"bg-neutral-200 px-2"}>
         <BreadcrumbList className={"flex items-center"}>
           <BreadcrumbItem>
@@ -252,9 +242,7 @@ export default async function Page({
       <hr/>
       </div>
 
-      <div className={"w-full prose max-w-none self-start"}>
-        <BlocksRenderer content={researchProjectData.projectPageContent}/>
-      </div>
+      <StyledMarkdown text={researchProjectData.projectPageContent}/>
         <div
             className={"w-full lg:w-[550px] lg:flex-shrink-0 self-start border-primary rounded-md border-2 p-2 mt-2"}>
           <div className={"flex flex-col gap-2"}>
@@ -298,10 +286,12 @@ export default async function Page({
 
             <hr className={"my-1"}/>
 
-            <div className={"flex justify-between gap-2"}>
-              <span className={"font-semibold"}>Topics</span>
-              <span className={"text-right"}>PLACEHOLDER</span>
-            </div>
+              {researchProjectData.researchTopics.length > 0 && <><strong className="pt-1">Topics</strong>
+                <div className="flex gap-2 pt-1 flex-wrap">
+                  {researchProjectData.researchTopics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                </div>
+              </> }
+
           </div>
         </div>
     </article>

@@ -1,26 +1,50 @@
-import {BlocksContent} from "@strapi/blocks-react-renderer";
 import {api} from "@/lib/api";
-import {strapiDateToDate} from "@/lib/utils";
-import {FullStrapiImage} from "@/types/strapi-global-types";
 import qs from "qs";
+import z from "zod";
 
-export type ResearchProjectPageData = {
-  title: string;
-  primaryInvestigator: string;
-  coInvestigator?: string;
-  projectPageContent: BlocksContent;
-  projectStartDate: Date;
-  ongoingProject: boolean;
-  projectEndDate: Date | null;
-  primaryInvestigatorEmail: string;
-  coInvestigatorEmail?: string;
-  projectPageCoverImage: FullStrapiImage | null;
-}
+
+const ResearchProjectPageSchema = z.object({
+  title: z.string(),
+  primaryInvestigator: z.string(),
+  coInvestigator: z.string().nullable(),
+  projectPageContent: z.string(),
+  projectStartDate: z.string(),
+  ongoingProject: z.boolean(),
+  projectEndDate: z.string().nullable(),
+  primaryInvestigatorEmail: z.string(),
+  coInvestigatorEmail: z.string().nullable(),
+  projectPageCoverImage: z.object({
+    id: z.number(),
+    alternativeText: z.string().nullable(),
+    url: z.string(),
+    width: z.number(),
+    height: z.number(),
+  }).nullable(),
+  research_topics: z.array(z.object({
+    tagName: z.string()
+  }))
+}).transform((project) => {
+  return {
+    title: project.title,
+    primaryInvestigator: project.primaryInvestigator,
+    coInvestigator: project.coInvestigator,
+    projectPageContent: project.projectPageContent,
+    projectStartDate: new Date(project.projectStartDate),
+    ongoingProject: project.ongoingProject,
+    projectEndDate: project.projectEndDate ? new Date(project.projectEndDate) : null,
+    primaryInvestigatorEmail: project.primaryInvestigatorEmail,
+    coInvestigatorEmail: project.coInvestigatorEmail,
+    projectPageCoverImage: project.projectPageCoverImage,
+    researchTopics: project.research_topics?.map(x => x.tagName) ?? []
+  };
+});
+
+export type ResearchProjectPage = z.infer<typeof ResearchProjectPageSchema>;
 
 /**
  * Gets singular research project
  */
-export async function getResearchProject(documentId: string): Promise<ResearchProjectPageData | null> {
+export async function getResearchProject(documentId: string): Promise<ResearchProjectPage> {
   try {
     const query = qs.stringify(
       {
@@ -31,33 +55,10 @@ export async function getResearchProject(documentId: string): Promise<ResearchPr
       }
     );
     const res = await api.get(`/research-projects/${documentId}?${query}`);
-    const projectData = res.data.data;
-    let coverImage: FullStrapiImage | null = null;
-    if (projectData.projectPageCoverImage){
-      const image = projectData.projectPageCoverImage;
-      coverImage = {
-        id: image.id,
-        alternativeText: image.alternativeText,
-        url: image.url,
-        width: image.width,
-        height: image.height,
-      }
-    }
-    return {
-      title: projectData.title,
-      primaryInvestigator: projectData.primaryInvestigator,
-      coInvestigator: projectData.coInvestigator,
-      projectPageContent: projectData.projectPageContent,
-      projectStartDate:  strapiDateToDate(projectData.projectStartDate),
-      ongoingProject: projectData.ongoingProject,
-      projectEndDate: projectData.projectEndDate === null ? null : strapiDateToDate(projectData.projectEndDate),
-      primaryInvestigatorEmail: projectData.primaryInvestigatorEmail,
-      secondaryInvestigatorEmail: projectData.secondaryInvestigatorEmail,
-      projectPageCoverImage: coverImage,
-    } as ResearchProjectPageData
-
+    return ResearchProjectPageSchema.parse(res.data.data);
   } catch (error) {
-    console.error("Error fetching research project:", error);
-    return null;
+    console.error( error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to fetch research project with ID ${documentId}: ${message}`);
   }
 }

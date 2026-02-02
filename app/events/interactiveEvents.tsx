@@ -89,15 +89,11 @@ const matchesOpenTo = (event: EventCardData, openTo: OpenTo): boolean => {
 }
 
 /**
- * Filter events based on selected topics
+ * Returns true if the project matches any of the selected topics.
  */
 const matchesTopics = (event: EventCardData, selectedTopics: Set<string>): boolean => {
   if (selectedTopics.size === 0) return true;
-  // All selected topics must be present in event
-  for (const topic of selectedTopics) {
-    if (!event.eventTags.includes(topic)) return false;
-  }
-  return true;
+  return event.eventTags.some(topic => selectedTopics.has(topic));
 }
 
 /**

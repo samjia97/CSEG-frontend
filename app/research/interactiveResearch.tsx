@@ -17,9 +17,11 @@ import {
   PaginationItem
 } from "@/components/ui/pagination";
 import LearnMore from "@/app/research/learn-more";
+import {Badge} from "@/components/ui/badge";
 
 type InteractiveResearchProps = {
   initialProjects: ResearchProject[];
+  topics: string[];
 };
 
 const validateAgainstQuery = (project: ResearchProject, query: string): boolean => {
@@ -39,6 +41,17 @@ const matchesStatus = (project: ResearchProject, status: ProjectStatus): boolean
   return !project.ongoingProject && project.projectEndDate !== null;
 };
 
+/**
+ * Returns true if the project matches any of the selected topics.
+ * @param project
+ * @param selectedTopics
+ */
+const matchesTopics = (project: ResearchProject, selectedTopics: Set<string>): boolean => {
+  if (selectedTopics.size === 0) return true;
+  return project.researchTopics.some(topic => selectedTopics.has(topic));
+}
+
+
 const NoProjectsToShow = () => {
   return (
     <div className="py-4 w-full max-w-5xl bg-accent text-accent-foreground rounded-md text-center">
@@ -48,13 +61,14 @@ const NoProjectsToShow = () => {
   );
 };
 
-function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
+function InteractiveResearch({ initialProjects, topics }: InteractiveResearchProps) {
   const [startYear, setStartYearState] = useState(defaultStartYear);
   const [endYear, setEndYearState] = useState(String(thisYear));
   const [projectStatus, setProjectStatusState] = useState<ProjectStatus>(defaultStatus);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [selectedTopics, setSelectedTopicsState] = useState<Set<string>>(new Set());
 
   const setStartYear: typeof setStartYearState = (value) => {
     setStartYearState(value);
@@ -66,6 +80,11 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
   };
   const setProjectStatus: typeof setProjectStatusState = (value) => {
     setProjectStatusState(value);
+    setPage(1);
+  };
+
+  const setSelectedTopics: typeof setSelectedTopicsState = (value) => {
+    setSelectedTopicsState(value);
     setPage(1);
   };
 
@@ -93,9 +112,10 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
       project.projectStartDate <= endYearDate &&
       project.projectStartDate >= startYearDate &&
       matchesStatus(project, projectStatus) &&
+      matchesTopics(project, selectedTopics) &&
       validateAgainstQuery(project, searchQuery)
     );
-  }, [initialProjects, endYear, startYear, searchQuery, projectStatus]);
+  }, [initialProjects, endYear, startYear, searchQuery, projectStatus, selectedTopics]);
 
   const maxPage = Math.ceil(filteredProjects.length / PAGE_SIZE);
   const paginatedProjects = filteredProjects.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -110,6 +130,9 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
           setEndYear={setEndYear}
           projectStatus={projectStatus}
           setProjectStatus={setProjectStatus}
+          topics={topics}
+          selectedTopics={selectedTopics}
+          setSelectedTopics={setSelectedTopics}
         />
       )}
 
@@ -143,7 +166,7 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
             <NoProjectsToShow />
           ) : (
             paginatedProjects.map((project) => (
-              <article key={project.documentId} className="bg-neutral-100 pb-2 px-2">
+              <article key={project.documentId} className="bg-neutral-100 pb-2 px-2 max-w-4xl">
                   <Link
                     href={`/research/${project.slug}`}
                     className="text-secondary underline"
@@ -157,8 +180,15 @@ function InteractiveResearch({ initialProjects }: InteractiveResearchProps) {
                   <p>{project.projectEndDate === null ? 'Ongoing project' : formatDate(project.projectEndDate)}</p>
                   <strong>Primary investigator</strong>
                   <p>{project.primaryInvestigator}</p>
-                  <strong>Co-investigator(s)</strong>
-                  <p>{project.coInvestigator}</p>
+                  {project.coInvestigator && <>
+                    <strong>Co-investigator(s)</strong>
+                    <p>{project.coInvestigator}</p>
+                  </>}
+                  {project.researchTopics.length > 0 && <><strong className="pt-1">Topics</strong>
+                    <div className="flex gap-2 pt-1 flex-wrap">
+                      {project.researchTopics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                    </div>
+                  </> }
                 </div>
                 <LearnMore summary={project.summary} />
               </article>

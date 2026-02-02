@@ -16,7 +16,7 @@ export function getStrapiImageUrl(url: string): string {
     console.log('getStrapiImageUrl: full url provided', url);
     return url;
   } else {
-    const strapiRoot = baseURL.replace('/api/', '');
+    const strapiRoot = baseURL.replace('/api', '');
     return `${strapiRoot}${url}`;
   }
 }
