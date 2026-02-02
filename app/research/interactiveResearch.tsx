@@ -138,6 +138,15 @@ function InteractiveResearch({ initialProjects, topics }: InteractiveResearchPro
 
       <div>
         <form className="flex gap-2 w-full items-center" onSubmit={handleSubmit}>
+          {/*<Button*/}
+          {/*    type="button"*/}
+          {/*    variant="outline"*/}
+          {/*    aria-label={isFilterOpen ? "Hide filters" : "Show filters"}*/}
+          {/*    onClick={() => setIsFilterOpen(!isFilterOpen)}*/}
+          {/*>*/}
+          {/*  <Settings2 />*/}
+          {/*  Filters*/}
+          {/*</Button>*/}
           <Input
             type="text"
             name="search"
@@ -149,15 +158,6 @@ function InteractiveResearch({ initialProjects, topics }: InteractiveResearchPro
           </Button>
           <Button type="reset" variant="destructive" onClick={handleClearAll}>
             CLEAR
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            aria-label={isFilterOpen ? "Hide filters" : "Show filters"}
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            <Settings2 />
-            Filters
           </Button>
         </form>
 

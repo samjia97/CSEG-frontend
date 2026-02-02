@@ -113,6 +113,15 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
         <div>
           {/* Search bar with filter toggle */}
           <form className="flex gap-2 w-full items-center" onSubmit={handleSubmit}>
+            {/*<Button*/}
+            {/*    type="button"*/}
+            {/*    variant="outline"*/}
+            {/*    aria-label={isFilterOpen ? "Hide filters" : "Show filters"}*/}
+            {/*    onClick={() => setIsFilterOpen(!isFilterOpen)}*/}
+            {/*>*/}
+            {/*  <Settings2 />*/}
+            {/*  Filters*/}
+            {/*</Button>*/}
             <Input
               type="text"
               name="search"
@@ -125,15 +134,7 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
             <Button type="reset" variant="destructive" onClick={handleClearAll}>
               CLEAR
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              aria-label={isFilterOpen ? "Hide filters" : "Show filters"}
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-            >
-              <Settings2 />
-              Filters
-            </Button>
+
           </form>
 
           {/* Results */}
@@ -148,11 +149,19 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
                         <strong>Author</strong>
                         <p>{item.author}</p>
                         <strong>Publication Date</strong>
-                        <p>{formatDate(item.publicationDate)}</p>
-                        <strong>Topics</strong>
-                        <div className="flex gap-2 pt-1 flex-wrap">
-                          {item.topics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-                        </div>
+                        {
+                          item.onPress ? <p>On press (not yet published)</p> :
+                          <p>{formatDate(item.publicationDate)}</p>
+                        }
+                        {
+                          item.topics.length > 0 && <>
+                              <strong>Topics</strong>
+                              <div className="flex gap-2 pt-1 flex-wrap">
+                                {item.topics.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                              </div>
+                            </>
+                        }
+
                       </div>
                       {item.linkToPublication &&
                           <Link href={item.linkToPublication} className="underline">

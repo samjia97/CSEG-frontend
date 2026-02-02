@@ -225,6 +225,15 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
             <div className={"flex flex-col gap-4"}>
               <SortBy currentSort={sortOption} onSortChange={setSortOption}/>
               <div className="flex gap-2">
+                {/*<Button*/}
+                {/*    type="button"*/}
+                {/*    variant="outline"*/}
+                {/*    onClick={() => setIsFilterOpen(!isFilterOpen)}*/}
+                {/*    aria-label={isFilterOpen ? "Hide filters" : "Show filters"}*/}
+                {/*>*/}
+                {/*  <Settings2/>*/}
+                {/*  Filters*/}
+                {/*</Button>*/}
                 <SearchBar onSearch={handleSearch}/>
                   <Button
                       type="button"
@@ -233,15 +242,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                   >
                     CLEAR
                   </Button>
-                  <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsFilterOpen(!isFilterOpen)}
-                      aria-label={isFilterOpen ? "Hide filters" : "Show filters"}
-                  >
-                    <Settings2/>
-                    Filters
-                  </Button>
+
               </div>
 
             </div>
