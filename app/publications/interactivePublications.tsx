@@ -86,7 +86,7 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
     return initialPublications.filter((value) =>
         value.publicationDate <= endYearDate &&
         value.publicationDate >= startYearDate &&
-        (selectedTopics.size === 0 || selectedTopics.difference(new Set(value.topics)).size === 0) &&
+        (selectedTopics.size === 0 || value.topics.some((topic) => selectedTopics.has(topic))) &&
         validateAgainstQuery(value, searchQuery)
     );
   }, [initialPublications, endYear, startYear, searchQuery, selectedTopics])
