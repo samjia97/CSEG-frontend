@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { TimePeriod, OpenTo } from "@/app/events/interactiveEvents";
+import {TimePeriod, OpenTo, OPEN_TO_OPTIONS} from "@/app/events/interactiveEvents";
 
 export type FilterPanelProps = {
   topics: string[];
   timePeriod: TimePeriod;
   setTimePeriod: React.Dispatch<React.SetStateAction<TimePeriod>>;
-  openTo: OpenTo;
-  setOpenTo: React.Dispatch<React.SetStateAction<OpenTo>>;
+  openTo: Set<OpenTo>;
+  setOpenTo: React.Dispatch<React.SetStateAction<Set<OpenTo>>>;
   selectedTopics: Set<string>;
   setSelectedTopics: React.Dispatch<React.SetStateAction<Set<string>>>;
   customStartDate: Date;
@@ -49,8 +49,14 @@ export function FilterPanel({
     setTimePeriod(value);
   };
 
-  const handleOpenToChange = (value: OpenTo) => {
-    setOpenTo(value);
+  const handleOpenToChange = (value: OpenTo, checked:boolean) => {
+    const newOpenTo = new Set(openTo);
+    if (checked){
+      newOpenTo.add(value);
+    } else {
+      newOpenTo.delete(value);
+    }
+    setOpenTo(newOpenTo)
   };
 
   const handleStartDateChange = (date: Date) => {
@@ -125,24 +131,21 @@ export function FilterPanel({
             <p className="text-lg">Allowed attendees</p>
           </AccordionTrigger>
           <AccordionContent className="mt-2">
-            <RadioGroup value={openTo} onValueChange={handleOpenToChange}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Member" id="Member" />
-                <Label htmlFor="Member">Members</Label>
+            <div className="flex flex-col gap-3">
+            { OPEN_TO_OPTIONS.map((value) => <div>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                    id={value}
+                    value={value}
+                    checked={openTo.has(value)}
+                    onCheckedChange={(checked: CheckedState) => {
+                      handleOpenToChange(value, checked as boolean);
+                    }}
+                />
+                <Label htmlFor={value}>{value}</Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Associate Member" id="Associate_Member" />
-                <Label htmlFor="Associate_Member">Associate Members</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Student Member" id="Student_Member" />
-                <Label htmlFor="Student_Member">Student Members</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="public" id="public" />
-                <Label htmlFor="public">Public Events</Label>
-              </div>
-            </RadioGroup>
+            </div>)}
+            </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

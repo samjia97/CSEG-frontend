@@ -24,11 +24,12 @@ import {
   defaultEndDate
 } from "@/app/events/event_constants";
 
-export const OPEN_TO_OPTIONS = ['public', 'Member', 'Associate Member', 'Student Member'] as const;
+export const OPEN_TO_OPTIONS = ['Public', 'Member', 'Associate Member', 'Student Member'] as const;
 
 
 export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
 export type OpenTo = typeof OPEN_TO_OPTIONS[number];
+export type OpenToSelection = Set<OpenTo>;
 
 const PAGE_SIZE = 10;
 
@@ -78,14 +79,23 @@ const matchesTimePeriod = (
 }
 
 /**
- * Filter events based on openTo (no 'all' option)
+ * Filter events based on openTo. Returns events open to at least one of the
+ * selected membership types.
  */
-const matchesOpenTo = (event: EventCardData, openTo: OpenTo): boolean => {
-  if (openTo === 'public') {
-    return event.publicEvent;
+const matchesOpenTo = (event: EventCardData, openTo: Set<OpenTo>): boolean => {
+  // If no selections, show nothing (or optionally show all)
+  if (openTo.size === 0) return true; // or return false to hide all
+
+  // Check if event matches any selected option
+  for (const selection of openTo) {
+    if (selection === 'Public' && event.publicEvent) {
+      return true;
+    }
+    if (event.openTo.includes(selection)) {
+      return true;
+    }
   }
-  // For Member types: event must NOT be public AND must include the membership type
-  return !event.publicEvent && event.openTo.includes(openTo);
+  return false;
 }
 
 /**
@@ -129,7 +139,7 @@ const NoEventsMessage = () => (
 export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProps) {
   // Filter state
   const [timePeriod, setTimePeriodState] = useState<TimePeriod>(defaultTimePeriod);
-  const [openTo, setOpenToState] = useState<OpenTo>(defaultOpenTo as OpenTo);
+  const [openTo, setOpenToState] = useState<OpenToSelection>(defaultOpenTo);
   const [selectedTopics, setSelectedTopicsState] = useState<Set<string>>(new Set());
   const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
   const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
@@ -180,7 +190,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
   const handleClearAll = () => {
     setSearchQuery("");
     setTimePeriodState(defaultTimePeriod);
-    setOpenToState(defaultOpenTo as OpenTo);
+    setOpenToState(defaultOpenTo);
     setSelectedTopicsState(new Set());
     setCustomStartDate(defaultStartDate);
     setCustomEndDate(defaultEndDate);

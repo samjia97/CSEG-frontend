@@ -9,7 +9,6 @@ type ShareButtonProps ={
  * @constructor
  */
 function ShareButtons({url} :ShareButtonProps) {
-  console.log(url);
   return (
       <div className={"mt-4"}>
         <p>Share this event</p>
