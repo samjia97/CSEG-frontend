@@ -51,12 +51,13 @@ const navigationLinks: Navbar03NavItem[] = [
     label:"Publications",
   },
   {
-    href:"/join",
-    label:"Join us",
-  },
-  {
     href:"/contact",
     label:"Contact us",
+  },
+  {
+    href:"/join",
+    label:"Join us",
+    isButton: true,
   },
 ]
 const NavBarProps: Navbar03Props = {

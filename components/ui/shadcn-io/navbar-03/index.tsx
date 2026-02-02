@@ -70,6 +70,7 @@ export interface Navbar03NavItem {
   label: string;
   active?: boolean;
   children?: Navbar03NavItem[];
+  isButton?: boolean;
 }
 
 export interface Navbar03Props extends React.HTMLAttributes<HTMLElement> {
@@ -152,7 +153,6 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
      */
     const handleMenuItemClicked = (e: React.MouseEvent, href: string | undefined) => {
       e.preventDefault();
-      console.log("Clicked with",href)
       if (typeof href === 'string'){
         router.push(href);
       } else {
@@ -276,9 +276,18 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                         );
                       }
 
-                      // Regular link (no children)
+                      // Regular link (no children) - desktop
                       return (
                         <NavigationMenuItem key={index}>
+                          {link.isButton ?
+                              <Button
+                                onClick={(e) => handleMenuItemClicked(e, link.href)}
+
+                                data-active={active || null}>
+                                {link.label}
+                              </Button>
+                          :
+
                           <NavigationMenuLink
                               href={link.href}
                               onClick={(e) => handleMenuItemClicked(e, link.href)}
@@ -290,6 +299,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                           >
                             {link.label}
                           </NavigationMenuLink>
+                          }
                         </NavigationMenuItem>
                       );
                     })}
