@@ -4,6 +4,7 @@ import "./globals.css";
 import {Navbar03, Navbar03NavItem, Navbar03Props} from "@/components/ui/shadcn-io/navbar-03";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
+import {LinkedinIcon} from "react-share";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -104,6 +105,9 @@ export default function RootLayout({
           </nav>
           <div>
             <p className={"text-white text-lg"}>Follow us</p>
+            <Link href={"https://www.linkedin.com/groups/13122419/"}>
+              <LinkedinIcon size={32}/>
+            </Link>
           </div>
         </div>
       </footer>

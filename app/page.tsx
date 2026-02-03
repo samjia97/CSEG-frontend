@@ -1,13 +1,10 @@
-
 import {Button} from "@/components/ui/button";
-import {Navbar03} from "@/components/ui/shadcn-io/navbar-03";
 import Image from "next/image";
 import Link from "next/link"
-import {BlocksRenderer} from "@strapi/blocks-react-renderer";
 import {getHomepage} from "@/app/get-homepage";
 import {getStrapiImageUrl} from "@/lib/api";
 import {Card, CardAction, CardContent} from "@/components/ui/card";
-import {ChevronDown} from "lucide-react";
+import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
 
 interface HomepageCardProps {
   url: string;
@@ -69,7 +66,7 @@ export default async function Home() {
             {/*  Object-voer and h- in Image class forces image to follow a specifcic height*/}
             <Image
                 src={getStrapiImageUrl(homepageData.HeroImage.url)}
-                alt={homepageData.HeroImage.alternativeText}
+                alt={homepageData.HeroImage.alternativeText || 'CSEG Organisers'}
                 width={900}
                 height={300}
                 className={"flex justify-center items-center mx-auto object-cover h-[300px]"}
@@ -83,13 +80,11 @@ export default async function Home() {
                 </div>
               </div>
             </div>
-            <div className={"border-2 border-primary px-4 py-2"}>
-              <BlocksRenderer content={homepageData.HeroText}/>
-            </div>
+          <div className={"border-2 border-primary w-4xl"}>
+            <StyledMarkdown text={homepageData.HeroText}/>
           </div>
-          {/*<div className={"border-4 border-primary px-4 py-2 min-h-full w-4xl"}>*/}
-          {/*  <BlocksRenderer content={homepageData.HeroText}/>*/}
-          {/*</div>*/}
+
+          </div>
           {/*  Quick action cards*/}
           {/*<div className={"my-8 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  grid gap-4"}>*/}
             {/*<HomepageCard*/}

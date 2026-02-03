@@ -7,21 +7,20 @@ import {Badge} from "@/components/ui/badge";
 import {FilterPanel} from "@/app/events/filterPanel";
 import {
   Pagination,
-  PaginationContent,
-  PaginationItem,
   PaginationClientLink,
   PaginationClientNext,
-  PaginationClientPrevious
+  PaginationClientPrevious,
+  PaginationContent,
+  PaginationItem
 } from "@/components/ui/pagination";
 import {SortBy, SortOption} from "@/app/events/sortBy";
 import {Button} from "@/components/ui/button";
-import {Settings2} from "lucide-react";
 import SearchBar from "@/app/events/searchBar";
 import {
+  defaultEndDate,
   defaultOpenTo,
-  defaultTimePeriod,
   defaultStartDate,
-  defaultEndDate
+  defaultTimePeriod
 } from "@/app/events/event_constants";
 
 export const OPEN_TO_OPTIONS = ['Public', 'Member', 'Associate Member', 'Student Member'] as const;

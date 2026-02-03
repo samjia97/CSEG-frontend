@@ -151,7 +151,7 @@ export function FilterPanel({
       </Accordion>
 
       {/* Topics */}
-      <Accordion type="single" collapsible>
+      <Accordion type="single" collapsible defaultValue={"topics"}>
         <AccordionItem value="topics">
           <AccordionTrigger className="[&>svg]:text-white py-0">
             <p className="text-lg">Topics</p>
