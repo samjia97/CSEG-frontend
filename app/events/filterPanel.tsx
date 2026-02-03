@@ -29,6 +29,8 @@ export type FilterPanelProps = {
  * Client-side filter panel.
  * Receives current filter values (read from URL by parent) and a shared
  * updateParams function to write changes back to the URL.
+ *
+ * Retrigger push
  */
 export function FilterPanel({
   topics,
