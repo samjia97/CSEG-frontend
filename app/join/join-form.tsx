@@ -48,7 +48,6 @@ export default function MyForm() {
 
   async function onSubmit(values: z.infer < typeof formSchema > ) {
     try {
-      console.log(values);
       await createApplication(values);
       setSubmissionError(false);
       setSubmissionSuccess(true);
@@ -69,7 +68,7 @@ export default function MyForm() {
         {submissionSuccess ? <SuccessMessage /> : null}
         {submissionError ? <FailureMessage /> : null}
 
-        <Form {...form}>
+        {!submissionSuccess && <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mx-auto py-10">
             {/* The direct registration with ...form.register pattern is simpler than the FormField render method*/}
             <Field>
@@ -150,7 +149,7 @@ export default function MyForm() {
 
             <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Submitting..." : "Submit"}</Button>
           </form>
-        </Form>
+        </Form>}
       </div>
 
   )
