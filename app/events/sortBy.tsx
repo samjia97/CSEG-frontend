@@ -7,8 +7,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-
-export type SortOption = "eventDate:desc" | "eventDate:asc" | "title:asc" | "title:desc";
+import {SortOption} from "@/app/events/event_constants";
 
 type SortByProps = {
   currentSort: SortOption;

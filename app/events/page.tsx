@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { getEvents } from "@/app/events/api/get-events";
 import { InteractiveEvents } from "@/app/events/interactiveEvents";
 import { getTopics } from "@/lib/get-topics";
@@ -18,7 +18,9 @@ async function EventsPage() {
         <p>Our events where we learn more about Computer Science Education together.</p>
       </div>
       <div className="flex justify-center">
-        <InteractiveEvents initialEvents={events} topics={topics} />
+        <Suspense fallback={<div>Loading events...</div>}>
+          <InteractiveEvents initialEvents={events} topics={topics} />
+        </Suspense>
       </div>
     </>
   )

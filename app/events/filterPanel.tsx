@@ -11,64 +11,63 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import {TimePeriod, OpenTo, OPEN_TO_OPTIONS} from "@/app/events/interactiveEvents";
+import {OPEN_TO_OPTIONS} from "@/app/events/interactiveEvents";
+import {OpenTo, TimePeriod} from "@/app/events/event_constants";
 
 export type FilterPanelProps = {
   topics: string[];
   timePeriod: TimePeriod;
-  setTimePeriod: React.Dispatch<React.SetStateAction<TimePeriod>>;
   openTo: Set<OpenTo>;
-  setOpenTo: React.Dispatch<React.SetStateAction<Set<OpenTo>>>;
   selectedTopics: Set<string>;
-  setSelectedTopics: React.Dispatch<React.SetStateAction<Set<string>>>;
   customStartDate: Date;
-  setCustomStartDate: React.Dispatch<React.SetStateAction<Date>>;
   customEndDate: Date;
-  setCustomEndDate: React.Dispatch<React.SetStateAction<Date>>;
+  updateParams: (updates: Record<string, string | null>) => void;
+  formatDateParam: (date: Date) => string;
 }
 
 /**
- * Simplified client-side filter panel with instant filtering (no APPLY button)
- * Matches the Publications filter panel pattern exactly
+ * Client-side filter panel.
+ * Receives current filter values (read from URL by parent) and a shared
+ * updateParams function to write changes back to the URL.
  */
 export function FilterPanel({
   topics,
   timePeriod,
-  setTimePeriod,
   openTo,
-  setOpenTo,
   selectedTopics,
-  setSelectedTopics,
   customStartDate,
-  setCustomStartDate,
   customEndDate,
-  setCustomEndDate
+  updateParams,
+  formatDateParam,
 }: FilterPanelProps) {
 
   const handleTimePeriodChange = (value: TimePeriod) => {
-    setTimePeriod(value);
+    // Omit param when it equals the default ("upcoming") for a cleaner URL
+    updateParams({ timePeriod: value === "upcoming" ? null : value });
   };
 
-  const handleOpenToChange = (value: OpenTo, checked:boolean) => {
+  const handleOpenToChange = (value: OpenTo, checked: boolean) => {
     const newOpenTo = new Set(openTo);
-    if (checked){
+    if (checked) {
       newOpenTo.add(value);
     } else {
       newOpenTo.delete(value);
     }
-    setOpenTo(newOpenTo)
+    updateParams({
+      openTo: newOpenTo.size > 0 ? Array.from(newOpenTo).join(",") : null
+    });
   };
 
   const handleStartDateChange = (date: Date) => {
     // Ensure start date is before end date
     const validatedDate = date < customEndDate ? date : customEndDate;
-    setCustomStartDate(validatedDate);
+    updateParams({ startDate: formatDateParam(validatedDate) });
   };
 
   const handleEndDateChange = (date: Date) => {
     // Ensure end date is after start date
     const validatedDate = date > customStartDate ? date : customStartDate;
-    setCustomEndDate(validatedDate);
+    updateParams({ endDate: formatDateParam(validatedDate) });
   };
 
   const handleTopicChange = (topicName: string, checked: boolean) => {
@@ -78,7 +77,9 @@ export function FilterPanel({
     } else {
       newSelectedTopics.delete(topicName);
     }
-    setSelectedTopics(newSelectedTopics);
+    updateParams({
+      topics: newSelectedTopics.size > 0 ? Array.from(newSelectedTopics).join(",") : null
+    });
   };
 
   return (
@@ -132,7 +133,7 @@ export function FilterPanel({
           </AccordionTrigger>
           <AccordionContent className="mt-2">
             <div className="flex flex-col gap-3">
-            { OPEN_TO_OPTIONS.map((value) => <div>
+            { OPEN_TO_OPTIONS.map((value) => <div key={value}>
               <div className="flex items-center gap-3">
                 <Checkbox
                     id={value}
@@ -176,4 +177,3 @@ export function FilterPanel({
     </div>
   );
 }
-

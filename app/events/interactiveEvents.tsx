@@ -13,24 +13,25 @@ import {
   PaginationContent,
   PaginationItem
 } from "@/components/ui/pagination";
-import {SortBy, SortOption} from "@/app/events/sortBy";
+import {SortBy} from "@/app/events/sortBy";
 import {Button} from "@/components/ui/button";
 import SearchBar from "@/app/events/searchBar";
 import {
   defaultEndDate,
-  defaultOpenTo,
   defaultStartDate,
-  defaultTimePeriod
+  defaultTimePeriod,
+  defaultSortOption,
+  OpenTo,
+  OpenToSchema,
+  PAGE_SIZE,
+  SortOption,
+  SortOptionSchema,
+  TimePeriod,
+  TimePeriodSchema,
 } from "@/app/events/event_constants";
+import {useRouter, useSearchParams} from "next/navigation";
 
 export const OPEN_TO_OPTIONS = ['Public', 'Member', 'Associate Member', 'Student Member'] as const;
-
-
-export type TimePeriod = 'upcoming' | 'past' | 'all' | 'custom';
-export type OpenTo = typeof OPEN_TO_OPTIONS[number];
-export type OpenToSelection = Set<OpenTo>;
-
-const PAGE_SIZE = 10;
 
 type InteractiveEventsProps = {
   initialEvents: EventCardData[];
@@ -82,10 +83,8 @@ const matchesTimePeriod = (
  * selected membership types.
  */
 const matchesOpenTo = (event: EventCardData, openTo: Set<OpenTo>): boolean => {
-  // If no selections, show nothing (or optionally show all)
-  if (openTo.size === 0) return true; // or return false to hide all
+  if (openTo.size === 0) return true;
 
-  // Check if event matches any selected option
   for (const selection of openTo) {
     if (selection === 'Public' && event.publicEvent) {
       return true;
@@ -131,39 +130,78 @@ const NoEventsMessage = () => (
     </div>
 );
 
+/** Parse a date from a URL param string (YYYY-MM-DD), returning fallback on failure */
+function parseDateParam(value: string | null, fallback: Date): Date {
+  if (!value) return fallback;
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? fallback : parsed;
+}
+
+/** Format a Date as YYYY-MM-DD for URL params */
+export function formatDateParam(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
 /**
- * Client-side interactive events with filtering, search, and pagination
- * Matches publications pattern exactly
+ * Client-side interactive events with filtering, search, and pagination.
+ * All filter state is stored in URL search params so it survives navigation.
  */
 export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProps) {
-  // Filter state
-  const [timePeriod, setTimePeriodState] = useState<TimePeriod>(defaultTimePeriod);
-  const [openTo, setOpenToState] = useState<OpenToSelection>(defaultOpenTo);
-  const [selectedTopics, setSelectedTopicsState] = useState<Set<string>>(new Set());
-  const [customStartDate, setCustomStartDate] = useState<Date>(defaultStartDate);
-  const [customEndDate, setCustomEndDate] = useState<Date>(defaultEndDate);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortOption, setSortOption] = useState<SortOption>('eventDate:desc');
-  const [page, setPage] = useState<number>(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // ---- Read ALL filter state from URL with Zod validation ----
+
+  const timePeriodResult = TimePeriodSchema.safeParse(searchParams.get("timePeriod"));
+  const timePeriod = timePeriodResult.success ? timePeriodResult.data : defaultTimePeriod;
+
+  const openToParam = searchParams.get("openTo") ?? "";
+  const openTo = new Set<OpenTo>(
+      openToParam
+          ? (openToParam.split(",").filter(v => OpenToSchema.safeParse(v).success) as OpenTo[])
+          : []
+  );
+
+  const topicsParam = searchParams.get("topics") ?? "";
+  const selectedTopics = new Set<string>(
+      topicsParam ? topicsParam.split(",").filter(t => topics.includes(t)) : []
+  );
+
+  const customStartDate = parseDateParam(searchParams.get("startDate"), defaultStartDate);
+  const customEndDate = parseDateParam(searchParams.get("endDate"), defaultEndDate);
+
+  const searchQuery = searchParams.get("query") ?? "";
+
+  const sortResult = SortOptionSchema.safeParse(searchParams.get("sort"));
+  const sortOption: SortOption = sortResult.success ? sortResult.data : defaultSortOption;
+
+  const pageParam = parseInt(searchParams.get("page") ?? "1");
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+
+  // UI-only state (doesn't need to persist in URL)
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
-  // Wrapper setters that reset page to 1 (avoids useEffect cascading renders)
-  const setTimePeriod: typeof setTimePeriodState = (value) => {
-    setTimePeriodState(value);
-    setPage(1);
-  };
-  const setOpenTo: typeof setOpenToState = (value) => {
-    setOpenToState(value);
-    setPage(1);
-  };
-  const setSelectedTopics: typeof setSelectedTopicsState = (value) => {
-    setSelectedTopicsState(value);
-    setPage(1);
+  // ---- Helper: update URL search params ----
+  // Pass the params you want to change. null/empty removes the param.
+  // Automatically resets page to 1 unless you're changing page itself.
+  const updateParams = (updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    }
+    // Reset page to 1 when any filter (not page itself) changes
+    if (!("page" in updates)) {
+      params.delete("page");
+    }
+    router.replace(`/events?${params.toString()}`);
   };
 
-  // Client-side filtering with useMemo for performance
+  // ---- Client-side filtering with useMemo for performance ----
   const filteredAndSortedEvents = useMemo(() => {
-    // Create 'now' once outside the filter loop for performance
     const now = new Date();
 
     const filtered = initialEvents.filter(event =>
@@ -177,24 +215,20 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
 
   // Pagination
   const maxPage = Math.max(1, Math.ceil(filteredAndSortedEvents.length / PAGE_SIZE));
-  const paginatedEvents = filteredAndSortedEvents.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const safePage = Math.min(page, maxPage);
+  const paginatedEvents = filteredAndSortedEvents.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  // Handle search
+  // ---- Handlers ----
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setPage(1);
+    updateParams({query: query || null});
   };
 
-  // Handle clear all (resets everything)
+  const handleSortChange = (sort: SortOption) => {
+    updateParams({sort: sort === defaultSortOption ? null : sort});
+  };
+
   const handleClearAll = () => {
-    setSearchQuery("");
-    setTimePeriodState(defaultTimePeriod);
-    setOpenToState(defaultOpenTo);
-    setSelectedTopicsState(new Set());
-    setCustomStartDate(defaultStartDate);
-    setCustomEndDate(defaultEndDate);
-    setSortOption('eventDate:desc');
-    setPage(1);
+    router.replace("/events");
   };
 
   return (
@@ -206,15 +240,12 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
               <FilterPanel
                   topics={topics}
                   timePeriod={timePeriod}
-                  setTimePeriod={setTimePeriod}
                   openTo={openTo}
-                  setOpenTo={setOpenTo}
                   selectedTopics={selectedTopics}
-                  setSelectedTopics={setSelectedTopics}
                   customStartDate={customStartDate}
-                  setCustomStartDate={setCustomStartDate}
                   customEndDate={customEndDate}
-                  setCustomEndDate={setCustomEndDate}
+                  updateParams={updateParams}
+                  formatDateParam={formatDateParam}
               />
           )}
 
@@ -222,28 +253,17 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
           <div className="flex flex-col gap-4 w-full">
             {/* Search and Controls */}
             <div className={"flex flex-col gap-4"}>
-              <SortBy currentSort={sortOption} onSortChange={setSortOption}/>
+              <SortBy currentSort={sortOption} onSortChange={handleSortChange}/>
               <div className="flex gap-2">
-                {/*<Button*/}
-                {/*    type="button"*/}
-                {/*    variant="outline"*/}
-                {/*    onClick={() => setIsFilterOpen(!isFilterOpen)}*/}
-                {/*    aria-label={isFilterOpen ? "Hide filters" : "Show filters"}*/}
-                {/*>*/}
-                {/*  <Settings2/>*/}
-                {/*  Filters*/}
-                {/*</Button>*/}
                 <SearchBar onSearch={handleSearch}/>
-                  <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={handleClearAll}
-                  >
-                    CLEAR
-                  </Button>
-
+                <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleClearAll}
+                >
+                  CLEAR
+                </Button>
               </div>
-
             </div>
 
 
@@ -284,7 +304,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                             <div className="flex gap-2 pt-1">
                               {item.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
                             </div>
-                          </> }
+                          </>}
                         </div>
 
                         {/*{item.summary && <p className="mt-2">{item.summary}</p>}*/}
@@ -293,18 +313,30 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                 })
             )}
 
-            {/* Pagination */}
+            {/* Pagination - uses router.push so back button returns to previous page */}
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationClientPrevious onClick={() => setPage(Math.max(1, page - 1))}/>
+                  <PaginationClientPrevious onClick={() => {
+                    if (safePage > 1) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      if (safePage - 1 === 1) params.delete("page");
+                      else params.set("page", String(safePage - 1));
+                      router.push(`/events?${params.toString()}`);
+                    }
+                  }}/>
                 </PaginationItem>
 
                 {Array.from({length: maxPage}, (_, i) => (
                     <PaginationItem key={i + 1}>
                       <PaginationClientLink
-                          onClick={() => setPage(i + 1)}
-                          isActive={page === i + 1}
+                          onClick={() => {
+                            const params = new URLSearchParams(searchParams.toString());
+                            if (i + 1 === 1) params.delete("page");
+                            else params.set("page", String(i + 1));
+                            router.push(`/events?${params.toString()}`);
+                          }}
+                          isActive={safePage === i + 1}
                       >
                         {i + 1}
                       </PaginationClientLink>
@@ -312,7 +344,13 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                 ))}
 
                 <PaginationItem>
-                  <PaginationClientNext onClick={() => setPage(Math.min(maxPage, page + 1))}/>
+                  <PaginationClientNext onClick={() => {
+                    if (safePage < maxPage) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.set("page", String(safePage + 1));
+                      router.push(`/events?${params.toString()}`);
+                    }
+                  }}/>
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
@@ -321,4 +359,3 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
       </div>
   );
 }
-
