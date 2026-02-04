@@ -164,7 +164,7 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
 
                       </div>
                       {item.linkToPublication &&
-                          <Link href={item.linkToPublication} className="underline">
+                          <Link href={item.linkToPublication} className="underline" target={"_blank"}>
                             Link to resource
                           </Link>
                       }
