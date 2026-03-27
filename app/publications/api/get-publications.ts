@@ -10,8 +10,6 @@ const PublicationSchema = z.object({
     id: z.number(),
     title: z.string(),
     author: z.string(),
-    // TODO: Remove nullable condition
-    onPress: z.boolean().nullable().transform((onPress) => onPress ? true : false),
     publicationDate: z.string().transform(strapiDateToDate),
     linkToPublication: z.string().nullable().transform(v => v ?? undefined),
     topics: z.array(z.object({
@@ -30,7 +28,7 @@ const MAX_RECORDS = 99999;
  */
 export async function getPublications(): Promise<Publication[]> {
   const query = {
-    fields: ['title', 'author', 'publicationDate', 'linkToPublication', 'onPress'],
+    fields: ['title', 'author', 'publicationDate', 'linkToPublication'],
     populate: {
       topics: {
         fields: ['tagName']

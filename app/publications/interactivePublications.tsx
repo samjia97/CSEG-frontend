@@ -149,10 +149,7 @@ function InteractivePublications({initialPublications, topics}: InteractivePubli
                         <strong>Author</strong>
                         <p>{item.author}</p>
                         <strong>Publication Date</strong>
-                        {
-                          item.onPress ? <p>On press (not yet published)</p> :
-                          <p>{formatDate(item.publicationDate)}</p>
-                        }
+                        <p>{formatDate(item.publicationDate)}</p>
                         {
                           item.topics.length > 0 && <>
                               <strong>Topics</strong>
