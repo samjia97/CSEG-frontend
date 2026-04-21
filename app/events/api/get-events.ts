@@ -183,8 +183,6 @@ export async function getEvents(): Promise<EventCardData[]> {
     // }
     const res = await fetch(url)
     const data = await res.json();
-    console.log(res);
-    console.log(data);
 
     // Validate the data with Zod
     const validatedData = EventSchema.parse(data.data);

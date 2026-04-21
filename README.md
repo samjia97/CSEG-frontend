@@ -1,8 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Previous student notes
+This is a standard NextJS app so can uses the standard install and run commands. The .env file is for
+running locally while .env.vercel is if you need to run it on Vercel for user studies. 
 
-First, run the development server:
+Next steps not mentioned in the dissertation  
+1. Currently the events page uses client-side filtering where it pushes search params to the URL. The research projects and publications page uses an older client-side filtering pattern so does not push param to the URL. You should read `interactiveEvents.tsx` to understand the pattern then apply it to publications and research projects
+
+### Installation
+`npm install`
+
+### Development server:
 
 ```bash
 npm run dev
