@@ -3,6 +3,10 @@
 This is a standard NextJS app so can uses the standard install and run commands. The .env file is for
 running locally while .env.vercel is if you need to run it on Vercel for user studies. 
 
+## Key technical details
+1. NextJS in production mode aggressively caches data. When Strapi updates content, the change may not be reflected here unless the cache is refreshed. Currently, this is achieved by Strapi sending a Webhook request to NextJS to refresh everything. See `app/api/revalidate/route.ts`
+2. `get-events.ts` and `get-publications.ts` use `fetch` instead of axios get present on other parts. fetch integrates better with NextJS caching than axios so I mulled converting the axios to fetch but I'm not sure if this is necessary. You decide which scheme to use. 
+3. When Strapi's Content Type Builder updates a content type, make sure you update the corresponding Zod schemas here.
 
 ### Installation
 `npm install`

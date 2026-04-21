@@ -16,7 +16,6 @@ interface HomepageCardProps {
 }
 
 function HomepageCard({ url, alternativeText, titleText, bodyText, buttonText, buttonHref }: HomepageCardProps) {
-  console.log('homepagecard', url, alternativeText, titleText, bodyText, buttonText, buttonHref);
   return (
     <Card className={"p-0 rounded-none max-w-[400px] max-h-[400px] box-border flex gap-2"}>
       <Image

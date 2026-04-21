@@ -6,7 +6,6 @@ import Link from "next/link";
 
 export default async function PeoplePage() {
   const peopleData = await getPeopleData();
-  console.log(peopleData);
   return (
       <>
         <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg p-1 "}>

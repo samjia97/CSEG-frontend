@@ -9,19 +9,16 @@ import {NextRequest, NextResponse} from "next/server";
 export async function POST(request: NextRequest){
   const secret = request.nextUrl.searchParams.get('secret');
   if (secret !== process.env.REVALIDATION_SECRET){
-    console.log(secret, 'Failed revalidation secret')
     return NextResponse.json({message:"Invalid token"}, {status: 401});
   }
   try {
     const webhook = await request.json();
-    const {event, model, entry} = webhook;
-    console.log(`Webhook: ${event} on ${model}`, entry?.id);
+    const {event, model} = webhook;
     // TODO: Customize revalidation based on event/model if needed
     // Revalidate everything
-    const pathsToRevalidate = ['/','/about','/publications','/events','/publications','/research'];
+    const pathsToRevalidate = ['/','/about','/events','/publications','/research'];
     for (const path of pathsToRevalidate){
-      revalidatePath(path);
-      console.log(`Revalidated path: ${path}`);
+      revalidatePath(path, "layout");
     }
     const tagsToRevalidate = ['strapi']
     for (const tag of tagsToRevalidate){

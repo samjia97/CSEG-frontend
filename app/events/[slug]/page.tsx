@@ -9,14 +9,13 @@ import {
 } from "@/components/ui/breadcrumb";
 import React from "react";
 import ShareButtons from "@/app/events/[slug]/share-buttons";
-import {baseURL} from "@/lib/api";
 import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
 import Markdown from 'react-markdown'
 import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
-import {Button} from "@/components/ui/button";
 import Link from "next/link";
+import {appURL} from "@/app/constants";
 
 export function MarkdownRenderer( {content} : {content: string | undefined} ){
   if (!content){
@@ -120,7 +119,7 @@ export default async function Page({
               {eventData.publicEvent ? "Public" : eventData.openTo.join(", ") + " only"}
             </div>
           </div>
-          <ShareButtons url={`${baseURL}/events/${slug}`} title={eventData.title}/>
+          <ShareButtons url={`${appURL}/events/${slug}`} title={eventData.title}/>
           {ics && <Link
               href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
               download={`${eventData.title || 'event'}.ics`}

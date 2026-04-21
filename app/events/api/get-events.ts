@@ -1,19 +1,8 @@
-import {api, baseURL} from "@/lib/api";
+import {baseURL} from "@/lib/api";
 import {getSlug} from "@/lib/utils";
 import {getEventTags} from "@/app/events/event-utils";
 import qs from "qs";
 import {z} from "zod";
-
-export type GetEventsProps = {
-  filter: object,
-  sort: string[],
-  pagination: {
-    page: number,
-    pageSize: number,
-  }
-}
-
-
 const baseQuery = {
   fields: [
     'title',
@@ -31,63 +20,6 @@ const baseQuery = {
   ],
   populate: '*',
 }
-
-export type EventFilterParams = {
-  filters: {
-    $and?: {
-      event_tags: {
-        tagName: {
-          $eq: string
-        }
-      }
-    }[];
-    eventDate?: {
-      $gte?: string
-      $lte?: string
-      $between?: string[]
-    }
-    event_tags?: object,
-    open_to?: {
-      membershipName?: {
-        $in?: string[]
-      }
-    }
-    publicEvent?: {
-      $eq?: boolean
-    },
-    $or?: [{
-      title: {
-        $containsi: string
-      },
-    },
-      {
-        speaker: {
-          $containsi: string
-        },
-      }, {
-        summary: {
-          $containsi: string
-        },
-      }
-    ]
-  }
-  populate?: string | string[]
-  sort?: string | string[]
-  pagination?: {
-    page?: number
-    pageSize?: number
-  }
-}
-
-export type StrapiMeta = {
-  pagination: {
-    page: number,
-    pageSize: number,
-    pageCount: number,
-    total: number
-  }
-}
-
 const EventSchema = z.array(
     z.object({
       id: z.number(),
@@ -177,16 +109,14 @@ export async function getEvents(): Promise<EventCardData[]> {
         }
     );
     const url = `${baseURL}/events?${query}`
-    // next: {
-    //   tags: ['strapi'],
-    //   revalidate: 1800
-    // }
     const res = await fetch(url)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch events: ${res.status} ${res.statusText}`);
+    }
     const data = await res.json();
 
     // Validate the data with Zod
-    const validatedData = EventSchema.parse(data.data);
-    return validatedData
+    return EventSchema.parse(data.data)
   } catch (e) {
     console.error(e);
     const message = e instanceof Error ? e.message : 'Unknown error loading events'

@@ -28,7 +28,7 @@ import {createContactMessage} from "@/app/contact/api/create-contact-message";
 
 const formSchema = z.object({
   name: z.string().min(1).max(100),
-  email: z.string(),
+  email: z.email().min(1).max(100),
   subject: z.string().min(1).max(2000),
   message: z.string().max(2000)
 });

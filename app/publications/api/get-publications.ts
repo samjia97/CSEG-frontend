@@ -5,8 +5,7 @@ import {z} from "zod";
 
 
 // Zod schema to type and validate incoming Strapi data
-const PublicationSchema = z.object({
-  data: z.array(z.object({
+const PublicationSchema = z.array(z.object({
     id: z.number(),
     title: z.string(),
     author: z.string(),
@@ -15,10 +14,9 @@ const PublicationSchema = z.object({
     topics: z.array(z.object({
       tagName: z.string(),
     })).transform(topics => topics.map(t => t.tagName)),
-  }))
-});
+  }));
 // [number] means extract the type of single array element. This allows Publication[] later.
-export type Publication = z.infer<typeof PublicationSchema>['data'][number];
+export type Publication = z.infer<typeof PublicationSchema>[number];
 
 
 const MAX_RECORDS = 99999;
@@ -41,20 +39,12 @@ export async function getPublications(): Promise<Publication[]> {
   }
   const params = qs.stringify(query);
   try {
-    // fetch caches data at NextJS so that it does not have to query Strapi
-    // and the database the Webhook informs NextJS an administrator has added/modified
-    // data to strapi.
-    {
-      // next: {
-      //   tags: ['strapi'],
-      //   // 30 minutes
-      //   revalidate: 1800
-      // }
+    const res = await fetch(`${baseURL}/publications?${params}`,)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch publications: ${res.status} ${res.statusText}`);
     }
-    const res = await fetch(`${baseURL}/publications?${params}`,
-    )
-    const parsed = PublicationSchema.parse(await res.json());
-    return parsed.data;
+    const data = await res.json();
+    return PublicationSchema.parse(data.data);
   } catch (e) {
     console.error(e);
     const message = e instanceof Error ? e.message : 'Unknown error loading publications';
