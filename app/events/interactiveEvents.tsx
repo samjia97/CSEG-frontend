@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/pagination";
 import {SortBy} from "@/app/events/sortBy";
 import {Button} from "@/components/ui/button";
-import SearchBar from "@/app/events/searchBar";
+import SearchBar from "@/components/custom/SearchBar";
 import {
   defaultEndDate,
   defaultStartDate,
@@ -255,7 +255,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
             <div className={"flex flex-col gap-4"}>
               <SortBy currentSort={sortOption} onSortChange={handleSortChange}/>
               <div className="flex gap-2">
-                <SearchBar onSearch={handleSearch}/>
+                <SearchBar onSearch={handleSearch} placeholder="search by title, summary or speaker"/>
                 <Button
                     type="button"
                     variant="destructive"

@@ -8,7 +8,7 @@ import { ResearchFilterPanel } from "@/app/research/ResearchFilterPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import LearnMore from "@/app/research/learn-more";
-import SearchBar from "@/app/events/searchBar";
+import SearchBar from "@/components/custom/SearchBar";
 import {
   Pagination,
   PaginationClientLink,
@@ -141,7 +141,7 @@ function InteractiveResearch({ initialProjects, topics }: InteractiveResearchPro
 
       <div>
         <div className="flex gap-2 w-full items-center">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} placeholder="search in title, investigators, summary" />
           <Button type="button" variant="destructive" onClick={handleClearAll}>
             CLEAR
           </Button>
