@@ -6,77 +6,64 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { defaultStartYear, thisYear, ProjectStatus } from "@/app/research/research_constants";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
 } from "@/components/ui/accordion";
-import {Checkbox} from "@/components/ui/checkbox";
-import {CheckedState} from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CheckedState } from "@radix-ui/react-checkbox";
+import {
+  defaultEndYear,
+  defaultStartYear,
+  defaultStatus,
+  ProjectStatus,
+  yearArray,
+} from "@/app/research/research_constants";
 
 type ResearchFilterPanelProps = {
   startYear: string;
-  setStartYear: React.Dispatch<React.SetStateAction<string>>;
   endYear: string;
-  setEndYear: React.Dispatch<React.SetStateAction<string>>;
   projectStatus: ProjectStatus;
-  setProjectStatus: React.Dispatch<React.SetStateAction<ProjectStatus>>;
-  topics: string[],
-  selectedTopics: Set<string>,
-  setSelectedTopics:React.Dispatch<React.SetStateAction<Set<string>>>
+  topics: string[];
+  selectedTopics: Set<string>;
+  updateParams: (updates: Record<string, string | null>) => void;
 };
-
-const generateYearArray = (): number[] => {
-  const yearArray = [];
-  const startYearInt = parseInt(defaultStartYear);
-  for (let i = thisYear; i >= startYearInt; i--) {
-    yearArray.push(i);
-  }
-  return yearArray;
-};
-
-export const yearArray = generateYearArray();
 
 export function ResearchFilterPanel({
   startYear,
-  setStartYear,
   endYear,
-  setEndYear,
   projectStatus,
-  setProjectStatus,
   topics,
   selectedTopics,
-  setSelectedTopics
+  updateParams,
 }: ResearchFilterPanelProps) {
 
-  const handleStartDateChange = (newStartYear: string) => {
-    const validatedNewStartYear = Math.min(parseInt(newStartYear), parseInt(endYear)).toString();
-    setStartYear(validatedNewStartYear);
+  const handleStartYearChange = (newStartYear: string) => {
+    const clamped = Math.min(parseInt(newStartYear, 10), parseInt(endYear, 10)).toString();
+    updateParams({ startYear: clamped === defaultStartYear ? null : clamped });
   };
 
-  const handleEndDateChange = (newEndYear: string) => {
-    const validatedNewEndYear = Math.max(parseInt(newEndYear), parseInt(startYear)).toString();
-    setEndYear(validatedNewEndYear);
+  const handleEndYearChange = (newEndYear: string) => {
+    const clamped = Math.max(parseInt(newEndYear, 10), parseInt(startYear, 10)).toString();
+    updateParams({ endYear: clamped === defaultEndYear ? null : clamped });
   };
-  /**
-   * Add or delete topics based on checkboxes
-   * @param topicName
-   * @param checked
-   */
+
+  const handleStatusChange = (value: string) => {
+    const status = value as ProjectStatus;
+    updateParams({ status: status === defaultStatus ? null : status });
+  };
+
   const handleTopicChange = (topicName: string, checked: boolean) => {
-    const newSelectedTopics = new Set(selectedTopics);
-    if (checked) {
-      newSelectedTopics.add(topicName);
-    } else {
-      newSelectedTopics.delete(topicName);
-    }
-    setSelectedTopics(newSelectedTopics);
+    const next = new Set(selectedTopics);
+    if (checked) next.add(topicName);
+    else next.delete(topicName);
+    updateParams({ topics: next.size > 0 ? Array.from(next).join(",") : null });
   };
 
   return (
@@ -85,20 +72,17 @@ export function ResearchFilterPanel({
 
       <div>
         <p className="font-semibold text-lg">Start Date</p>
-        {/* Project start date filter */}
         <div className="grid grid-cols-2 gap-2 mt-1">
           <div>
             <p className="text-sm mb-1">From</p>
-            <Select onValueChange={handleStartDateChange} value={startYear}>
+            <Select onValueChange={handleStartYearChange} value={startYear}>
               <SelectTrigger className="w-[80px] bg-primary" variant="simple">
                 <SelectValue placeholder={startYear} />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   {yearArray.map((year) => (
-                    <SelectItem key={String(year)} value={String(year)}>
-                      {year}
-                    </SelectItem>
+                    <SelectItem key={String(year)} value={String(year)}>{year}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
@@ -106,16 +90,14 @@ export function ResearchFilterPanel({
           </div>
           <div>
             <p className="text-sm mb-1">To</p>
-            <Select onValueChange={handleEndDateChange} value={endYear}>
+            <Select onValueChange={handleEndYearChange} value={endYear}>
               <SelectTrigger className="w-[80px] bg-primary" variant="simple">
-                <SelectValue placeholder={String(thisYear)} />
+                <SelectValue placeholder={endYear} />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   {yearArray.map((year) => (
-                    <SelectItem key={String(year)} value={String(year)}>
-                      {year}
-                    </SelectItem>
+                    <SelectItem key={String(year)} value={String(year)}>{year}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
@@ -128,7 +110,7 @@ export function ResearchFilterPanel({
         <p className="font-semibold text-lg mb-2">Project Status</p>
         <RadioGroup
           value={projectStatus}
-          onValueChange={(value) => setProjectStatus(value as ProjectStatus)}
+          onValueChange={handleStatusChange}
           className="flex flex-col gap-2"
         >
           <div className="flex items-center space-x-2">
@@ -145,25 +127,25 @@ export function ResearchFilterPanel({
           </div>
         </RadioGroup>
       </div>
-      {/* Topics */}
-      <Accordion type="single" collapsible>
+
+      <Accordion type="single" collapsible defaultValue="topics">
         <AccordionItem value="topics">
           <AccordionTrigger className="[&>svg]:text-white py-0">
             <p className="text-lg">Topics</p>
           </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-3 mt-2">
             {topics.map((topicName) => (
-                <div key={topicName} className="flex items-center gap-3">
-                  <Checkbox
-                      id={topicName}
-                      value={topicName}
-                      checked={selectedTopics.has(topicName)}
-                      onCheckedChange={(checked: CheckedState) => {
-                        handleTopicChange(topicName, checked as boolean);
-                      }}
-                  />
-                  <Label htmlFor={topicName}>{topicName}</Label>
-                </div>
+              <div key={topicName} className="flex items-center gap-3">
+                <Checkbox
+                  id={topicName}
+                  value={topicName}
+                  checked={selectedTopics.has(topicName)}
+                  onCheckedChange={(checked: CheckedState) =>
+                    handleTopicChange(topicName, checked as boolean)
+                  }
+                />
+                <Label htmlFor={topicName}>{topicName}</Label>
+              </div>
             ))}
           </AccordionContent>
         </AccordionItem>
