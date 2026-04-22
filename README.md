@@ -1,7 +1,12 @@
 
 # Previous student notes
+This is the frontend for the Computer Science Education Group's new website implemented by Ethan Cheam Kai Jun for his dissertation in 2026.
+
 This is a standard NextJS app so can uses the standard install and run commands. The .env file is for
 running locally while .env.vercel is if you need to run it on Vercel for user studies. 
+
+Screenshots:
+<img alt="img.png" height="800" src="img.png"/>
 
 ## Key technical details
 1. NextJS in production mode aggressively caches data. When Strapi updates content, the change may not be reflected here unless the cache is refreshed. Currently, this is achieved by Strapi sending a Webhook request to NextJS to refresh everything. See `app/api/revalidate/route.ts`
@@ -12,7 +17,7 @@ running locally while .env.vercel is if you need to run it on Vercel for user st
 `npm install`
 
 ### Development server:
-
+Make sure Strapi is started first
 ```bash
 npm run dev
 # or
