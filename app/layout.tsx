@@ -20,13 +20,13 @@ export const metadata: Metadata = {
   title: "Computer Science Education Group (CSEG)",
   description: "New website",
 };
+
 const navigationLinks: Navbar03NavItem[] = [
   {
     href:"/",
     label:"Home",
   },
   {
-
     label:"About us",
     children: [
       {
@@ -42,6 +42,10 @@ const navigationLinks: Navbar03NavItem[] = [
   {
     href:"/events",
     label:"Events",
+  },
+  {
+    href:"/news",      // ← NEW
+    label:"News",     // ← NEW
   },
   {
     href:"/research",
@@ -61,26 +65,25 @@ const navigationLinks: Navbar03NavItem[] = [
     isButton: true,
   },
 ]
+
 const NavBarProps: Navbar03Props = {
   logoHref: "/",
   navigationLinks: navigationLinks,
 }
 
 export default function RootLayout({
-  children,
-}: Readonly<{
+                                     children,
+                                   }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={""}
-      >
+      <html lang="en">
+      <body className={""}>
       <nav>
-          <Navbar03
-              logoHref={"/"}
-              navigationLinks={navigationLinks}
-          />
+        <Navbar03
+            logoHref={"/"}
+            navigationLinks={navigationLinks}
+        />
       </nav>
       <main className={"min-h-100 max-w-5xl mx-auto px-4"}>
         {children}
@@ -92,6 +95,7 @@ export default function RootLayout({
             <Link href={"/"} className={"text-primary text-lg"}>Home</Link>
             <Link href={"/about"} className={"text-primary text-lg"}>About us</Link>
             <Link href={"/events"} className={"text-primary text-lg"}>Events</Link>
+            <Link href={"/news"} className={"text-primary text-lg"}>News</Link>  {/* ← NEW */}
             <Link href={"/publications"} className={"text-primary text-lg"}>Publications</Link>
             <Link href={"/research"} className={"text-primary text-lg"}>Research Projects</Link>
           </nav>
@@ -112,6 +116,6 @@ export default function RootLayout({
         </div>
       </footer>
       </body>
-    </html>
+      </html>
   );
 }
