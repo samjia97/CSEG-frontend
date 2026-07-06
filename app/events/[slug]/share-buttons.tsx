@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import {LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon} from "react-share";
+import {LinkedinShareButton, LinkedinIcon, TwitterShareButton, TwitterIcon, FacebookShareButton, FacebookIcon} from "react-share";
 type ShareButtonProps ={
   url: string
   title: string
@@ -20,7 +20,9 @@ function ShareButtons({url, title} :ShareButtonProps) {
           <TwitterShareButton url={url} title={title}>
             <TwitterIcon size={32}/>
           </TwitterShareButton>
-
+          <FacebookShareButton url={url}>
+            <FacebookIcon size={32}/>
+          </FacebookShareButton>
         </div>
       </div>
   )
