@@ -73,18 +73,16 @@ export default async function NewsItemPage({
                 className="w-full object-cover rounded"
               />
             )}
-            <div className="grid grid-cols-[80px_1fr]">
-              <strong>Date</strong>
-              <p className="inline">{formatDate(item.publishDate)}</p>
-              <strong>Author</strong>
-              <p className="inline">{item.author}</p>
+            <div>
+              <div className="flex flex-wrap items-center gap-x-2">
+                <span>{item.author}</span>
+                <span aria-hidden>-</span>
+                <span>{formatDate(item.publishDate)}</span>
+              </div>
               {item.newsTags.length > 0 && (
-                <>
-                  <strong>Topics</strong>
-                  <div className="flex gap-2 flex-wrap">
-                    {item.newsTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
-                  </div>
-                </>
+                <div className="flex gap-2 pt-1 flex-wrap">
+                  {item.newsTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
+                </div>
               )}
             </div>
 

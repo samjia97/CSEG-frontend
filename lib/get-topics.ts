@@ -127,13 +127,16 @@ const TopicResponseSchema = z.object({
 
 // type TopicsFromSchema = z.infer<typeof TopicResponseSchema>
 
+const MAX_RECORDS = 99999;
+
 /**
  * Returns name of all topics. Topics are also called event_tags
  * throws error if failed to get topics
  */
 export async function getTopics(): Promise<string[]> {
   const query = {
-    fields: ["tagName"]
+    fields: ["tagName"],
+    pagination: { pageSize: MAX_RECORDS },
   }
   const param = qs.stringify(query);
   const res = await api.get('/event-tags?' + param);
@@ -143,4 +146,27 @@ export async function getTopics(): Promise<string[]> {
   const topics = parsedTopics.map((item) => item.tagName)
   topics.sort();
   return topics;
+}
+
+const TopicOptionSchema = z.object({
+  documentId: z.string(),
+  tagName: z.string(),
+});
+
+const TopicOptionsResponseSchema = z.object({
+  data: z.array(TopicOptionSchema),
+});
+
+export type TopicOption = z.infer<typeof TopicOptionSchema>;
+
+/**
+ * Like getTopics, but returns each topic's documentId (needed to set the
+ * relation when creating content) alongside its tagName for display.
+ * Sorted by name.
+ */
+export async function getTopicOptions(): Promise<TopicOption[]> {
+  const param = qs.stringify({ fields: ["tagName"], pagination: { pageSize: MAX_RECORDS } });
+  const res = await api.get("/event-tags?" + param);
+  const parsed = TopicOptionsResponseSchema.parse(res.data);
+  return [...parsed.data].sort((a, b) => a.tagName.localeCompare(b.tagName));
 }

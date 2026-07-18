@@ -5,6 +5,8 @@ import {Navbar03, Navbar03NavItem, Navbar03Props} from "@/components/ui/shadcn-i
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {LinkedinIcon} from "react-share";
+import {SessionProvider} from "next-auth/react";
+import {AuthNavItem} from "@/components/custom/auth-nav-item";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +50,14 @@ const navigationLinks: Navbar03NavItem[] = [
     label:"News",     // ← NEW
   },
   {
+    href:"/forum",
+    label:"Forum",
+  },
+  {
+    href:"/blog",
+    label:"Blogs",
+  },
+  {
     href:"/research",
     label:"Research Projects",
   },
@@ -79,23 +89,27 @@ export default function RootLayout({
   return (
       <html lang="en">
       <body className={""}>
+      <SessionProvider>
       <nav>
         <Navbar03
             logoHref={"/"}
             navigationLinks={navigationLinks}
+            rightSlot={<AuthNavItem/>}
         />
       </nav>
       <main className={"min-h-100 max-w-5xl mx-auto px-4"}>
         {children}
       </main>
-      <footer className={"h-[264px] bg-neutral-800 px-10 py-4 mt-8"}>
+      <footer className={"min-h-[264px] bg-neutral-800 px-10 py-4 mt-8"}>
         <p className={"text-white text-xl font-bold"}>Computer Science Education Group</p>
-        <div className={"grid grid-cols-3 pt-4 px-4 w-2xl"}>
-          <nav className={"flex flex-col gap-2"}>
+        <div className={"flex flex-wrap gap-x-16 gap-y-6 pt-4 px-4"}>
+          <nav className={"grid grid-flow-col grid-rows-4 gap-x-10 gap-y-2 w-fit"}> {/* grid-rows-4 (4 in a column) */}
             <Link href={"/"} className={"text-primary text-lg"}>Home</Link>
             <Link href={"/about"} className={"text-primary text-lg"}>About us</Link>
             <Link href={"/events"} className={"text-primary text-lg"}>Events</Link>
-            <Link href={"/news"} className={"text-primary text-lg"}>News</Link>  {/* ← NEW */}
+            <Link href={"/news"} className={"text-primary text-lg"}>News</Link>
+            <Link href={"/forum"} className={"text-primary text-lg"}>Forum</Link>
+            <Link href={"/blog"} className={"text-primary text-lg"}>Blogs</Link>
             <Link href={"/publications"} className={"text-primary text-lg"}>Publications</Link>
             <Link href={"/research"} className={"text-primary text-lg"}>Research Projects</Link>
           </nav>
@@ -115,6 +129,7 @@ export default function RootLayout({
           </div>
         </div>
       </footer>
+      </SessionProvider>
       </body>
       </html>
   );

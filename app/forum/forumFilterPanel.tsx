@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -11,28 +11,29 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { TimePeriod } from "@/app/news/news_constants";
+import { POST_TYPE_OPTIONS, TimePeriod } from "@/app/forum/forum_constants";
 
-export type NewsFilterPanelProps = {
+export type ForumFilterPanelProps = {
   topics: string[];
   timePeriod: TimePeriod;
   selectedTopics: Set<string>;
+  selectedPostTypes: Set<string>;
   customStartDate: Date;
   customEndDate: Date;
   updateParams: (updates: Record<string, string | null>) => void;
   formatDateParam: (date: Date) => string;
 };
 
-export function NewsFilterPanel({
+export function ForumFilterPanel({
   topics,
   timePeriod,
   selectedTopics,
+  selectedPostTypes,
   customStartDate,
   customEndDate,
   updateParams,
   formatDateParam,
-}: NewsFilterPanelProps) {
-
+}: ForumFilterPanelProps) {
   const handleTimePeriodChange = (value: TimePeriod) => {
     updateParams({ timePeriod: value === "all" ? null : value });
   };
@@ -49,8 +50,16 @@ export function NewsFilterPanel({
 
   const handleTopicChange = (topicName: string, checked: boolean) => {
     const next = new Set(selectedTopics);
-    checked ? next.add(topicName) : next.delete(topicName);
+    if (checked) next.add(topicName);
+    else next.delete(topicName);
     updateParams({ topics: next.size > 0 ? Array.from(next).join(",") : null });
+  };
+
+  const handlePostTypeChange = (value: string, checked: boolean) => {
+    const next = new Set(selectedPostTypes);
+    if (checked) next.add(value);
+    else next.delete(value);
+    updateParams({ postType: next.size > 0 ? Array.from(next).join(",") : null });
   };
 
   return (
@@ -73,19 +82,35 @@ export function NewsFilterPanel({
 
         {timePeriod === "custom" && (
           <div className="flex flex-col gap-3 mt-3">
-            <DatePicker1
-              labelText="From"
-              date={customStartDate}
-              onSelect={handleStartDateChange}
-            />
-            <DatePicker1
-              labelText="To"
-              date={customEndDate}
-              onSelect={handleEndDateChange}
-            />
+            <DatePicker1 labelText="From" date={customStartDate} onSelect={handleStartDateChange} />
+            <DatePicker1 labelText="To" date={customEndDate} onSelect={handleEndDateChange} />
           </div>
         )}
       </div>
+
+      {/* Post type */}
+      <Accordion type="single" collapsible defaultValue="postType">
+        <AccordionItem value="postType">
+          <AccordionTrigger className="[&>svg]:text-white py-0">
+            <p className="text-lg">Post type</p>
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col gap-3 mt-2">
+            {POST_TYPE_OPTIONS.map((opt) => (
+              <div key={opt.value} className="flex items-center gap-3">
+                <Checkbox
+                  id={`ptype-${opt.value}`}
+                  value={opt.value}
+                  checked={selectedPostTypes.has(opt.value)}
+                  onCheckedChange={(checked: CheckedState) => {
+                    handlePostTypeChange(opt.value, checked as boolean);
+                  }}
+                />
+                <Label htmlFor={`ptype-${opt.value}`}>{opt.label}</Label>
+              </div>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Topics */}
       <Accordion type="single" collapsible defaultValue="topics">

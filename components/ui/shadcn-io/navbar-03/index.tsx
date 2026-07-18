@@ -83,6 +83,7 @@ export interface Navbar03Props extends React.HTMLAttributes<HTMLElement> {
   ctaHref?: string;
   onSignInClick?: () => void;
   onCtaClick?: () => void;
+  rightSlot?: React.ReactNode;
 }
 
 // Default navigation links
@@ -106,6 +107,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
       ctaHref = '#get-started',
       onSignInClick,
       onCtaClick,
+      rightSlot,
       ...props
     },
     ref
@@ -224,6 +226,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                         </button>
                       );
                     })}
+                    {rightSlot && <div className="px-3 py-2 border-t mt-1 pt-2">{rightSlot}</div>}
                   </nav>
                 </PopoverContent>
               </Popover>
@@ -306,6 +309,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                   </NavigationMenuList>
                 </NavigationMenu>
             )}
+            {rightSlot && <div className="flex items-center">{rightSlot}</div>}
           </div>
         </div>
       </header>

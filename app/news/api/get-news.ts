@@ -12,6 +12,15 @@ const NewsSchema = z.array(
     author: z.string().nullable().optional(),
     abstract: z.string(),
     news_tags: z.array(z.object({ tagName: z.string() })).optional(),
+    coverImage: z
+      .object({
+        url: z.string(),
+        width: z.number(),
+        height: z.number(),
+        alternativeText: z.string().nullable(),
+      })
+      .nullable()
+      .optional(),
   }).transform((item) => {
     const tags = (item.news_tags ?? []).map((t) => t.tagName).sort();
     return {
@@ -22,6 +31,7 @@ const NewsSchema = z.array(
       author: item.author ?? 'Unknown',
       abstract: item.abstract,
       newsTags: tags,
+      coverImage: item.coverImage ?? null,
     };
   })
 );
@@ -35,7 +45,7 @@ export async function getNews(): Promise<NewsCardData[]> {
     const query = qs.stringify(
       {
         fields: ['title', 'author', 'abstract', 'publishedAt'],
-        populate: { news_tags: { fields: ['tagName'] } },
+        populate: { news_tags: { fields: ['tagName'] }, coverImage: true },
         sort: ['publishedAt:desc'],
         pagination: { pageSize: MAX_RECORDS },
       },

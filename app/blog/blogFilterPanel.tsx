@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -11,28 +11,32 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { TimePeriod } from "@/app/news/news_constants";
+import { LabelInput } from "@/components/custom/LabelInput";
+import { TimePeriod } from "@/app/blog/blog_constants";
 
-export type NewsFilterPanelProps = {
+export type BlogFilterPanelProps = {
   topics: string[];
+  labels: string[];
   timePeriod: TimePeriod;
   selectedTopics: Set<string>;
+  selectedLabels: Set<string>;
   customStartDate: Date;
   customEndDate: Date;
   updateParams: (updates: Record<string, string | null>) => void;
   formatDateParam: (date: Date) => string;
 };
 
-export function NewsFilterPanel({
+export function BlogFilterPanel({
   topics,
+  labels,
   timePeriod,
   selectedTopics,
+  selectedLabels,
   customStartDate,
   customEndDate,
   updateParams,
   formatDateParam,
-}: NewsFilterPanelProps) {
-
+}: BlogFilterPanelProps) {
   const handleTimePeriodChange = (value: TimePeriod) => {
     updateParams({ timePeriod: value === "all" ? null : value });
   };
@@ -49,8 +53,13 @@ export function NewsFilterPanel({
 
   const handleTopicChange = (topicName: string, checked: boolean) => {
     const next = new Set(selectedTopics);
-    checked ? next.add(topicName) : next.delete(topicName);
+    if (checked) next.add(topicName);
+    else next.delete(topicName);
     updateParams({ topics: next.size > 0 ? Array.from(next).join(",") : null });
+  };
+
+  const handleLabelsChange = (names: string[]) => {
+    updateParams({ labels: names.length > 0 ? names.join(",") : null });
   };
 
   return (
@@ -73,16 +82,8 @@ export function NewsFilterPanel({
 
         {timePeriod === "custom" && (
           <div className="flex flex-col gap-3 mt-3">
-            <DatePicker1
-              labelText="From"
-              date={customStartDate}
-              onSelect={handleStartDateChange}
-            />
-            <DatePicker1
-              labelText="To"
-              date={customEndDate}
-              onSelect={handleEndDateChange}
-            />
+            <DatePicker1 labelText="From" date={customStartDate} onSelect={handleStartDateChange} />
+            <DatePicker1 labelText="To" date={customEndDate} onSelect={handleEndDateChange} />
           </div>
         )}
       </div>
@@ -110,6 +111,28 @@ export function NewsFilterPanel({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      {labels.length > 0 && (
+        <Accordion type="single" collapsible defaultValue="labels">
+          <AccordionItem value="labels">
+            <AccordionTrigger className="[&>svg]:text-white py-0">
+              <p className="text-lg">Keywords</p>
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-3 mt-2">
+              <LabelInput
+                options={labels}
+                value={Array.from(selectedLabels)}
+                onChange={handleLabelsChange}
+                allowCreate={false}
+                maxLabels={labels.length}
+                placeholder="Type to filter by keyword…"
+                hint=""
+                inline
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
     </div>
   );
 }

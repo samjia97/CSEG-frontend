@@ -88,7 +88,7 @@ export default function MyForm() {
               <FieldLabel htmlFor="preferredName">Preferred Name</FieldLabel>
               <Input
                   id="preferredName"
-                  placeholder=""
+                  placeholder="This is the name shown on your blogs, forum threads and replies."
 
                   {...form.register("preferredName")}
               />
@@ -111,7 +111,7 @@ export default function MyForm() {
               <FieldLabel htmlFor="email">E-mail address<span className={"text-red-500"}>*</span></FieldLabel>
               <Input
                   id="email"
-                  placeholder=""
+                  placeholder="It will be the account you use for logging in."
                   aria-required
                   {...form.register("email")}
               />

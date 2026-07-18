@@ -255,7 +255,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
             <div className={"flex flex-col gap-4"}>
               <SortBy currentSort={sortOption} onSortChange={handleSortChange}/>
               <div className="flex gap-2">
-                <SearchBar onSearch={handleSearch} placeholder="search by title, summary or speaker"/>
+                <SearchBar onSearch={handleSearch} placeholder="search in title, summary or speaker"/>
                 <Button
                     type="button"
                     variant="destructive"

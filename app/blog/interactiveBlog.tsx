@@ -1,5 +1,5 @@
-"use client"
-import React, { useMemo, useState } from "react";
+"use client";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDate } from "@/lib/formatters";
@@ -16,8 +16,8 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { useRouter, useSearchParams } from "next/navigation";
-import { NewsFilterPanel } from "@/app/news/newsFilterPanel";
-import { NewsSortBy } from "@/app/news/newsSortBy";
+import { BlogFilterPanel } from "@/app/blog/blogFilterPanel";
+import { BlogSortBy } from "@/app/blog/blogSortBy";
 import {
   defaultEndDate,
   defaultSortOption,
@@ -28,12 +28,13 @@ import {
   SortOptionSchema,
   TimePeriod,
   TimePeriodSchema,
-} from "@/app/news/news_constants";
-import { NewsCardData } from "@/app/news/api/get-news";
+} from "@/app/blog/blog_constants";
+import { BlogCardData } from "@/app/blog/api/get-blogs";
 
-type InteractiveNewsProps = {
-  initialNews: NewsCardData[];
+type InteractiveBlogProps = {
+  initialBlogs: BlogCardData[];
   topics: string[];
+  labels: string[];
 };
 
 function parseDateParam(value: string | null, fallback: Date): Date {
@@ -46,17 +47,13 @@ function formatDateParam(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
-const matchesSearch = (item: NewsCardData, query: string): boolean => {
+const matchesSearch = (item: BlogCardData, query: string): boolean => {
   if (!query) return true;
-  const q = query.toLowerCase();
-  return (
-    item.title.toLowerCase().includes(q) ||
-    item.author.toLowerCase().includes(q)
-  );
+  return item.title.toLowerCase().includes(query.toLowerCase());
 };
 
 const matchesTimePeriod = (
-  item: NewsCardData,
+  item: BlogCardData,
   timePeriod: TimePeriod,
   customStart: Date,
   customEnd: Date,
@@ -77,12 +74,17 @@ const matchesTimePeriod = (
   }
 };
 
-const matchesTopics = (item: NewsCardData, selected: Set<string>): boolean => {
+const matchesTopics = (item: BlogCardData, selected: Set<string>): boolean => {
   if (selected.size === 0) return true;
-  return item.newsTags.some((tag) => selected.has(tag));
+  return item.topics.some((tag) => selected.has(tag));
 };
 
-const sortNews = (items: NewsCardData[], sortOption: SortOption): NewsCardData[] => {
+const matchesLabels = (item: BlogCardData, selected: Set<string>): boolean => {
+  if (selected.size === 0) return true;
+  return item.labels.some((l) => selected.has(l));
+};
+
+const sortBlogs = (items: BlogCardData[], sortOption: SortOption): BlogCardData[] => {
   const sorted = [...items];
   switch (sortOption) {
     case "publishDate:desc":
@@ -98,14 +100,14 @@ const sortNews = (items: NewsCardData[], sortOption: SortOption): NewsCardData[]
   }
 };
 
-const NoNewsMessage = () => (
+const NoBlogsMessage = () => (
   <div className="py-4 w-full bg-accent text-accent-foreground rounded-md text-center">
-    <h4>No news to show</h4>
+    <h4>No blogs to show</h4>
     <p>Please change your filter / search settings</p>
   </div>
 );
 
-export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
+export function InteractiveBlog({ initialBlogs, topics, labels }: InteractiveBlogProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -115,6 +117,11 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
   const topicsParam = searchParams.get("topics") ?? "";
   const selectedTopics = new Set<string>(
     topicsParam ? topicsParam.split(",").filter((t) => topics.includes(t)) : []
+  );
+
+  const labelsParam = searchParams.get("labels") ?? "";
+  const selectedLabels = new Set<string>(
+    labelsParam ? labelsParam.split(",").filter((l) => labels.includes(l)) : []
   );
 
   const customStartDate = parseDateParam(searchParams.get("startDate"), defaultStartDate);
@@ -128,8 +135,6 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
   const pageParam = parseInt(searchParams.get("page") ?? "1");
   const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
-
   const updateParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
@@ -140,7 +145,14 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
       }
     }
     if (!("page" in updates)) params.delete("page");
-    router.replace(`/news?${params.toString()}`);
+    router.replace(`/blog?${params.toString()}`);
+  };
+
+  // Clicking a label on a card adds it to the active label filter.
+  const applyLabel = (labelName: string) => {
+    const next = new Set(selectedLabels);
+    next.add(labelName);
+    updateParams({ labels: Array.from(next).join(",") });
   };
 
   // Clicking a topic on a card adds it to the active topic filter.
@@ -152,14 +164,16 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
 
   const filteredAndSorted = useMemo(() => {
     const now = new Date();
-    const filtered = initialNews.filter(
+    const filtered = initialBlogs.filter(
       (item) =>
         matchesSearch(item, searchQuery) &&
         matchesTimePeriod(item, timePeriod, customStartDate, customEndDate, now) &&
-        matchesTopics(item, selectedTopics)
+        matchesTopics(item, selectedTopics) &&
+        matchesLabels(item, selectedLabels)
     );
-    return sortNews(filtered, sortOption);
-  }, [initialNews, searchQuery, timePeriod, customStartDate, customEndDate, selectedTopics, sortOption]);
+    return sortBlogs(filtered, sortOption);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialBlogs, searchQuery, timePeriod, customStartDate, customEndDate, topicsParam, labelsParam, sortOption]);
 
   const maxPage = Math.max(1, Math.ceil(filteredAndSorted.length / PAGE_SIZE));
   const safePage = Math.min(page, maxPage);
@@ -167,50 +181,57 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
 
   return (
     <div className="flex flex-col gap-2 items-start mt-2 max-w-7xl w-full">
-      <div className={`grid w-full gap-4 ${isFilterOpen ? "grid-cols-[220px_1fr]" : "grid-cols-1"}`}>
-        {isFilterOpen && (
-          <NewsFilterPanel
-            topics={topics}
-            timePeriod={timePeriod}
-            selectedTopics={selectedTopics}
-            customStartDate={customStartDate}
-            customEndDate={customEndDate}
-            updateParams={updateParams}
-            formatDateParam={formatDateParam}
-          />
-        )}
+      <div className="grid w-full gap-4 grid-cols-[220px_1fr]">
+        <BlogFilterPanel
+          topics={topics}
+          labels={labels}
+          timePeriod={timePeriod}
+          selectedTopics={selectedTopics}
+          selectedLabels={selectedLabels}
+          customStartDate={customStartDate}
+          customEndDate={customEndDate}
+          updateParams={updateParams}
+          formatDateParam={formatDateParam}
+        />
 
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-[320px] max-w-full">
-              <SearchBar onSearch={(q) => updateParams({ query: q || null })} placeholder="Search in title or author" />
+              <SearchBar onSearch={(q) => updateParams({ query: q || null })} placeholder="Search in title" />
             </div>
-            <Button type="button" variant="destructive" onClick={() => router.replace("/news")}>
-              CLEAR
+            <Button type="button" variant="destructive" onClick={() => router.replace("/blog")}>
+              Reset
             </Button>
             <div className="ml-auto">
-              <NewsSortBy currentSort={sortOption} onSortChange={(sort) => updateParams({ sort: sort === defaultSortOption ? null : sort })} />
+              <BlogSortBy
+                currentSort={sortOption}
+                onSortChange={(sort) => updateParams({ sort: sort === defaultSortOption ? null : sort })}
+              />
             </div>
           </div>
 
           {paginated.length === 0 ? (
-            <NoNewsMessage />
+            <NoBlogsMessage />
           ) : (
             paginated.map((item) => (
-              <div key={item.id} className="drop-shadow-md shadow bg-neutral-100 px-4 pb-1 flex gap-4">
+              <div key={item.id} className="drop-shadow-md shadow bg-neutral-100 px-4 py-2 flex gap-4">
                 <div className="min-w-0 flex-1">
-                  <Link href={`/news/${item.slug}`} className="text-xl">
+                  <Link href={`/blog/${item.slug}`} className="text-xl">
                     <span className="text-primary underline">{item.title}</span>
                   </Link>
                   <div className="mt-1">
                     <div className="flex flex-wrap items-center gap-x-2">
-                      <span>{item.author}</span>
-                      <span aria-hidden>-</span>
+                      {item.authorName && (
+                        <>
+                          <span>{item.authorName}</span>
+                          <span aria-hidden>-</span>
+                        </>
+                      )}
                       <span>{formatDate(item.publishDate)}</span>
                     </div>
-                    {item.newsTags.length > 0 && (
+                    {item.topics.length > 0 && (
                       <div className="flex gap-2 pt-1 flex-wrap">
-                        {item.newsTags.map((tag) => (
+                        {item.topics.map((tag) => (
                           <Badge key={tag} asChild>
                             <button
                               type="button"
@@ -219,6 +240,23 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
                               className="cursor-pointer hover:opacity-80"
                             >
                               {tag}
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {item.labels.length > 0 && (
+                      <div className="flex gap-2 pt-1 flex-wrap items-center">
+                        <span>Keywords</span>
+                        {item.labels.map((l) => (
+                          <Badge key={l} asChild variant="secondary">
+                            <button
+                              type="button"
+                              onClick={() => applyLabel(l)}
+                              title={`Filter by “${l}”`}
+                              className="cursor-pointer hover:opacity-80"
+                            >
+                              {l}
                             </button>
                           </Badge>
                         ))}
@@ -246,14 +284,16 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationClientPrevious onClick={() => {
-                  if (safePage > 1) {
-                    const params = new URLSearchParams(searchParams.toString());
-                    if (safePage - 1 === 1) params.delete("page");
-                    else params.set("page", String(safePage - 1));
-                    router.push(`/news?${params.toString()}`);
-                  }
-                }} />
+                <PaginationClientPrevious
+                  onClick={() => {
+                    if (safePage > 1) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      if (safePage - 1 === 1) params.delete("page");
+                      else params.set("page", String(safePage - 1));
+                      router.push(`/blog?${params.toString()}`);
+                    }
+                  }}
+                />
               </PaginationItem>
               {Array.from({ length: maxPage }, (_, i) => (
                 <PaginationItem key={i + 1}>
@@ -262,7 +302,7 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
                       const params = new URLSearchParams(searchParams.toString());
                       if (i + 1 === 1) params.delete("page");
                       else params.set("page", String(i + 1));
-                      router.push(`/news?${params.toString()}`);
+                      router.push(`/blog?${params.toString()}`);
                     }}
                     isActive={safePage === i + 1}
                   >
@@ -271,13 +311,15 @@ export function InteractiveNews({ initialNews, topics }: InteractiveNewsProps) {
                 </PaginationItem>
               ))}
               <PaginationItem>
-                <PaginationClientNext onClick={() => {
-                  if (safePage < maxPage) {
-                    const params = new URLSearchParams(searchParams.toString());
-                    params.set("page", String(safePage + 1));
-                    router.push(`/news?${params.toString()}`);
-                  }
-                }} />
+                <PaginationClientNext
+                  onClick={() => {
+                    if (safePage < maxPage) {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.set("page", String(safePage + 1));
+                      router.push(`/blog?${params.toString()}`);
+                    }
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
