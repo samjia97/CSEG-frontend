@@ -7,7 +7,7 @@ export default async function AboutUs() {
   return (
       <>
         <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg p-1"}>
-          <h2 className={""}>About us</h2>
+          <h2 className={""}>Our Aims</h2>
         </div>
         <StyledMarkdown text={aboutUsData.content}/>
 

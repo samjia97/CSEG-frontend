@@ -23,31 +23,31 @@ export const metadata: Metadata = {
   description: "New website",
 };
 
+// Render every route at request time instead of prerendering at build. The site
+// is entirely CMS-backed, so the build should not depend on a running Strapi
+// backend; pages fetch Strapi live when served. Cascades to all routes.
+export const dynamic = "force-dynamic";
+
 const navigationLinks: Navbar03NavItem[] = [
   {
     href:"/",
     label:"Home",
   },
   {
-    label:"About us",
-    children: [
-      {
-        label:"Our people",
-        href:"/about/people"
-      },
-      {
-        label:"Our aims",
-        href: "/about"
-      }
-    ]
+    label:"Our people",
+    href:"/about/people"
+  },
+  {
+    label:"Our Aims",
+    href: "/about"
   },
   {
     href:"/events",
     label:"Events",
   },
   {
-    href:"/news",      // ← NEW
-    label:"News",     // ← NEW
+    href:"/news",
+    label:"News",
   },
   {
     href:"/forum",

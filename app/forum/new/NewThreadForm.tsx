@@ -22,6 +22,7 @@ export function NewThreadForm({ topics }: { topics: TopicOption[] }) {
   const [title, setTitle] = useState("");
   const [postType, setPostType] = useState<PostType>(defaultPostType);
   const [body, setBody] = useState("");
+  const [bodyFormat, setBodyFormat] = useState<"plain" | "markdown">("plain");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -58,7 +59,7 @@ export function NewThreadForm({ topics }: { topics: TopicOption[] }) {
     const res = await fetch("/api/forum-threads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: t, body: b, tags: Array.from(selected), postType }),
+      body: JSON.stringify({ title: t, body: b, bodyFormat, tags: Array.from(selected), postType }),
     });
     const data = await res.json().catch(() => null);
     setSubmitting(false);
@@ -113,9 +114,10 @@ export function NewThreadForm({ topics }: { topics: TopicOption[] }) {
         <label htmlFor="body" className="text-sm font-medium">Body</label>
         <MarkdownField
           id="body"
-          placeholder="Write here — use the toolbar to format."
+          placeholder="Write here. Switch to Markdown to format."
           value={body}
           onChange={setBody}
+          onModeChange={setBodyFormat}
         />
       </div>
 

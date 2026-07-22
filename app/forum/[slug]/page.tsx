@@ -14,7 +14,7 @@ import Link from "next/link";
 import React from "react";
 import { formatDate } from "@/lib/formatters";
 import { getDocumentIdFromSlug } from "@/lib/utils";
-import { StyledMarkdown } from "@/components/custom/StyledMarkdown";
+import { BodyContent } from "@/components/custom/BodyContent";
 import { POST_TYPE_LABELS } from "@/app/forum/forum_constants";
 import { auth } from "@/auth";
 import { MarkThreadRead } from "@/app/forum/[slug]/MarkThreadRead";
@@ -91,7 +91,7 @@ export default async function ForumThreadPage({
         )}
         <hr className="h-1 w-full bg-primary" />
 
-        <StyledMarkdown text={thread.body} />
+        <BodyContent text={thread.body} format={thread.bodyFormat} />
 
         <CommentSection
           threadDocumentId={thread.documentId}

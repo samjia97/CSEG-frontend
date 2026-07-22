@@ -11,17 +11,23 @@ type MarkdownFieldProps = {
   placeholder?: string;
   minHeight?: number; // px, default 160
   extended?: boolean; // enable table + math tools and rich preview (blogs only)
+  defaultMode?: "plain" | "markdown"; // editor mode on mount (default "plain")
+  onModeChange?: (mode: "plain" | "markdown") => void; // notified when the user switches mode
 };
 
 // Common symbols offered by the palette (inserted as literal Unicode characters).
 const SYMBOLS = ["×", "÷", "±", "≤", "≥", "≠", "≈", "→", "∞", "π", "√", "θ", "α", "β", "λ", "μ", "°", "·", "∑", "∫"];
 
-export function MarkdownField({ id, value, onChange, placeholder, minHeight = 160, extended = false }: MarkdownFieldProps) {
+export function MarkdownField({ id, value, onChange, placeholder, minHeight = 160, extended = false, defaultMode = "plain", onModeChange }: MarkdownFieldProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<"plain" | "markdown">(defaultMode);
   const [preview, setPreview] = useState(false);
   const [showSymbols, setShowSymbols] = useState(false);
   const { upload, uploading, error: imageError } = useImageUpload();
+
+  const isMarkdown = mode === "markdown";
+  const showPreview = isMarkdown && preview; // preview only exists in markdown mode
 
   // Wrap the selected text with markers (e.g. **bold**), or drop in a placeholder.
   function wrap(before: string, after: string, placeholderText: string) {
@@ -126,7 +132,7 @@ export function MarkdownField({ id, value, onChange, placeholder, minHeight = 16
   return (
     <div className="rounded-md border border-neutral-300 bg-white">
       <div className="flex items-center gap-0.5 border-b border-neutral-200 px-2 py-1">
-        {tools.map((t) => (
+        {isMarkdown && tools.map((t) => (
           <button
             key={t.key}
             type="button"
@@ -140,7 +146,7 @@ export function MarkdownField({ id, value, onChange, placeholder, minHeight = 16
           </button>
         ))}
 
-        {extended && (
+        {isMarkdown && extended && (
           <>
             <button
               type="button"
@@ -162,7 +168,7 @@ export function MarkdownField({ id, value, onChange, placeholder, minHeight = 16
           </>
         )}
 
-        {extended && (
+        {isMarkdown && extended && (
           <div className="relative">
             <button
               type="button"
@@ -198,20 +204,37 @@ export function MarkdownField({ id, value, onChange, placeholder, minHeight = 16
 
         {uploading && <span className="ml-1 text-xs text-neutral-500">Uploading…</span>}
 
-        <button
-          type="button"
-          onClick={() => setPreview((p) => !p)}
-          className="ml-auto rounded px-2 py-1 text-sm text-neutral-600 hover:bg-neutral-100"
-        >
-          {preview ? "Write" : "Preview"}
-        </button>
+        <div className="ml-auto flex items-center gap-1">
+          {isMarkdown && (
+            <button
+              type="button"
+              onClick={() => setPreview((p) => !p)}
+              className="rounded px-2 py-1 text-sm text-neutral-600 hover:bg-neutral-100"
+            >
+              {preview ? "Write" : "Preview"}
+            </button>
+          )}
+          {/* Editor mode: plain text (default) vs full Markdown toolbar */}
+          <div className="flex overflow-hidden rounded-md border border-neutral-200 text-xs">
+            {(["plain", "markdown"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setMode(m); onModeChange?.(m); if (m === "plain") setPreview(false); }}
+                className={mode === m ? "bg-neutral-800 px-2 py-1 text-white" : "px-2 py-1 text-neutral-600 hover:bg-neutral-100"}
+              >
+                {m === "plain" ? "Plain text" : "Markdown"}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {imageError && (
         <p className="border-b border-neutral-200 px-3 py-1 text-sm text-red-700">{imageError}</p>
       )}
 
-      {preview ? (
+      {showPreview ? (
         <div className="px-1 py-1" style={{ minHeight }}>
           {value.trim() ? (
             <StyledMarkdown text={value} extended={extended} />

@@ -253,8 +253,9 @@ export default async function Page({
 
             <div className={"flex justify-between gap-2"}>
               <span className={"font-semibold"}>Email</span>
-              <span
-                  className={"text-right break-all"}>{researchProjectData.primaryInvestigatorEmail}</span>
+              <a
+                  href={`mailto:${researchProjectData.primaryInvestigatorEmail}`}
+                  className={"text-right break-all text-primary underline"}>{researchProjectData.primaryInvestigatorEmail}</a>
             </div>
 
             {researchProjectData.coInvestigator &&
@@ -267,8 +268,9 @@ export default async function Page({
             {researchProjectData.coInvestigatorEmail &&
                 <div className={"flex justify-between gap-2"}>
                   <span className={"font-semibold"}>Co-investigator email</span>
-                  <span
-                      className={"text-right break-all"}>{researchProjectData.coInvestigatorEmail}</span>
+                  <a
+                      href={`mailto:${researchProjectData.coInvestigatorEmail}`}
+                      className={"text-right break-all text-primary underline"}>{researchProjectData.coInvestigatorEmail}</a>
                 </div>
             }
 

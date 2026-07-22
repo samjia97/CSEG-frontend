@@ -234,7 +234,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
             {/* Main nav */}
 
           </div>
-          <div className="flex items-center gap-6 justify-between w-full px-6">
+          <div className="flex items-center gap-6 w-full px-6">
             <Link href={logoHref}>
               {logo}
             </Link>
@@ -309,7 +309,7 @@ export const Navbar03 = React.forwardRef<HTMLElement, Navbar03Props>(
                   </NavigationMenuList>
                 </NavigationMenu>
             )}
-            {rightSlot && <div className="flex items-center">{rightSlot}</div>}
+            {rightSlot && <div className="flex items-center ml-auto">{rightSlot}</div>}
           </div>
         </div>
       </header>

@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json(); // { title, body, tags?: string[], postType? }
 
   const data: Record<string, unknown> = { title: body.title, body: body.body };
+  if (body.bodyFormat === "plain" || body.bodyFormat === "markdown") {
+    data.bodyFormat = body.bodyFormat;
+  }
   if (Array.isArray(body.tags) && body.tags.length > 0) {
     data.forum_tags = body.tags; // event-tag documentIds
   }

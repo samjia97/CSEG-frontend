@@ -5,6 +5,10 @@ import {getHomepage} from "@/app/get-homepage";
 import {getStrapiImageUrl} from "@/lib/api";
 import {Card, CardAction, CardContent} from "@/components/ui/card";
 import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
+import {getNews} from "@/app/news/api/get-news";
+import {getEvents} from "@/app/events/api/get-events";
+import {getResearchProjects} from "@/app/research/api/get-research-projects";
+import {formatDate} from "@/lib/formatters";
 
 interface HomepageCardProps {
   url: string;
@@ -49,11 +53,29 @@ export default async function Home() {
     </div>)
   }
 
+  // getNews/getEvents throw on failure, so .catch to [] — the homepage still
+  // renders (and degrades to empty sections) even if Strapi is unreachable.
+  const [news, events, research] = await Promise.all([
+    getNews().catch(() => []),
+    getEvents().catch(() => []),
+    getResearchProjects().catch(() => []),
+  ]);
+
+  const latestNews = news.slice(0, 3); // already sorted publishedAt:desc
+  const latestResearch = research.slice(0, 3); // already sorted projectStartDate:desc
+
+  // Upcoming events: nearest future first. (For "latest by date" instead, use `events.slice(0, 3)`.)
+  const now = new Date();
+  const upcomingEvents = events
+    .filter((e) => e.eventStartDateTime >= now)
+    .sort((a, b) => a.eventStartDateTime.getTime() - b.eventStartDateTime.getTime())
+    .slice(0, 3);
+
   return (
       <>
       <main className="w-full pt-4 px-4">
         <div className={"w-full flex flex-col items-center"}>
-          <Link className={"text-2xl italic underline"} href={"https://www.ed.ac.uk/informatics"}>School of informatics</Link>
+          <Link className={"text-4xl italic underline"} href={"https://www.ed.ac.uk/informatics"}>School of Informatics</Link>
           <h1 className={"text-primary mb-2"}>Computer Science Education Group (CSEG)</h1>
           {/*Hero*/}
           <div className={"max-w-[1200px] flex flex-col gap-0 items-stretch justify-stretch bg-white"}>
@@ -84,6 +106,69 @@ export default async function Home() {
           </div>
 
           </div>
+
+          <section className="w-max max-w-[1200px] mt-8 grid gap-8 md:grid-cols-3">
+            {/* Latest news */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-primary">Latest news</h2>
+                <Link href="/news" className="text-primary underline">View all</Link>
+              </div>
+              <div className="flex flex-col gap-3">
+                {latestNews.length === 0 ? (
+                  <p className="text-neutral-500">No news yet.</p>
+                ) : latestNews.map((item) => (
+                  <Link key={item.id} href={`/news/${item.slug}`} className="block border-b pb-2 hover:bg-neutral-50">
+                    <p className="text-lg text-primary underline">{item.title}</p>
+                    <p className="text-sm text-neutral-600">{formatDate(item.publishDate)}</p>
+                    {item.abstract && <p className="text-sm text-neutral-600 line-clamp-2">{item.abstract}</p>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Upcoming events */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-primary">Upcoming events</h2>
+                <Link href="/events" className="text-primary underline">View all</Link>
+              </div>
+              <div className="flex flex-col gap-3">
+                {upcomingEvents.length === 0 ? (
+                  <p className="text-neutral-500">No upcoming events.</p>
+                ) : upcomingEvents.map((item) => (
+                  <Link key={item.id} href={`/events/${item.slug}`} className="block border-b pb-2 hover:bg-neutral-50">
+                    <p className="text-lg text-primary underline">[{item.eventType}] {item.title}</p>
+                    <p className="text-sm text-neutral-600">
+                      {formatDate(item.eventStartDateTime)} - {item.eventStartString}–{item.eventEndString}
+                    </p>
+                    {item.location && <p className="text-sm text-neutral-600 line-clamp-1">{item.location}</p>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent research projects */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-primary">Latest projects</h2>
+                <Link href="/research" className="text-primary underline">View all</Link>
+              </div>
+              <div className="flex flex-col gap-3">
+                {latestResearch.length === 0 ? (
+                  <p className="text-neutral-500">No research projects yet.</p>
+                ) : latestResearch.map((item) => (
+                  <Link key={item.id} href={`/research/${item.slug}`} className="block border-b pb-2 hover:bg-neutral-50">
+                    <p className="text-lg text-primary underline">{item.title}</p>
+                    <p className="text-sm text-neutral-600">
+                      {formatDate(item.projectStartDate)}{item.ongoingProject ? " - Ongoing" : ""}
+                    </p>
+                    {item.summary && <p className="text-sm text-neutral-600 line-clamp-2">{item.summary}</p>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
           {/*  Quick action cards*/}
           {/*<div className={"my-8 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  grid gap-4"}>*/}
             {/*<HomepageCard*/}

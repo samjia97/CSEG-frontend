@@ -21,6 +21,8 @@ import {
   defaultStartDate,
   defaultTimePeriod,
   defaultSortOption,
+  EventType,
+  EventTypeSchema,
   OpenTo,
   OpenToSchema,
   PAGE_SIZE,
@@ -32,6 +34,7 @@ import {
 import {useRouter, useSearchParams} from "next/navigation";
 
 export const OPEN_TO_OPTIONS = ['Public', 'Member', 'Associate Member', 'Student Member'] as const;
+export const EVENT_TYPE_OPTIONS = ['Teaching Hour', 'Reading Group', 'Workshop', 'Big Event', 'Other'] as const;
 
 type InteractiveEventsProps = {
   initialEvents: EventCardData[];
@@ -86,14 +89,25 @@ const matchesOpenTo = (event: EventCardData, openTo: Set<OpenTo>): boolean => {
   if (openTo.size === 0) return true;
 
   for (const selection of openTo) {
-    if (selection === 'Public' && event.publicEvent) {
-      return true;
-    }
-    if (event.openTo.includes(selection)) {
+    if (selection === 'Public') {
+      if (event.publicEvent) return true;
+    } else if (!event.publicEvent && event.openTo.includes(selection)) {
+      // Membership types apply only to non-public events. A public event's
+      // open_to data is ignored everywhere else in the UI (shown as "Public"),
+      // so the filter must ignore it too — otherwise a public event carrying a
+      // stale open_to value wrongly matches other filters.
       return true;
     }
   }
   return false;
+}
+
+/**
+ * Filter events based on event type. Empty selection = show all.
+ */
+const matchesEventType = (event: EventCardData, selectedTypes: Set<EventType>): boolean => {
+  if (selectedTypes.size === 0) return true;
+  return selectedTypes.has(event.eventType as EventType);
 }
 
 /**
@@ -162,6 +176,13 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
           : []
   );
 
+  const eventTypeParam = searchParams.get("eventType") ?? "";
+  const selectedEventTypes = new Set<EventType>(
+      eventTypeParam
+          ? (eventTypeParam.split(",").filter(v => EventTypeSchema.safeParse(v).success) as EventType[])
+          : []
+  );
+
   const topicsParam = searchParams.get("topics") ?? "";
   const selectedTopics = new Set<string>(
       topicsParam ? topicsParam.split(",").filter(t => topics.includes(t)) : []
@@ -208,10 +229,11 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
         matchesSearch(event, searchQuery) &&
         matchesTimePeriod(event, timePeriod, customStartDate, customEndDate, now) &&
         matchesOpenTo(event, openTo) &&
+        matchesEventType(event, selectedEventTypes) &&
         matchesTopics(event, selectedTopics)
     );
     return sortEvents(filtered, sortOption);
-  }, [initialEvents, searchQuery, timePeriod, customStartDate, customEndDate, openTo, selectedTopics, sortOption]);
+  }, [initialEvents, searchQuery, timePeriod, customStartDate, customEndDate, openTo, selectedEventTypes, selectedTopics, sortOption]);
 
   // Pagination
   const maxPage = Math.max(1, Math.ceil(filteredAndSortedEvents.length / PAGE_SIZE));
@@ -241,6 +263,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                   topics={topics}
                   timePeriod={timePeriod}
                   openTo={openTo}
+                  eventTypes={selectedEventTypes}
                   selectedTopics={selectedTopics}
                   customStartDate={customStartDate}
                   customEndDate={customEndDate}
@@ -252,17 +275,19 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
           {/* Main Content */}
           <div className="flex flex-col gap-4 w-full">
             {/* Search and Controls */}
-            <div className={"flex flex-col gap-4"}>
-              <SortBy currentSort={sortOption} onSortChange={handleSortChange}/>
-              <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="w-[320px] max-w-full">
                 <SearchBar onSearch={handleSearch} placeholder="search in title, summary or speaker"/>
-                <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={handleClearAll}
-                >
-                  CLEAR
-                </Button>
+              </div>
+              <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleClearAll}
+              >
+                CLEAR
+              </Button>
+              <div className="ml-auto">
+                <SortBy currentSort={sortOption} onSortChange={handleSortChange}/>
               </div>
             </div>
 
@@ -295,7 +320,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                           <strong>Speaker</strong>
                           <p className="inline">{item.speaker}</p>
 
-                          <strong className="w-[80px]">Open to</strong>
+                          <strong className="w-[80px]">Invited</strong>
                           <p className="inline">
                             {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
                           </p>

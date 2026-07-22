@@ -12,21 +12,9 @@ import ShareButtons from "@/app/events/[slug]/share-buttons";
 import {formatDate} from "@/lib/formatters";
 import {getDocumentIdFromSlug} from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
-import Markdown from 'react-markdown'
 import {StyledMarkdown} from "@/components/custom/StyledMarkdown";
 import Link from "next/link";
 import {appURL} from "@/app/constants";
-
-export function MarkdownRenderer( {content} : {content: string | undefined} ){
-  if (!content){
-    return <div></div>
-  }
-  return (
-      <article className={"prose prose-slate max-w-none"}>
-        <Markdown>{content}</Markdown>
-      </article>
-  )
-}
 
 const downloadICS = (icsText: string) => {
   const blob = new Blob([icsText], { type: "text/calendar;charset=utf-8" });
@@ -114,7 +102,7 @@ export default async function Page({
             <div className={"flex gap-2 flex-wrap"}>
               {eventData.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
             </div>
-            <strong>Open to</strong>
+            <strong>Invited</strong>
             <div className={"flex gap-2 flex-wrap"}>
               {eventData.publicEvent ? "Public" : eventData.openTo.join(", ") + " only"}
             </div>

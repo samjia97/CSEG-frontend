@@ -14,7 +14,7 @@ import Link from "next/link";
 import React from "react";
 import { formatDate } from "@/lib/formatters";
 import { getDocumentIdFromSlug } from "@/lib/utils";
-import { StyledMarkdown } from "@/components/custom/StyledMarkdown";
+import { BodyContent } from "@/components/custom/BodyContent";
 import Image from "next/image";
 import { getStrapiImageUrl } from "@/lib/api";
 import { auth } from "@/auth";
@@ -105,7 +105,7 @@ export default async function BlogPostPage({
         )}
         <hr className="h-1 w-full bg-primary" />
 
-        <StyledMarkdown text={blog.body} extended />
+        <BodyContent text={blog.body} format={blog.bodyFormat} extended />
 
         {blog.authorBio && (
           <aside className="mt-4 rounded border border-neutral-200 bg-neutral-50 p-4">

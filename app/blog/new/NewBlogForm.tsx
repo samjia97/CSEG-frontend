@@ -17,6 +17,7 @@ export function NewBlogForm({ topics, labels }: { topics: TopicOption[]; labels:
   const { data: session } = useSession();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [bodyFormat, setBodyFormat] = useState<"plain" | "markdown">("plain");
   const [abstract, setAbstract] = useState("");
   const [authorBio, setAuthorBio] = useState("");
 
@@ -82,6 +83,7 @@ export function NewBlogForm({ topics, labels }: { topics: TopicOption[]; labels:
       body: JSON.stringify({
         title: t,
         body: b,
+        bodyFormat,
         abstract,
         authorBio,
         tags: Array.from(selected),
@@ -173,9 +175,10 @@ export function NewBlogForm({ topics, labels }: { topics: TopicOption[]; labels:
         <label htmlFor="body" className="text-sm font-medium">Body</label>
         <MarkdownField
           id="body"
-          placeholder="Write your blog — use the toolbar for formatting, tables, and math."
+          placeholder="Write your blog. Switch to Markdown for formatting, tables, and math."
           value={body}
           onChange={setBody}
+          onModeChange={setBodyFormat}
           extended
         />
       </div>

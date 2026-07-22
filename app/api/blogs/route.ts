@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json(); // { title, body, abstract?, tags?, labels?, coverImageId? }
 
   const data: Record<string, unknown> = { title: body.title, body: body.body };
+  if (body.bodyFormat === "plain" || body.bodyFormat === "markdown") {
+    data.bodyFormat = body.bodyFormat;
+  }
   if (typeof body.abstract === "string" && body.abstract.trim()) {
     data.abstract = body.abstract.trim();
   }

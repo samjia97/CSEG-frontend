@@ -6,8 +6,9 @@ function JoinPage() {
       <>
           <h1 className={"text-center"}>Join the CSE Group</h1>
         <div className={"max-w-4xl mx-auto"}>
-          <p className={"text-lg"}>Get Involved – Join us in sharing knowledge and practice, inspiring and shaping the future of Computer Science Education! The CSE group welcomes individuals from all disciplines who are passionate about Computer Science Education.</p>
-          <p>To become a member, please register using the following form.</p>
+          <p className={"text-lg"}>Get Involved – Join us in sharing knowledge and practice, inspiring and shaping the future of Computer Science Education! The CSE Group welcomes individuals from all disciplines who are passionate about Computer Science Education.</p>
+          <p>These information will only be used for moderation,
+              and  will not be published without your permission.</p>
         <MyForm/>
 
         </div>

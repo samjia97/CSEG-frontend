@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import {OPEN_TO_OPTIONS} from "@/app/events/interactiveEvents";
-import {OpenTo, TimePeriod} from "@/app/events/event_constants";
+import {OPEN_TO_OPTIONS, EVENT_TYPE_OPTIONS} from "@/app/events/interactiveEvents";
+import {EventType, OpenTo, TimePeriod} from "@/app/events/event_constants";
 
 export type FilterPanelProps = {
   topics: string[];
   timePeriod: TimePeriod;
   openTo: Set<OpenTo>;
+  eventTypes: Set<EventType>;
   selectedTopics: Set<string>;
   customStartDate: Date;
   customEndDate: Date;
@@ -36,6 +37,7 @@ export function FilterPanel({
   topics,
   timePeriod,
   openTo,
+  eventTypes,
   selectedTopics,
   customStartDate,
   customEndDate,
@@ -57,6 +59,18 @@ export function FilterPanel({
     }
     updateParams({
       openTo: newOpenTo.size > 0 ? Array.from(newOpenTo).join(",") : null
+    });
+  };
+
+  const handleEventTypeChange = (value: EventType, checked: boolean) => {
+    const newTypes = new Set(eventTypes);
+    if (checked) {
+      newTypes.add(value);
+    } else {
+      newTypes.delete(value);
+    }
+    updateParams({
+      eventType: newTypes.size > 0 ? Array.from(newTypes).join(",") : null
     });
   };
 
@@ -131,7 +145,7 @@ export function FilterPanel({
       <Accordion type="single" collapsible defaultValue="attendees">
         <AccordionItem value="attendees">
           <AccordionTrigger className="[&>svg]:text-white py-0">
-            <p className="text-lg">Allowed attendees</p>
+            <p className="text-lg">Invited</p>
           </AccordionTrigger>
           <AccordionContent className="mt-2">
             <div className="flex flex-col gap-3">
@@ -146,6 +160,32 @@ export function FilterPanel({
                     }}
                 />
                 <Label htmlFor={value}>{value}</Label>
+              </div>
+            </div>)}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* Event type */}
+      <Accordion type="single" collapsible defaultValue="eventType">
+        <AccordionItem value="eventType">
+          <AccordionTrigger className="[&>svg]:text-white py-0">
+            <p className="text-lg">Event type</p>
+          </AccordionTrigger>
+          <AccordionContent className="mt-2">
+            <div className="flex flex-col gap-3">
+            { EVENT_TYPE_OPTIONS.map((value) => <div key={value}>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                    id={`type-${value}`}
+                    value={value}
+                    checked={eventTypes.has(value)}
+                    onCheckedChange={(checked: CheckedState) => {
+                      handleEventTypeChange(value, checked as boolean);
+                    }}
+                />
+                <Label htmlFor={`type-${value}`}>{value}</Label>
               </div>
             </div>)}
             </div>
