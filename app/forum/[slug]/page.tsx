@@ -44,7 +44,7 @@ export default async function ForumThreadPage({
   const { comments, error: commentsError } = await getComments(thread.documentId, token);
 
   return (
-    <main className="p-4 flex flex-col items-center bg-neutral-50">
+      <main className="px-4 pb-4 flex flex-col items-center bg-neutral-50">
       <MarkThreadRead threadDocumentId={thread.documentId} />
       <div className="flex gap-2 self-start mb-4">
         <Breadcrumb className="bg-neutral-200 px-2">

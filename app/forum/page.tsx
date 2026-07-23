@@ -16,9 +16,9 @@ export default async function ForumPage() {
   const [threads, topics] = await Promise.all([getThreads(token), getTopics()]);
 
   return (
-    <main className="p-4 flex flex-col items-center bg-neutral-50">
+      <main className="px-4 pb-4 flex flex-col items-center bg-neutral-50">
       <div className="mb-4 w-full max-w-7xl">
-        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2">Forum</h2>
+        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2 py-2">Forum</h2>
         <p>Discuss with members!</p>
       </div>
 

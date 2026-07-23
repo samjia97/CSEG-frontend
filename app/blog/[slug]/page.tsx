@@ -44,7 +44,7 @@ export default async function BlogPostPage({
   const { comments, error: commentsError } = await getComments(blog.documentId, token);
 
   return (
-    <main className="p-4 flex flex-col items-center bg-neutral-50">
+      <main className="px-4 pb-4 flex flex-col items-center bg-neutral-50">
       <div className="flex gap-2 self-start mb-4">
         <Breadcrumb className="bg-neutral-200 px-2">
           <BreadcrumbList className="flex items-center">
@@ -100,7 +100,7 @@ export default async function BlogPostPage({
             width={blog.coverImage.width}
             height={blog.coverImage.height}
             sizes="(max-width: 1024px) 100vw, 1000px"
-            className="w-full h-auto rounded"
+            className="w-full h-auto rounded mb-12"
           />
         )}
         <hr className="h-1 w-full bg-primary" />

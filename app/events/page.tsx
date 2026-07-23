@@ -14,7 +14,7 @@ async function EventsPage() {
   return (
     <>
       <div className="mb-4">
-        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2">Events</h2>
+        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2 py-2">Events</h2>
         <p>Our events where we learn more about Computer Science Education together.</p>
       </div>
       <div className="flex justify-center">

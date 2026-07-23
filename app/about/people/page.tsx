@@ -8,7 +8,7 @@ export default async function PeoplePage() {
   const peopleData = await getPeopleData();
   return (
       <>
-        <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg p-1 "}>
+        <div className={"flex flex-col text-center mb-4 bg-red-800/80 text-white rounded-lg p-1 py-2"}>
           <h2 className={""}>Our people</h2>
         </div>
         <div className={"flex flex-col"}>

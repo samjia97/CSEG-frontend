@@ -11,7 +11,7 @@ async function PublicationsPage() {
   return (
       <>
         <div className={"mb-4"}>
-          <h2 className={"text-center bg-amber-500/70 rounded-md mb-2"}>Publications</h2>
+          <h2 className={"text-center bg-amber-500/70 rounded-md mb-2 py-2"}>Publications</h2>
           <p>Research papers, presentations, posters and other types of content</p>
         </div>
         <InteractivePublications initialPublications={publications} topics={topics}/>

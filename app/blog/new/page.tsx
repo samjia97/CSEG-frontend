@@ -31,7 +31,7 @@ export default async function NewBlogPage() {
   }
 
   return (
-    <main className="p-4 flex flex-col items-center bg-neutral-50">
+      <main className="px-4 pb-4 flex flex-col items-center bg-neutral-50">
       <div className="flex gap-2 self-start mb-4">
         <Breadcrumb className="bg-neutral-200 px-2">
           <BreadcrumbList className="flex items-center">

@@ -97,7 +97,7 @@ export default function RootLayout({
             rightSlot={<AuthNavItem/>}
         />
       </nav>
-      <main className={"min-h-100 max-w-5xl mx-auto px-4"}>
+      <main className={"min-h-100 max-w-5xl mx-auto px-4 pt-6"}>
         {children}
       </main>
       <footer className={"min-h-[264px] bg-neutral-800 px-10 py-4 mt-8"}>

@@ -23,9 +23,9 @@ export default async function BlogPage() {
   }
 
   return (
-    <main className="p-4 flex flex-col items-center bg-neutral-50">
+      <main className="px-4 pb-4 flex flex-col items-center bg-neutral-50">
       <div className="mb-4 w-full max-w-7xl">
-        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2">Blogs</h2>
+        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2 py-2">Blogs</h2>
         <p>Read and discuss the latest from the group.</p>
       </div>
 

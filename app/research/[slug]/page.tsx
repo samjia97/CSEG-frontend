@@ -223,7 +223,7 @@ export default async function Page({
       <h2 className={"my-2"}>{researchProjectData.title}</h2>
 
       {/* Image and metadata side by side on large screens */}
-      <div className={"flex"}>
+      <div className={"flex mb-8"}>
         {/* Image on left - capped height */}
         {researchProjectData.projectPageCoverImage &&
             <div className={"flex-1 min-w-0"}>

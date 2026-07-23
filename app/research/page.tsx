@@ -6,7 +6,7 @@ import {getTopics} from "@/lib/get-topics";
 function ResearchPageHeader() {
   return (
     <div className="flex flex-col text-center mb-4">
-      <h2 className="mb-4 bg-violet-500/70 rounded-md">Research projects</h2>
+      <h2 className="mb-4 bg-violet-500/70 rounded-md py-2">Research projects</h2>
       <p>Explore our research projects in the field of Computer Science Education. Created from
         collaboration between multiple CSEG members.</p>
     </div>

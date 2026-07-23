@@ -10,7 +10,7 @@ async function NewsContent() {
   return (
     <>
       <div className="mb-4">
-        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2">News</h2>
+        <h2 className="text-center bg-cyan-500/70 rounded-md mb-2 py-2">News</h2>
         <p>Exciting updates regarding the CSE group- stay tuned!</p>
       </div>
       <div className="flex justify-center">

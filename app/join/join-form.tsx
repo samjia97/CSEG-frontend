@@ -25,8 +25,8 @@ const formSchema = z.object({
 const SuccessMessage = () => (
     <div className={"flex justify-center"}>
       <div className="py-4 w-full max-w-5xl bg-green-100 text-green-800 rounded-md text-center">
-        <h4>Thank you for your application to join CSEG</h4>
-        <p>We will get in touch by email soon</p>
+        <p>Your application is on its way.</p>
+        <p>Thank you for your interest in joining CSEG, one of our organisers will be in touch by email soon.</p>
       </div>
     </div>
 )
