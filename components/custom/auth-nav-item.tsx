@@ -32,7 +32,7 @@ export function AuthNavItem() {
           <DropdownMenuItem onSelect={() => router.push("/reset-password")}>
             Change password
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => signOut({callbackUrl: "/"})}>
+          <DropdownMenuItem onSelect={async () => { await signOut({ redirect: false }); window.location.href = "/"; }}>
             Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
