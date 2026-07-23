@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 const STRAPI_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:1337/api").replace(/\/api$/, "");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [

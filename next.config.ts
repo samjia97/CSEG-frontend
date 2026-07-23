@@ -1,12 +1,15 @@
 import type { NextConfig } from "next";
 
+const strapiRoot = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:1337/api").replace(/\/api\/?$/, "");
+const strapiUrl = new URL(strapiRoot);
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '1337',
+        protocol: strapiUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: strapiUrl.hostname,
+        port: strapiUrl.port,
         pathname: '/uploads/**',
       },
       //   Strapi Cloud
