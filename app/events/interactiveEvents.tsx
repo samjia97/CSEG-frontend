@@ -320,7 +320,7 @@ export function InteractiveEvents({initialEvents, topics}: InteractiveEventsProp
                           <strong>Speaker</strong>
                           <p className="inline">{item.speaker}</p>
 
-                          <strong className="w-[80px]">Invited</strong>
+                          <strong className="w-[80px]">Best for</strong>
                           <p className="inline">
                             {item.publicEvent ? "Public" : item.openTo.join(", ") + " only"}
                           </p>

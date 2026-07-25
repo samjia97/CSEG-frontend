@@ -102,7 +102,7 @@ export default async function Page({
             <div className={"flex gap-2 flex-wrap"}>
               {eventData.eventTags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
             </div>
-            <strong>Invited</strong>
+            <strong>Best for</strong>
             <div className={"flex gap-2 flex-wrap"}>
               {eventData.publicEvent ? "Public" : eventData.openTo.join(", ") + " only"}
             </div>

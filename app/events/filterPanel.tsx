@@ -145,7 +145,7 @@ export function FilterPanel({
       <Accordion type="single" collapsible defaultValue="attendees">
         <AccordionItem value="attendees">
           <AccordionTrigger className="[&>svg]:text-white py-0">
-            <p className="text-lg">Invited</p>
+            <p className="text-lg">Best for</p>
           </AccordionTrigger>
           <AccordionContent className="mt-2">
             <div className="flex flex-col gap-3">
