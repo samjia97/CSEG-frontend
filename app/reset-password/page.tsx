@@ -46,8 +46,7 @@ export default function ResetPasswordPage() {
       return;
     }
     await update({mustResetPassword: false});
-    router.push("/");
-    router.refresh();
+    window.location.href = "/";
   }
 
   const isForced = session?.user?.mustResetPassword ?? false;
